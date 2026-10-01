@@ -115,6 +115,12 @@
 </div></div>
 <div id="instrScr" class="screen hidden" style="z-index:20"><div class="card panel wide instr" id="instrCard"></div></div>
 
+<div id="choiceScr" class="screen hidden"><div class="card panel">
+  <h2 style="margin:0 0 6px">Al <span id="chN">10</span> slagen!</h2>
+  <div>Wil je stoppen of nog even doorspelen?</div><br>
+  <button class="big" id="bGoOn">⛳ VERDER SPELEN</button><br><br>
+  <button id="bStop">🏳 Stoppen <span id="chScore"></span></button>
+</div></div>
 <div id="scorePop" class="screen hidden"><div class="card panel" id="scoreCard"></div></div>
 <div id="final" class="screen hidden"><div class="card panel" id="finalCard"></div></div>
 <div id="pauseScr" class="screen hidden"><div class="card panel">
@@ -143,7 +149,8 @@ const G_SLOPE = 14;           // 'zwaartekracht' voor hellingen
 const CAPTURE_SPEED = 4.3;    // onder deze snelheid valt de bal in het gat
 const SHOT_READY = 0.3;       // onder deze snelheid mag je opnieuw slaan
 const STOP_SPEED = 0.06;      // onder deze snelheid stopt de bal volledig
-const MAX_STROKES = 10;
+const MAX_STROKES = 10;      // vanaf hier mag je kiezen: stoppen (+2 strafslagen) of doorspelen
+const STOP_PENALTY = 2;
 const WALL_T = 0.3, WALL_H = 0.5;
 
 // Ondergronden: mu = constante rolweerstand (eenheden/s²), k = snelheidsafhankelijke demping
@@ -860,6 +867,8 @@ HOLES.push({
   specials: [
     { type: 'planet', c: [0, -44], r: 1.5, R: 5.8, g: 7, name: 'Mini-planeet', desc: 'Een planeetje midden in de arena trekt je bal aan. Laat de bal in een boog om de planeet heen naar het gat buigen.' },
     { type: 'drone', c: [0, -20], r: 5.2, w: 0.42, period: 3.4, name: 'De drone', desc: 'Vliegt rondjes door de hal en slaat met een arm. Knipperend rood oog = pas op.' },
+    { type: 'drone', c: [0, -20], r: 1.6, w: -0.7, period: 2.9, phase: 1.2, scale: 0.65, a0: 1, color: '#ffd54f', name: 'Mini-robot Bliep', desc: 'Klein robotje dat in tegengestelde richting rondjes draait in het midden van de hal.' },
+    { type: 'drone', c: [0, -44], r: 6.8, w: 0.35, period: 3.1, phase: 2, scale: 0.65, a0: 2.5, color: '#80cbc4', name: 'Mini-robot Bloep', desc: 'Patrouilleert langs de rand van de planeetarena en komt ook langs de ingang en het gat.' },
   ],
   theme: {
     env: 'space', wall: 'metal', flag: '#00e5ff',
@@ -1787,7 +1796,8 @@ const SPECIALS = {
   // ---------- 8. De patrouilledrone ----------
   drone(d) {
     const o = { group: new THREE.Group(), react: 0, lastBeep: 0, prevExt: 0 };
-    const body = prim(0.5, { kick: 3, e: 0.7, owner: o, kind: 'metal' }), arm = prim(0.2, { kick: 6.5, e: 0.85, owner: o, kind: 'metal' });
+    const sc = d.scale || 1, ph0 = d.phase || 0, a0 = d.a0 || 0; // mini-robots zijn kleiner en lopen met een eigen ritme
+    const body = prim(0.5 * sc, { kick: 3, e: 0.7, owner: o, kind: 'metal' }), arm = prim(0.2 * sc, { kick: 6.5, e: 0.85, owner: o, kind: 'metal' });
     o.prims = [body, arm];
     const S = { x: 0, z: 0, ang: 0, ext: 0, warn: false };
     const g = new THREE.Group(); o.group.add(g);
@@ -1802,19 +1812,21 @@ const SPECIALS = {
     const armG = new THREE.Group(); g.add(armG);
     const armBox = mesh(BOX(1, 0.12, 0.12), M('#ffb300', { metalness: 0.6, roughness: 0.3 }), armG, 0.5, -0.05, 0);
     const glove = mesh(SPH(0.2, 12, 10), M('#d32f2f', { roughness: 0.5 }), armG, 1, -0.05, 0);
+    if (d.color) g.children[0].material.color.set(d.color);
+    g.scale.setScalar(sc);
     o.update = (t) => {
-      S.ang = d.w * t; const c = Math.cos(S.ang), s = Math.sin(S.ang);
+      S.ang = d.w * t + a0; const c = Math.cos(S.ang), s = Math.sin(S.ang);
       S.x = d.c[0] + c * d.r; S.z = d.c[1] + s * d.r;
-      const ph = t % d.period; S.warn = ph > d.period - 0.8;
+      const ph = ((t + ph0) % d.period + d.period) % d.period; S.warn = ph > d.period - 0.8;
       S.ext = ph < 0.22 ? smooth(ph / 0.22) : ph < 0.67 ? 1 : ph < 1.07 ? 1 - smooth((ph - 0.67) / 0.4) : 0;
       if (t < 1) S.ext = 0;
       setCirc(body, S.x, S.z);
-      const ix = -c, iz = -s, L = 0.45 + 1.9 * S.ext;
-      arm.on = S.ext > 0.05; setSeg(arm, S.x + ix * 0.45, S.z + iz * 0.45, S.x + ix * L, S.z + iz * L);
+      const ix = -c, iz = -s, L = (0.45 + 1.9 * S.ext) * sc;
+      arm.on = S.ext > 0.05; setSeg(arm, S.x + ix * 0.45 * sc, S.z + iz * 0.45 * sc, S.x + ix * L, S.z + iz * L);
     };
     o.visual = (t, dt) => {
       o.react = Math.max(0, o.react - dt);
-      g.position.set(S.x, 0.55 + Math.sin(t * 3) * 0.06, S.z);
+      g.position.set(S.x, (0.55 + Math.sin(t * 3 + a0) * 0.06) * sc, S.z);
       const inward = Math.atan2(-Math.sin(S.ang), -Math.cos(S.ang));
       g.rotation.y = -(inward) + (o.react > 0 ? o.react * TAU * 1.5 : 0);
       rotors.forEach((r, i) => r.rotation.y = t * 40 * (i % 2 ? 1 : -1));
@@ -2996,7 +3008,7 @@ function tickTimers(dt) { if (!G.timers.length) return; const due = []; for (con
 function startGame(n, mode = 'all', hole = 0) {
   SND.init(); clearTimers(); G.paused = false;
   G.mode = mode; G.players = []; for (let i = 0; i < n; i++) G.players.push({ name: n > 1 ? 'Speler ' + (i + 1) : 'Jij', color: COLORS[i], scores: [], max: [], strokes: 0 });
-  ['menu', 'final', 'pickScr', 'scorePop', 'pauseScr'].forEach(id => $(id).classList.add('hidden')); $('hud').classList.remove('hidden');
+  ['menu', 'final', 'pickScr', 'scorePop', 'pauseScr', 'choiceScr'].forEach(id => $(id).classList.add('hidden')); $('hud').classList.remove('hidden');
   loadHole(mode === 'single' ? hole : 0);
 }
 function loadHole(i) {
@@ -3011,8 +3023,8 @@ function loadHole(i) {
   later(() => { if (G.state === 'intro') G.state = 'play'; updateHUD(); }, 2600);
 }
 function startTurn(first) {
-  const def = HOLES[G.hole], p = P(); p.strokes = 0;
-  resetBall(def.start[0], def.start[1]); ball.lastX = def.start[0]; ball.lastZ = def.start[1];
+  const def = HOLES[G.hole], p = P(); p.strokes = 0; p.cont = false;
+  resetBall(def.start[0], def.start[1]); ball.lastX = ball.safeX = def.start[0]; ball.lastZ = ball.safeZ = def.start[1];
   ball.mesh.material.color.set(p.color);
   Cam.yaw = yawToward(def.start[0], def.start[1], def.aim[0], def.aim[1]); Cam.pitch = 0.5; Cam.dist = 8;
   Cam.tx = ball.x; Cam.ty = ball.y; Cam.tz = ball.z;
@@ -3022,7 +3034,6 @@ function startTurn(first) {
 function resetBall(x, z) { ball.x = x; ball.z = z; ball.vx = ball.vz = 0; ball.state = 'rest'; ball.lipped = false; ball.air = 0; ball.held = null; ball.y = heightAt(x, z) + BALL_R; ball.mesh.visible = true; ball.mesh.scale.setScalar(1); ball.mesh.material.emissive && ball.mesh.material.emissive.set('#000000'); }
 function canShoot() {
   if (G.state !== 'play' || G.paused || Cam.ovTarget > 0.5) return false;
-  if (P().strokes >= MAX_STROKES) return false;
   if (ball.air > 0 || ball.held) return false;
   return ball.state === 'rest' || (ball.state === 'moving' && Math.hypot(ball.vx, ball.vz) < SHOT_READY);
 }
@@ -3031,13 +3042,45 @@ function shoot(dx, dz, power) {
   const l = Math.hypot(dx, dz); if (l < 1e-6) return;
   const sp = 1 + power * (MAX_SPEED - 1);
   ball.lastX = ball.x; ball.lastZ = ball.z;
+  if (isStableSpot(ball.x, ball.z)) { ball.safeX = ball.x; ball.safeZ = ball.z; }
   ball.vx = dx / l * sp; ball.vz = dz / l * sp; ball.state = 'moving'; ball.lipped = false;
   P().strokes++; SND.putt(power);
   fx.burst(ball.x, ball.y - 0.15, ball.z, 6 + power * 10, { color: '#ffffff', speed: 1 + power * 2, up: 0.6, life: 0.4, size: 0.1, alpha: 0.6 });
   updateHUD();
 }
 function onBallRest() {
-  if (G.state === 'play' && P().strokes >= MAX_STROKES) { toast('Maximum aantal slagen!', '#ff8a65'); finishTurn(MAX_STROKES, true); }
+  if (isStableSpot(ball.x, ball.z)) { ball.safeX = ball.x; ball.safeZ = ball.z; }
+  checkMax();
+}
+// na MAX_STROKES slagen: één keer kiezen tussen stoppen (score + 2) of onbeperkt doorspelen
+function checkMax() {
+  const p = P(); if (G.state !== 'play' || !p || p.cont || p.strokes < MAX_STROKES) return;
+  if (ball.state !== 'rest') return;
+  G.state = 'choice'; G.aim = null; G.charging = false;
+  $('chN').textContent = p.strokes; $('chScore').textContent = `(score ${p.strokes + STOP_PENALTY})`;
+  $('choiceScr').classList.remove('hidden');
+}
+function chooseMax(goOn) {
+  $('choiceScr').classList.add('hidden'); if (G.state !== 'choice') return;
+  const p = P(); G.state = 'play';
+  if (goOn) { p.cont = true; toast('Zet hem op!', '#9fd3ff'); }
+  else finishTurn(p.strokes + STOP_PENALTY, true);
+}
+// Een plek is 'stabiel' als hij niet kan verdwijnen: geen getijde-zandbank, ijsschots, verborgen
+// brug of ophaalbrug, en geen zone die van type wisselt (lava die stolt en smelt).
+function distSegP(x, z, p) { const abx = p.bx - p.ax, abz = p.bz - p.az, L2 = abx * abx + abz * abz; let u = L2 > 1e-9 ? ((x - p.ax) * abx + (z - p.az) * abz) / L2 : 0; u = clamp(u, 0, 1); return Math.hypot(x - p.ax - abx * u, z - p.az - abz * u); }
+function isStableSpot(x, z) {
+  const F = floorAt(x, z); if (!F || F.active || F.vel) return false;
+  const Z = zoneAt(x, z); if (Z && (Z.typeAt || HAZARD[Z.type])) return false;
+  for (const p of H.statics) if (distSegP(x, z, p) < p.r + BALL_R + 0.03) return false;
+  return true;
+}
+// Terug na een strafslag: naar de plek van de slag als die stabiel is, anders naar de laatste
+// stabiele plek waar de bal lag. Zo kom je nooit opnieuw in het water terecht (geen lus).
+function respawnPoint(x, z) {
+  if (isStableSpot(x, z)) return [x, z];
+  if (ball.safeX !== undefined && isStableSpot(ball.safeX, ball.safeZ)) return [ball.safeX, ball.safeZ];
+  const st = HOLES[G.hole].start; return [st[0], st[1]];
 }
 function startSink() {
   ball.state = 'sink'; ball.t = 0; ball.sinkFrom = { x: ball.x, z: ball.z, a: Math.atan2(ball.z - H.hole.z, ball.x - H.hole.x), d: Math.hypot(ball.x - H.hole.x, ball.z - H.hole.z) };
@@ -3067,26 +3110,26 @@ function updateBallAnim(dt) {
     if (b.t > 1.2 && G.state === 'play') {
       const p = P(); p.strokes++; SND.penalty();
       toast({ water: 'Plons! +1 strafslag', lava: 'Verbrand! +1 strafslag', abyss: 'Afgrond! +1 strafslag', quicksand: 'Kwikzand! +1 strafslag' }[kind], '#ff8a65');
-      resetBall(b.lastX, b.lastZ); updateHUD();
-      if (p.strokes >= MAX_STROKES) { finishTurn(MAX_STROKES, true); }
+      const rp = respawnPoint(b.lastX, b.lastZ); resetBall(rp[0], rp[1]); updateHUD();
+      checkMax();
     }
   }
 }
 function resetToLast() {
   if (G.state !== 'play' || G.paused || ball.state === 'sink') return;
   const p = P(); if (p.strokes === 0) { resetBall(HOLES[G.hole].start[0], HOLES[G.hole].start[1]); return; }
-  p.strokes++; SND.penalty(); toast('Terug! +1 strafslag', '#ff8a65'); resetBall(ball.lastX, ball.lastZ); updateHUD();
-  if (p.strokes >= MAX_STROKES) finishTurn(MAX_STROKES, true);
+  p.strokes++; SND.penalty(); toast('Terug! +1 strafslag', '#ff8a65'); const rp = respawnPoint(ball.lastX, ball.lastZ); resetBall(rp[0], rp[1]); updateHUD();
+  checkMax();
 }
 function holedOut() {
-  const p = P(); const s = clamp(p.strokes, 1, MAX_STROKES); const lab = scoreLabel(s, HOLES[G.hole].par);
+  const p = P(); const s = Math.max(1, p.strokes); const lab = scoreLabel(s, HOLES[G.hole].par);
   toast(lab.text + '!', lab.color);
   if (s === 1) SND.fanfare(); else SND.chime();
   confetti(H.hole.x, H.hole.y, H.hole.z, s <= HOLES[G.hole].par ? 160 : 60);
   finishTurn(s, false);
 }
 function finishTurn(score, isMax) {
-  G.state = 'turnover'; const p = P(); p.scores[G.hole] = isMax ? MAX_STROKES : score; p.max = p.max || []; p.max[G.hole] = isMax;
+  G.state = 'turnover'; const p = P(); p.scores[G.hole] = score; p.max = p.max || []; p.max[G.hole] = isMax; // isMax = gestopt
   if (!isMax) saveHoleBest(G.hole, score);
   hideBanner(); updateHUD();
   later(() => {
@@ -3103,10 +3146,10 @@ function showSingleResult() {
   const def = HOLES[G.hole], best = holeBests()[G.hole];
   let html = `<div style="opacity:.8;letter-spacing:2px">HOLE ${G.hole + 1} · ${def.name.toUpperCase()} · PAR ${def.par}</div>`;
   if (G.players.length === 1) {
-    const p = G.players[0], s = p.scores[G.hole], lab = p.max[G.hole] ? { text: 'Max', cls: 'bad' } : scoreLabel(s, def.par);
-    html += `<div class="lbl ${lab.cls}">${lab.text}${lab.text === 'Hole-in-one' ? '!' : ''}</div><div>${p.max[G.hole] ? 'max' : s} slag${s === 1 ? '' : 'en'}</div>`;
+    const p = G.players[0], s = p.scores[G.hole], lab = p.max[G.hole] ? { text: 'Gestopt', cls: 'bad' } : scoreLabel(s, def.par);
+    html += `<div class="lbl ${lab.cls}">${lab.text}${lab.text === 'Hole-in-one' ? '!' : ''}</div><div>${s} slag${s === 1 ? '' : 'en'}</div>`;
   } else {
-    html += `<table><tr><th>Speler</th><th>Slagen</th><th></th></tr>` + G.players.map(p => { const s = p.scores[G.hole], lab = p.max[G.hole] ? { text: 'Max', cls: 'bad' } : scoreLabel(s, def.par); return `<tr><td><span style="color:${p.color}">●</span> ${p.name}</td><td>${p.max[G.hole] ? 'max' : s}</td><td class="${lab.cls}">${lab.text}</td></tr>`; }).join('') + `</table>`;
+    html += `<table><tr><th>Speler</th><th>Slagen</th><th></th></tr>` + G.players.map(p => { const s = p.scores[G.hole], lab = p.max[G.hole] ? { text: 'Gestopt', cls: 'bad' } : scoreLabel(s, def.par); return `<tr><td><span style="color:${p.color}">●</span> ${p.name}</td><td>${s}</td><td class="${lab.cls}">${lab.text}</td></tr>`; }).join('') + `</table>`;
   }
   html += `<div style="margin:8px 0">🏆 Je beste score op deze hole: <b>${best || '—'}</b></div>`;
   html += `<button class="big" id="bRetry">↻ OPNIEUW</button><br><br><div class="row2"><button id="bOther">🗺 Andere hole</button><button id="bMenu2">⌂ Menu</button></div>`;
@@ -3129,13 +3172,13 @@ function showScoreCard() {
   const def = HOLES[G.hole];
   let html = `<div style="opacity:.8;letter-spacing:2px">HOLE ${G.hole + 1} · ${def.name.toUpperCase()} · PAR ${def.par}</div>`;
   if (G.players.length === 1) {
-    const p = G.players[0], s = p.scores[G.hole], lab = p.max[G.hole] ? { text: 'Max', cls: 'bad' } : scoreLabel(s, def.par);
-    html += `<div class="lbl ${lab.cls}">${lab.text}${lab.text === 'Hole-in-one' ? '!' : ''}</div><div>${p.max[G.hole] ? 'max' : s} slag${s === 1 ? '' : 'en'}</div>`;
+    const p = G.players[0], s = p.scores[G.hole], lab = p.max[G.hole] ? { text: 'Gestopt', cls: 'bad' } : scoreLabel(s, def.par);
+    html += `<div class="lbl ${lab.cls}">${lab.text}${lab.text === 'Hole-in-one' ? '!' : ''}</div><div>${s} slag${s === 1 ? '' : 'en'}</div>`;
   } else {
     const best = Math.min(...G.players.map(p => p.scores[G.hole]));
     html += `<div class="lbl good">${G.players.filter(p => p.scores[G.hole] === best).map(p => p.name).join(' & ')}</div>`;
   }
-  html += `<table><tr><th>Speler</th><th>Slagen</th><th></th><th>Totaal</th></tr>` + G.players.map(p => { const s = p.scores[G.hole], lab = p.max[G.hole] ? { text: 'Max', cls: 'bad' } : scoreLabel(s, def.par); const t = totalOf(p), d = t - parSoFar(G.hole + 1); return `<tr><td><span style="color:${p.color}">●</span> ${p.name}</td><td>${p.max[G.hole] ? 'max' : s}</td><td class="${lab.cls}">${lab.text}</td><td>${t} (${d > 0 ? '+' + d : d === 0 ? 'E' : d})</td></tr>`; }).join('') + `</table>`;
+  html += `<table><tr><th>Speler</th><th>Slagen</th><th></th><th>Totaal</th></tr>` + G.players.map(p => { const s = p.scores[G.hole], lab = p.max[G.hole] ? { text: 'Gestopt', cls: 'bad' } : scoreLabel(s, def.par); const t = totalOf(p), d = t - parSoFar(G.hole + 1); return `<tr><td><span style="color:${p.color}">●</span> ${p.name}</td><td>${s}</td><td class="${lab.cls}">${lab.text}</td><td>${t} (${d > 0 ? '+' + d : d === 0 ? 'E' : d})</td></tr>`; }).join('') + `</table>`;
   html += `<button class="big" id="bNext">${G.hole < 8 ? 'VOLGENDE HOLE ▶' : 'EINDSTAND ▶'}</button>`;
   $('scoreCard').innerHTML = html; $('scorePop').classList.remove('hidden');
   $('bNext').onclick = () => { $('scorePop').classList.add('hidden'); if (G.hole < 8) loadHole(G.hole + 1); else showFinal(); };
@@ -3144,7 +3187,7 @@ function showFinal() {
   G.state = 'final'; $('hud').classList.add('hidden');
   const totalPar = parSoFar(9);
   let html = `<h2 style="margin:0">Eindstand</h2><div class="scrollx"><table><tr><th>Hole</th>${HOLES.map((h, i) => `<th>${i + 1}</th>`).join('')}<th>Tot</th></tr><tr><td>Par</td>${HOLES.map(h => `<td>${h.par}</td>`).join('')}<td>${totalPar}</td></tr>`;
-  html += G.players.map(p => `<tr><td style="color:${p.color}">${p.name}</td>${HOLES.map((h, i) => { const s = p.scores[i], l = scoreLabel(s, h.par); return `<td class="${p.max[i] ? 'bad' : l.cls}">${p.max[i] ? 'max' : s}</td>`; }).join('')}<td><b>${totalOf(p)}</b></td></tr>`).join('') + `</table></div>`;
+  html += G.players.map(p => `<tr><td style="color:${p.color}">${p.name}</td>${HOLES.map((h, i) => { const s = p.scores[i], l = scoreLabel(s, h.par); return `<td class="${p.max[i] ? 'bad' : l.cls}">${s}</td>`; }).join('')}<td><b>${totalOf(p)}</b></td></tr>`).join('') + `</table></div>`;
   const ranked = G.players.slice().sort((a, b) => totalOf(a) - totalOf(b)); const best = ranked[0], d = totalOf(best) - totalPar;
   const rating = d <= -6 ? '🏆 Minigolf-legende!' : d <= -3 ? '🥇 Echte pro!' : d <= 0 ? '⭐ Prima gespeeld!' : d <= 6 ? '👍 Goed gedaan!' : d <= 14 ? '🙂 Oefenen maar!' : '😅 Volgende keer beter!';
   html += `<div class="lbl ${d < 0 ? 'good' : d === 0 ? 'par' : 'bad'}">${G.players.length > 1 ? best.name + ' wint!' : (d > 0 ? '+' + d : d === 0 ? 'Par' : d)}</div>`;
@@ -3161,7 +3204,7 @@ function showFinal() {
 }
 function toMenu() {
   clearTimers(); G.state = 'menu'; G.paused = false;
-  ['final', 'scorePop', 'pauseScr', 'hud', 'pickScr', 'instrScr'].forEach(id => $(id).classList.add('hidden')); $('menu').classList.remove('hidden');
+  ['final', 'scorePop', 'pauseScr', 'hud', 'pickScr', 'instrScr', 'choiceScr'].forEach(id => $(id).classList.add('hidden')); $('menu').classList.remove('hidden');
   buildHole(0); applyEnvMaps(); resetBall(HOLES[0].start[0], HOLES[0].start[1]); Cam.ov = Cam.ovTarget = 0; showBest();
 }
 function confetti(x, y, z, n) {
@@ -3205,7 +3248,7 @@ function showInstr() {
       <li>Je mag pas opnieuw slaan als de bal (bijna) stilligt.</li>
       <li>Water, lava, kwikzand en afgronden kosten 1 strafslag; de bal gaat terug naar waar je sloeg.</li>
       <li>Te snel over het gat? Dan rolt de bal eroverheen of springt hij eruit.</li>
-      <li>Maximaal 10 slagen per hole. Met 2 tot 4 spelers speel je om de beurt elke hole uit.</li>
+      <li>Na 10 slagen kies je: stoppen (je score wordt je slagen + 2) of doorspelen zonder limiet. Met 2 tot 4 spelers speel je om de beurt elke hole uit.</li>
       <li>Bewegende elementen volgen een vast ritme. Kijk eerst even, dan kun je ze timen of gebruiken.</li></ul>
     <h3>Speciale elementen</h3>${els}
     <div style="text-align:center;margin-top:12px"><button class="big" id="bInstrClose">SLUITEN</button></div>`;
@@ -3233,11 +3276,12 @@ function toggleSound() { SND.init(); SND.setMuted(!SND.muted); $('bSound').textC
 
 document.querySelectorAll('#playerSel button').forEach(b => b.onclick = () => { document.querySelectorAll('#playerSel button').forEach(x => x.classList.remove('sel')); b.classList.add('sel'); G.nPlayers = +b.dataset.n; SND.init(); });
 $('bStart').onclick = () => startGame(G.nPlayers, 'all');
+$('bGoOn').onclick = () => chooseMax(true); $('bStop').onclick = () => chooseMax(false);
 $('bPick').onclick = () => { SND.init(); showPick(); };
 $('bPickBack').onclick = () => { $('pickScr').classList.add('hidden'); $('menu').classList.remove('hidden'); };
 $('bInstr').onclick = showInstr; $('bInstr2').onclick = showInstr; $('bHelp').onclick = showInstr;
 $('bQual').onclick = $('bQual2').onclick = () => { Q.high = !Q.high; applyQuality(); };
-$('bRestart').onclick = () => { if (G.state !== 'play' || ball.state === 'sink') return; P().strokes = 0; resetBall(HOLES[G.hole].start[0], HOLES[G.hole].start[1]); ball.lastX = ball.x; ball.lastZ = ball.z; Cam.yaw = yawToward(ball.x, ball.z, HOLES[G.hole].aim[0], HOLES[G.hole].aim[1]); updateHUD(); toast('Hole herstart'); };
+$('bRestart').onclick = () => { if (G.state === 'choice') { $('choiceScr').classList.add('hidden'); G.state = 'play'; } if (G.state !== 'play' || ball.state === 'sink') return; P().strokes = 0; P().cont = false; ball.safeX = HOLES[G.hole].start[0]; ball.safeZ = HOLES[G.hole].start[1]; resetBall(HOLES[G.hole].start[0], HOLES[G.hole].start[1]); ball.lastX = ball.x; ball.lastZ = ball.z; Cam.yaw = yawToward(ball.x, ball.z, HOLES[G.hole].aim[0], HOLES[G.hole].aim[1]); updateHUD(); toast('Hole herstart'); };
 $('bOverview').onclick = toggleOverview;
 $('bSound').onclick = toggleSound;
 $('bPause').onclick = () => setPaused(!G.paused);
