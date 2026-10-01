@@ -729,7 +729,7 @@ HOLES.push({
   special: { type: 'ghost', c: [0, -15], ax: 5.0, az: 11.5, wx: 0.31, wz: 0.47, period: 4.6, warn: 1.0, radius: 3.2, intro: 'Pas op voor het spook!' },
   theme: {
     env: 'haunted', wall: 'house', flag: '#76ff03',
-    sky: ['#05040d', '#2a1a40', '#141022'], sun: { dir: [0.3, 0.7, -0.6], color: '#a8b8ff', int: 0.55 }, hemi: ['#5a5a9a', '#101018', 0.5],
+    sky: ['#05040d', '#2a1a40', '#141022'], sun: { dir: [0.3, 0.7, -0.6], color: '#a8b8ff', int: 0.55 }, hemi: ['#6a6aaa', '#18182a', 0.7],
     fog: ['#1d1630', 18, 110], exposure: 1.25, stars: true,
     music: { root: 220, scale: [0, 1, 3, 6, 7, 10], chord: [0, 3, 6], tempo: 64, wave: 'sine', density: 0.25, chirp: 'owl', noise: ['bandpass', 350, 0.03], seed: 7 },
   },
@@ -2329,8 +2329,10 @@ const COLORS = ['#ffffff', '#ff5252', '#40c4ff', '#ffd740'];
 const G = { state: 'menu', players: [], cp: 0, hole: 0, paused: false, nPlayers: 1, introT: 0, charging: false, chargeT: 0, aim: null, power: 0, timers: [] };
 const $ = id => document.getElementById(id);
 function P() { return G.players[G.cp]; }
-function later(fn, ms) { const id = setTimeout(() => { G.timers = G.timers.filter(t => t !== id); fn(); }, ms); G.timers.push(id); }
-function clearTimers() { G.timers.forEach(clearTimeout); G.timers = []; }
+// timers in speltijd: ze staan stil tijdens de pauze
+function later(fn, ms) { G.timers.push({ t: ms / 1000, fn }); }
+function clearTimers() { G.timers = []; }
+function tickTimers(dt) { if (!G.timers.length) return; const due = []; for (const tm of G.timers) { tm.t -= dt; if (tm.t <= 0) due.push(tm); } if (due.length) { G.timers = G.timers.filter(tm => tm.t > 0); due.forEach(tm => tm.fn()); } }
 function startGame(n) {
   SND.init(); clearTimers();
   G.players = []; for (let i = 0; i < n; i++) G.players.push({ name: n > 1 ? 'Speler ' + (i + 1) : 'Jij', color: COLORS[i], scores: [], strokes: 0 });
@@ -2623,6 +2625,7 @@ function frame(now) {
   let dt = (now - lastT) / 1000; lastT = now; if (dt > 0.1) dt = 0.1;
   const running = !G.paused && H;
   if (running) {
+    tickTimers(dt);
     acc += dt; let steps = 0;
     while (acc >= STEP && steps < 12) { physicsStep(STEP); acc -= STEP; steps++; }
     if (steps >= 12) acc = 0;
