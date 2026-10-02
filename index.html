@@ -590,8 +590,8 @@ HOLES.push({
   zones: [{ type: 'sand', poly: RECT(10.15, -29, 15.85, -32) }, { type: 'mud', poly: CIRC(4.5, -48.5, 1.2, 18) }],
   posts: [{ x: 11.4, z: -38, r: 0.32, kind: 'stump' }, { x: 7.5, z: -50.5, r: 0.32, kind: 'stump' }],
   specials: [
-    { type: 'switchGate', sw: [-1.2, -17.5], a: [-2.35, -22], b: [2.35, -22], off: [5, 0], open: 9, sweep: [-2.5, -22.8, 2.5, -21.2],
-      name: 'Schakelaar & hek', desc: 'Raak de rode knop: het hek naar de korte weg gaat 9 seconden open. Anders neem je de lange omweg.' },
+    { type: 'switchGate', sw: [-1.2, -17.5], a: [-2.35, -22], b: [2.35, -22], off: [5, 0], open: Infinity, sweep: [-2.5, -22.8, 2.5, -21.2],
+      name: 'Schakelaar & hek', desc: 'Raak de rode knop: het hek naar de korte weg gaat open en blijft open. Anders neem je de lange omweg.' },
     { type: 'cow', a: [-0.6, -11], b: [0.6, -11], speed: 0.55, pause: 2.4, name: 'Koe Bertha', desc: 'Wandelt rustig heen en weer en duwt je bal opzij.' },
   ],
   theme: {
@@ -658,7 +658,7 @@ HOLES.push({
     { x: -7, z: -9, r: 1.1, kind: 'tower' }, { x: 7, z: -9, r: 1.1, kind: 'tower' }, { x: -7, z: -28, r: 1.1, kind: 'tower' }, { x: 7, z: -28, r: 1.1, kind: 'tower' },
     { x: 0.8, z: -22, r: 0.75, kind: 'well' },
   ],
-  movers: [{ type: 'drawbridge', id: 'bridge', mode: 'trigger', x1: -1.5, x2: 1.5, hinge: -9.1, len: 3.3, move: 1.4, down: 8 }],
+  movers: [{ type: 'drawbridge', id: 'bridge', mode: 'trigger', x1: -1.5, x2: 1.5, hinge: -9.1, len: 3.3, move: 1.4, down: Infinity }],
   torches: [[-2.3, -8.6], [2.3, -8.6], [-4.3, -16.6], [-0.9, -16.6]],
   specials: [
     { type: 'shield', pos: [-2.55, 6], normal: [1, 0], target: 'bridge',
@@ -902,8 +902,8 @@ HOLES.push({
   movers: [{ type: 'windmill', hub: [15, -21.75], hubY: 2.7, len: 3.0, blades: 4, w: 1.0 }],
   torches: [[-4.6, -46.6], [2.1, -46.6]],
   specials: [
-    { type: 'switchGate', sw: [-3.9, -32.4], a: [-4.85, -41.8], b: [2.35, -41.8], off: [7.4, 0], open: 9, sweep: [-5, -42.6, 2.5, -41.0],
-      name: 'Hek naar het podium', desc: 'Het podium is afgesloten. Raak de knop in de hoek om het hek 9 seconden te openen.' },
+    { type: 'switchGate', sw: [-3.9, -32.4], a: [-4.85, -41.8], b: [2.35, -41.8], off: [7.4, 0], open: Infinity, sweep: [-5, -42.6, 2.5, -41.0],
+      name: 'Hek naar het podium', desc: 'Het podium is afgesloten. Raak de knop in de hoek om het hek te openen; het blijft open.' },
     { type: 'eruption', river: 'river', T: 14, geyser: [-5.6, -8.9], name: 'Lavarivier', desc: 'De lavarivier bij de start stolt regelmatig tot een stenen brug en smelt daarna weer.' },
     { type: 'dragon', pivot: [-5.0, -48.0], len: 4.0, restA: 1.45, restB: -1.45, name: 'De mechanische draak', desc: 'Bewaakt het gat en zwiept zijn staart links-rechts over het podium, met een korte pauze.' },
   ],
@@ -1398,7 +1398,8 @@ const MOVERS = {
     const chains = [-1, 1].map(s => mesh(CYL(0.035, 0.035, 1, 6), chainM, o.group, 0, 0, 0, false));
     let prevMove = false, prevWarn = false;
     o.trigT = -1e9; o.warn = false;
-    // trigger (schild): zakken, 'down' seconden liggen, waarschuwen, weer omhoog. Opnieuw raken verlengt.
+    // trigger (schild): zakken en blijven liggen tot de volgende beurt (down = Infinity).
+    o.reset = () => { o.trigT = -1e9; };
     o.trigger = (t) => {
       const e = t - o.trigT, mv = d.move, dn = d.down;
       if (e < mv) return;
@@ -1409,7 +1410,7 @@ const MOVERS = {
       let a = 0;
       if (d.mode === 'trigger') {
         const e = t - o.trigT, mv = d.move, dn = d.down;
-        a = e < 0 ? 1.45 : e < mv ? 1.45 * (1 - smooth(e / mv)) : e < mv + dn ? 0 : e < 2 * mv + dn ? 1.45 * smooth((e - mv - dn) / mv) : 1.45;
+        a = e < 0 || o.trigT < -1e8 ? 1.45 : e < mv ? 1.45 * (1 - smooth(e / mv)) : e < mv + dn ? 0 : e < 2 * mv + dn ? 1.45 * smooth((e - mv - dn) / mv) : 1.45;
         o.warn = e > mv + dn - 1.6 && e < mv + dn;
       } else {
         const ph = t % d.period;
@@ -1910,6 +1911,7 @@ const SPECIALS = {
   // als de bal niet in de doorgang ligt, zodat hij nooit klem kan komen te zitten.
   switchGate(d) {
     const o = { group: new THREE.Group(), react: 0, s: 0, timer: 0, trig: false, lastTick: -1, prevMoving: false };
+    o.reset = () => { o.timer = 0; o.trig = false; }; // nieuwe beurt: hek weer dicht
     const btn = prim(0.38, { e: 0.6, owner: o, kind: 'metal' }); setCirc(btn, d.sw[0], d.sw[1]);
     const gp = prim(0.16, { e: 0.75, kind: 'wood' });
     o.prims = [btn, gp];
@@ -3024,6 +3026,7 @@ function loadHole(i) {
 }
 function startTurn(first) {
   const def = HOLES[G.hole], p = P(); p.strokes = 0; p.cont = false;
+  for (const k of (H && H.kins) || []) if (k.reset) k.reset(); // knoppen/bruggen terug naar beginstand
   resetBall(def.start[0], def.start[1]); ball.lastX = ball.safeX = def.start[0]; ball.lastZ = ball.safeZ = def.start[1];
   ball.mesh.material.color.set(p.color);
   Cam.yaw = yawToward(def.start[0], def.start[1], def.aim[0], def.aim[1]); Cam.pitch = 0.5; Cam.dist = 8;
