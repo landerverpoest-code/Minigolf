@@ -6,7 +6,7 @@ De game laadt die pakketjes op de achtergrond (eerst het thema dat ze nodig heef
 pakket (bv. alleen index.html gedownload), dan valt ze terug op de procedurele decoratie.
 Gebruik: python3 tools/build_models.py
 """
-import base64, json, os, glob
+import base64, json, os, glob, subprocess, tempfile
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 os.makedirs(os.path.join(ROOT, 'models'), exist_ok=True)
@@ -20,7 +20,10 @@ for mf in sorted(glob.glob(os.path.join(ROOT, 'assets/models/*/manifest.json')))
         glb = os.path.join(ROOT, 'assets', e['file'])
         if not os.path.exists(glb):
             continue
-        raw = open(glb, 'rb').read(); total += len(raw)
+        # verkleinen (quantiseren) met gltf-transform als dat beschikbaar is, anders het origineel
+        tmp = os.path.join(tempfile.gettempdir(), f'mg_{theme}_{e["name"]}.glb')
+        ok = subprocess.run(['node', os.path.join(ROOT, 'tools/optimize_glb.mjs'), glb, tmp], capture_output=True).returncode == 0
+        raw = open(tmp if ok else glb, 'rb').read(); total += len(raw)
         data[e['name']] = base64.b64encode(raw).decode()
         manifest.append({k: e[k] for k in ('name', 'kind', 'footprint', 'height', 'size', 'spin') if k in e})
     out = os.path.join(ROOT, 'models', theme + '.js')

@@ -2536,12 +2536,14 @@ function loadThemeModels(env) {
   }));
 }
 // geometrie met een matrix 'bakken' (los van eventuele interleaved buffers van de loader)
+// gequantiseerde (genormaliseerde) attributen terugrekenen naar floats: r128 doet dat zelf niet in getX
+function attrScale(a) { if (!a.normalized) return 1; const A = a.array; return A instanceof Int8Array ? 1 / 127 : A instanceof Uint8Array ? 1 / 255 : A instanceof Int16Array ? 1 / 32767 : A instanceof Uint16Array ? 1 / 65535 : 1; }
 function bakeGeo(src, m) {
   const p = src.attributes.position, n = src.attributes.normal, c = p.count, v = new THREE.Vector3(), nm = new THREE.Matrix3().getNormalMatrix(m);
-  const pos = new Float32Array(c * 3), nor = new Float32Array(c * 3);
+  const pos = new Float32Array(c * 3), nor = new Float32Array(c * 3), ps = attrScale(p), ns = n ? attrScale(n) : 1;
   for (let i = 0; i < c; i++) {
-    v.set(p.getX(i), p.getY(i), p.getZ(i)).applyMatrix4(m); pos[i * 3] = v.x; pos[i * 3 + 1] = v.y; pos[i * 3 + 2] = v.z;
-    if (n) { v.set(n.getX(i), n.getY(i), n.getZ(i)).applyMatrix3(nm).normalize(); nor[i * 3] = v.x; nor[i * 3 + 1] = v.y; nor[i * 3 + 2] = v.z; }
+    v.set(p.getX(i) * ps, p.getY(i) * ps, p.getZ(i) * ps).applyMatrix4(m); pos[i * 3] = v.x; pos[i * 3 + 1] = v.y; pos[i * 3 + 2] = v.z;
+    if (n) { v.set(n.getX(i) * ns, n.getY(i) * ns, n.getZ(i) * ns).applyMatrix3(nm).normalize(); nor[i * 3] = v.x; nor[i * 3 + 1] = v.y; nor[i * 3 + 2] = v.z; }
   }
   const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.BufferAttribute(pos, 3)); g.setAttribute('normal', new THREE.BufferAttribute(nor, 3));
   if (src.index) g.setIndex(Array.from(src.index.array)); else g.setIndex([...Array(c).keys()]);
