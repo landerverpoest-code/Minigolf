@@ -117,13 +117,13 @@
   "file": "models/water/rock_arch.glb",
   "kind": "hero",
   "footprint": 3.2,
-  "height": 9.628,
+  "height": 9.064,
   "size": [
    11.428,
    7.064
   ],
   "tris": 1226,
-  "bytes": 73908,
+  "bytes": 73912,
   "notes": "Natuurlijke rotsboog uit zee met gelaagd gesteente, groene kuif, ranken en een palmpje bovenop"
  },
  {

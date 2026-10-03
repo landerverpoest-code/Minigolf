@@ -95,13 +95,13 @@
   "file": "models/space/moon_rock_a.glb",
   "kind": "scatter",
   "footprint": 0.95,
-  "height": 0.765,
+  "height": 0.763,
   "size": [
    2.232,
    1.69
   ],
   "tris": 434,
-  "bytes": 25260,
+  "bytes": 26012,
   "notes": "gefacetteerde maanrots met kraters (geometrie) en kiezels"
  },
  {
@@ -116,7 +116,7 @@
    1.738
   ],
   "tris": 568,
-  "bytes": 31728,
+  "bytes": 32468,
   "notes": "hoge scheve gefacetteerde maanrots + kraterrots en kiezels"
  },
  {

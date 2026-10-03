@@ -1,0 +1,182 @@
+[
+ {
+  "name": "banner_pole",
+  "theme": "castle",
+  "file": "models/castle/banner_pole.glb",
+  "kind": "edge",
+  "footprint": 0.25,
+  "height": 2.598,
+  "size": [
+   0.943,
+   0.32
+  ],
+  "tris": 288,
+  "bytes": 16596,
+  "notes": "vaandelstok op stenen voetje met golvend rood vaandel (zwaluwstaart), blauwe baan en gouden keper, gouden knoppen"
+ },
+ {
+  "name": "barrel_stack",
+  "theme": "castle",
+  "file": "models/castle/barrel_stack.glb",
+  "kind": "scatter",
+  "footprint": 0.75,
+  "height": 1.31,
+  "size": [
+   1.215,
+   1.166
+  ],
+  "tris": 704,
+  "bytes": 33840,
+  "notes": "stapel van 4 houten vaten (duigen in 2 tinten, ijzeren hoepels, lichte deksels), liggend vat met koperen kraantje"
+ },
+ {
+  "name": "castle_tower",
+  "theme": "castle",
+  "file": "models/castle/castle_tower.glb",
+  "kind": "hero",
+  "footprint": 2.7,
+  "height": 13.65,
+  "size": [
+   5.3,
+   5.3
+  ],
+  "tris": 3272,
+  "bytes": 155860,
+  "notes": "ronde stenen toren: beschoeide voet, schietgaten, boogdeur, kraagstenen + kantelen, blauw kegeldak met pannenringen en dakkapel, gouden topje, rode vlag en vaandel (statisch)"
+ },
+ {
+  "name": "cypress_tree",
+  "theme": "castle",
+  "file": "models/castle/cypress_tree.glb",
+  "kind": "scatter",
+  "footprint": 0.55,
+  "height": 5.123,
+  "size": [
+   1.635,
+   1.618
+  ],
+  "tris": 866,
+  "bytes": 19892,
+  "notes": "hoge smalle cipres: vlamvormige kroon van knobbelige lagen in 2 donkergroene tinten, kort stammetje"
+ },
+ {
+  "name": "hay_cart",
+  "theme": "castle",
+  "file": "models/castle/hay_cart.glb",
+  "kind": "scatter",
+  "footprint": 1.2,
+  "height": 1.899,
+  "size": [
+   2.693,
+   1.45
+  ],
+  "tris": 800,
+  "bytes": 41508,
+  "notes": "houten boerenkar met 2 spaakwielen (ijzeren banden), dissel, steunpoot, berg hooi in 2 tinten en een hooivork"
+ },
+ {
+  "name": "knight_statue",
+  "theme": "castle",
+  "file": "models/castle/knight_statue.glb",
+  "kind": "hero",
+  "footprint": 1.0,
+  "height": 4.36,
+  "size": [
+   1.9,
+   1.9
+  ],
+  "tris": 2082,
+  "bytes": 73512,
+  "notes": "stenen ridderbeeld (helm met vizier en gouden kam, schouderstukken, cape, schild met gouden kruis) leunend op zwaard met gouden pareerstang, op gelaagde sokkel met gouden plaquette en mos"
+ },
+ {
+  "name": "market_stall",
+  "theme": "castle",
+  "file": "models/castle/market_stall.glb",
+  "kind": "scatter",
+  "footprint": 1.2,
+  "height": 2.455,
+  "size": [
+   2.266,
+   1.441
+  ],
+  "tris": 828,
+  "bytes": 37148,
+  "notes": "houten marktkraam met rood/cr\u00e8me gestreepte luifel en geschulpte rand; kratten met appels en broden, kazen, krat kool en jute zakken"
+ },
+ {
+  "name": "tent_striped",
+  "theme": "castle",
+  "file": "models/castle/tent_striped.glb",
+  "kind": "scatter",
+  "footprint": 1.6,
+  "height": 4.01,
+  "size": [
+   4.051,
+   4.051
+  ],
+  "tris": 668,
+  "bytes": 32120,
+  "notes": "rond toernooitent met rood/cr\u00e8me banen, blauw-gouden geschulpte rand, open deurflappen, gouden bol, blauwe wimpel en scheerlijnen"
+ },
+ {
+  "name": "tower_post",
+  "theme": "castle",
+  "file": "models/castle/tower_post.glb",
+  "kind": "post",
+  "footprint": 1.1,
+  "height": 4.98,
+  "size": [
+   2.3,
+   2.38
+  ],
+  "tris": 838,
+  "bytes": 43172,
+  "notes": "gedrongen ronde hoektoren (binnen r=1.1 tot 0.6 m), kraagstenen, kantelen, schietgaten, blauw vaandel met gouden ruit en wimpel"
+ },
+ {
+  "name": "wall_ruin",
+  "theme": "castle",
+  "file": "models/castle/wall_ruin.glb",
+  "kind": "scatter",
+  "footprint": 1.6,
+  "height": 2.738,
+  "size": [
+   3.487,
+   1.719
+  ],
+  "tris": 752,
+  "bytes": 38360,
+  "notes": "afgebrokkeld stuk kantelenmuur uit losse blokken (2 steentinten), gat in de muur, gevallen stenen, mos en graspollen"
+ },
+ {
+  "name": "weapon_rack",
+  "theme": "castle",
+  "file": "models/castle/weapon_rack.glb",
+  "kind": "edge",
+  "footprint": 0.6,
+  "height": 1.75,
+  "size": [
+   1.24,
+   0.576
+  ],
+  "tris": 282,
+  "bytes": 19532,
+  "notes": "houten wapenrek met 3 speren, een zwaard en 2 ronde schilden (rood/goud en blauw/goud met gouden knop)"
+ },
+ {
+  "name": "well",
+  "theme": "castle",
+  "file": "models/castle/well.glb",
+  "kind": "post",
+  "footprint": 0.75,
+  "height": 2.374,
+  "size": [
+   1.7,
+   1.421
+  ],
+  "tris": 802,
+  "bytes": 44300,
+  "notes": "stenen waterput (blokken in verspringende lagen, voet binnen r=0.75), water, houten palen met pannendakje, windas met touw en emmer"
+ }
+]

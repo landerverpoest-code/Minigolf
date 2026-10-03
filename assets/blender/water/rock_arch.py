@@ -35,13 +35,14 @@ for p in me.polygons:
 # willekeurige vervorming van de punten (rotsachtig)
 for v in me.vertices:
     v.co += Vector((rnd.uniform(-0.12, 0.12), rnd.uniform(-0.12, 0.12), rnd.uniform(-0.1, 0.1)))
+    v.co.z = max(v.co.z, 0.0)
 # --- rotsblokken rond de voeten ---
 for i in range(12):
     side = -1 if i % 2 == 0 else 1
     a = rnd.uniform(0, 2 * math.pi)
     d = rnd.uniform(1.2, 2.3)
     s = rnd.uniform(0.6, 1.2)
-    r = rock(r=s, loc=(side * 3.6 + math.cos(a) * d, math.sin(a) * d * 1.2, 0.0), scale=(1.3, 1.0, rnd.uniform(0.6, 1.0)),
+    r = rock(r=s, loc=(side * 3.6 + math.cos(a) * d, math.sin(a) * d * 1.2, 0.25 * s), scale=(1.3, 1.0, rnd.uniform(0.6, 1.0)),
              seed=20 + i, jitter=0.25, material=RL if i % 3 else RD, rot_z=a)
 # --- groene kuif bovenop: struikjes ---
 for i in range(5):

@@ -381,7 +381,7 @@ def surf_tree(o):
     return t
 
 
-def crack_ribbon(tree, start, direction, length=1.0, width=0.05, steps=8, seed=0, material=None, lift=0.012, wiggle=0.6, branch=0):
+def crack_ribbon(tree, start, direction, length=1.0, width=0.05, steps=8, seed=0, material=None, lift=0.012, wiggle=0.6, branch=0, flow=False, down=0.0):
     """Gloeiende scheur: lint dat over het oppervlak kronkelt (tree = surf_tree(rots))."""
     rnd = random.Random(seed)
     p, n, _, _ = tree.find_nearest(Vector(start))
@@ -394,6 +394,10 @@ def crack_ribbon(tree, start, direction, length=1.0, width=0.05, steps=8, seed=0
         ang = rnd.uniform(-wiggle, wiggle)
         b = n.cross(t)
         t = (t * math.cos(ang) + b * math.sin(ang)).normalized()
+        if down:
+            g = Vector((0, 0, -1)); g = (g - n * g.dot(n))
+            if g.length > 1e-6:
+                t = (t + g.normalized() * down).normalized()
         q = p + t * stepL
         p2, n2, _, _ = tree.find_nearest(q)
         if p2 is None:
@@ -404,7 +408,11 @@ def crack_ribbon(tree, start, direction, length=1.0, width=0.05, steps=8, seed=0
     vs, fs = [], []
     N = len(pts)
     for i, (p, n, t) in enumerate(pts):
-        f = math.sin(math.pi * (i + 0.5) / (N)) ** 0.6
+        if flow:
+            u = i / max(1, N - 1)
+            f = (0.35 + 0.65 * u) * (1.0 if u < 0.92 else 0.6)
+        else:
+            f = math.sin(math.pi * (i + 0.5) / (N)) ** 0.6
         w = width * max(0.15, f)
         b = n.cross(t).normalized()
         vs += [p + n * lift + b * w / 2, p + n * lift - b * w / 2]
@@ -425,7 +433,7 @@ def crack_ribbon(tree, start, direction, length=1.0, width=0.05, steps=8, seed=0
             p, n, t = pts[i]
             b = n.cross(t)
             d = (t * 0.5 + b * rnd.choice((-1, 1))).normalized()
-            out += crack_ribbon(tree, p, d, length * 0.4, width * 0.6, max(3, steps // 2), seed + 17 * (k + 1), material, lift, wiggle, 0)
+            out += crack_ribbon(tree, p, d, length * 0.4, width * 0.6, max(3, steps // 2), seed + 17 * (k + 1), material, lift, wiggle, 0, flow, down)
     return out
 
 

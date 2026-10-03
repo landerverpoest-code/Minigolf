@@ -14,7 +14,7 @@ for (x, y, h, r, lx, ly, sg) in [(0.0, 0.02, 0.22, 0.11, 0.1, 0.05, 7), (0.1, -0
     top = V((x + lx * h, y + ly * h, h))
     parts.append(tube([V((x, y, 0)), V((x + lx * h * 0.3, y + ly * h * 0.3, h * 0.5)), top], r=[r * 0.3, r * 0.24, r * 0.2], seg=4, material=stemm, smooth=True))
     cap = lathe([(r, 0.0), (r * 0.85, r * 0.45), (r * 0.42, r * 0.78), (0, r * 0.84)], seg=sg, material=capm, smooth=True)
-    set_mat(cap, gill, lambda c, n: n.z < -0.5)
+    set_mat(cap, gill, lambda c, n: n.z < -0.5 or c.z < r * 0.3)
     T(cap, rot=(-ly * 1.2, lx * 1.2, 0), loc=top)
     parts.append(cap)
 parts.append(shade_smooth(ico(0.1, loc=(0.0, 0.0, 0.0), material=moss, scale=(1.5, 1.3, 0.25), jitter=0.012, seed=3)))

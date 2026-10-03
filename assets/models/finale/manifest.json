@@ -1,0 +1,182 @@
+[
+ {
+  "name": "banner_flags",
+  "theme": "finale",
+  "file": "models/finale/banner_flags.glb",
+  "kind": "edge",
+  "footprint": 0.3,
+  "height": 2.54,
+  "size": [
+   1.48,
+   0.32
+  ],
+  "tris": 169,
+  "bytes": 11940,
+  "notes": "gouden vlaggenmast met drie driehoekige wimpels en een rode banier met ster"
+ },
+ {
+  "name": "crown_rock",
+  "theme": "finale",
+  "file": "models/finale/crown_rock.glb",
+  "kind": "scatter",
+  "footprint": 0.95,
+  "height": 1.727,
+  "size": [
+   2.256,
+   1.689
+  ],
+  "tris": 502,
+  "bytes": 30016,
+  "notes": "donkere rots met een kroon van gouden kristallen en gouden aders (glow_gold)"
+ },
+ {
+  "name": "dragon_egg_nest",
+  "theme": "finale",
+  "file": "models/finale/dragon_egg_nest.glb",
+  "kind": "scatter",
+  "footprint": 0.7,
+  "height": 0.581,
+  "size": [
+   1.38,
+   1.3
+  ],
+  "tris": 750,
+  "bytes": 36496,
+  "notes": "nest van rotsen met goudstukken en drie drakeneieren (paars/goud, rood/goud, gloeiend = glow_egg)"
+ },
+ {
+  "name": "dragon_statue",
+  "theme": "finale",
+  "file": "models/finale/dragon_statue.glb",
+  "kind": "hero",
+  "footprint": 2.2,
+  "height": 6.171,
+  "size": [
+   4.31,
+   3.607
+  ],
+  "tris": 2094,
+  "bytes": 80540,
+  "notes": "bronzen draak opgerold op een basaltrots met gevouwen vleugels; ogen + lavabarsten = glow_eyes"
+ },
+ {
+  "name": "festival_tent",
+  "theme": "finale",
+  "file": "models/finale/festival_tent.glb",
+  "kind": "scatter",
+  "footprint": 1.9,
+  "height": 4.36,
+  "size": [
+   3.742,
+   3.742
+  ],
+  "tris": 456,
+  "bytes": 28572,
+  "notes": "rond paars/goud gestreept paviljoen met geschulpte rand, open deur en wimpel"
+ },
+ {
+  "name": "firework_rack",
+  "theme": "finale",
+  "file": "models/finale/firework_rack.glb",
+  "kind": "edge",
+  "footprint": 0.42,
+  "height": 0.973,
+  "size": [
+   1.156,
+   0.52
+  ],
+  "tris": 242,
+  "bytes": 18908,
+  "notes": "houten krat met vuurwerkbuizen en twee raketten; brandend lontje = glow_fuse"
+ },
+ {
+  "name": "gold_column",
+  "theme": "finale",
+  "file": "models/finale/gold_column.glb",
+  "kind": "scatter",
+  "footprint": 0.5,
+  "height": 4.53,
+  "size": [
+   0.98,
+   0.98
+  ],
+  "tris": 750,
+  "bytes": 41376,
+  "notes": "gecanneleerde marmeren zuil met gouden kapiteel en vuurschaal (glow_fire)"
+ },
+ {
+  "name": "golf_bag",
+  "theme": "finale",
+  "file": "models/finale/golf_bag.glb",
+  "kind": "edge",
+  "footprint": 0.35,
+  "height": 1.329,
+  "size": [
+   0.46,
+   0.602
+  ],
+  "tris": 290,
+  "bytes": 16776,
+  "notes": "rood/gouden golftas op standaard met clubs en hoofdhoesjes"
+ },
+ {
+  "name": "golf_ball_statue",
+  "theme": "finale",
+  "file": "models/finale/golf_ball_statue.glb",
+  "kind": "hero",
+  "footprint": 1.6,
+  "height": 3.969,
+  "size": [
+   3.181,
+   3.181
+  ],
+  "tris": 4146,
+  "bytes": 177524,
+  "notes": "reuze golfbal met zeshoekige kuiltjes (geometrie) op een rode tee en grassokkel"
+ },
+ {
+  "name": "lantern_post",
+  "theme": "finale",
+  "file": "models/finale/lantern_post.glb",
+  "kind": "scatter",
+  "footprint": 0.3,
+  "height": 2.71,
+  "size": [
+   1.021,
+   0.5
+  ],
+  "tris": 580,
+  "bytes": 32072,
+  "notes": "sierlijke paars/gouden lantaarnpaal met hangende glow_lantern"
+ },
+ {
+  "name": "stage_podium",
+  "theme": "finale",
+  "file": "models/finale/stage_podium.glb",
+  "kind": "hero",
+  "footprint": 2.6,
+  "height": 2.041,
+  "size": [
+   4.98,
+   4.94
+  ],
+  "tris": 1240,
+  "bytes": 65080,
+  "notes": "1-2-3 winnaarspodium (cijfers als geometrie) met rode loper, traptreden, paaltjes met koord en gouden ster"
+ },
+ {
+  "name": "trophy",
+  "theme": "finale",
+  "file": "models/finale/trophy.glb",
+  "kind": "hero",
+  "footprint": 1.3,
+  "height": 4.84,
+  "size": [
+   3.883,
+   2.5
+  ],
+  "tris": 1996,
+  "bytes": 66780,
+  "notes": "reuze gouden golftrofee met golfbal, gekrulde handvatten en rode strik op marmeren sokkel"
+ }
+]

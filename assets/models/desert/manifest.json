@@ -1,0 +1,137 @@
+[
+ {
+  "name": "broken_column",
+  "theme": "desert",
+  "file": "models/desert/broken_column.glb",
+  "kind": "scatter",
+  "footprint": 1.2,
+  "height": 1.63,
+  "size": [
+   3.512,
+   2.617
+  ],
+  "tris": 644,
+  "bytes": 35332,
+  "notes": "Afgebroken Egyptische zuil met geschilderde banden, een omgevallen zuilstuk en een lotuskapiteel op de grond"
+ },
+ {
+  "name": "cactus_post",
+  "theme": "desert",
+  "file": "models/desert/cactus_post.glb",
+  "kind": "post",
+  "footprint": 0.34,
+  "height": 2.045,
+  "size": [
+   0.996,
+   0.751
+  ],
+  "tris": 482,
+  "bytes": 32004,
+  "notes": "Zuilcactus als paal-obstakel: binnen r=0.34 tot 0.6 m, armen hoger op binnen r~0.6"
+ },
+ {
+  "name": "date_palm",
+  "theme": "desert",
+  "file": "models/desert/date_palm.glb",
+  "kind": "scatter",
+  "footprint": 0.5,
+  "height": 5.861,
+  "size": [
+   4.473,
+   4.49
+  ],
+  "tris": 696,
+  "bytes": 39656,
+  "notes": "Rechte dadelpalm met ruwe geschubde stam, stijve boogbladeren, dode hangbladeren en oranje dadeltrossen"
+ },
+ {
+  "name": "obelisk",
+  "theme": "desert",
+  "file": "models/desert/obelisk.glb",
+  "kind": "hero",
+  "footprint": 1.3,
+  "height": 8.963,
+  "size": [
+   3.006,
+   3.076
+  ],
+  "tris": 1418,
+  "bytes": 84636,
+  "notes": "Obelisk op getrapte sokkel met turkooise inleg, hi\u00ebrogliefen-groeven op elke zijde en gouden piramidion"
+ },
+ {
+  "name": "prickly_pear",
+  "theme": "desert",
+  "file": "models/desert/prickly_pear.glb",
+  "kind": "edge",
+  "footprint": 0.3,
+  "height": 0.78,
+  "size": [
+   0.517,
+   0.506
+  ],
+  "tris": 226,
+  "bytes": 20112,
+  "notes": "Schijfcactus (vijgcactus) met roze vruchten en een geel bloemetje"
+ },
+ {
+  "name": "pyramid_small",
+  "theme": "desert",
+  "file": "models/desert/pyramid_small.glb",
+  "kind": "hero",
+  "footprint": 6.6,
+  "height": 10.497,
+  "size": [
+   15.219,
+   14.532
+  ],
+  "tris": 1434,
+  "bytes": 79616,
+  "notes": "Kleine piramide: verweerde stenen treden, gladde bekleding bovenaan met gouden topsteen, ingang met trap aan de voorkant (-Y)"
+ },
+ {
+  "name": "saguaro_cactus",
+  "theme": "desert",
+  "file": "models/desert/saguaro_cactus.glb",
+  "kind": "scatter",
+  "footprint": 0.5,
+  "height": 3.521,
+  "size": [
+   1.594,
+   1.391
+  ],
+  "tris": 662,
+  "bytes": 42880,
+  "notes": "Hoge geribde saguaro met drie armen en witte bloemetjes op een zandhoopje"
+ },
+ {
+  "name": "sandstone_rock",
+  "theme": "desert",
+  "file": "models/desert/sandstone_rock.glb",
+  "kind": "scatter",
+  "footprint": 1.5,
+  "height": 2.851,
+  "size": [
+   4.415,
+   3.327
+  ],
+  "tris": 656,
+  "bytes": 38728,
+  "notes": "Gelaagde, uitgesleten mesa-rots in terracotta en zandsteen met losse brokken en een kleine rotszuil"
+ },
+ {
+  "name": "sphinx",
+  "theme": "desert",
+  "file": "models/desert/sphinx.glb",
+  "kind": "hero",
+  "footprint": 2.4,
+  "height": 3.812,
+  "size": [
+   3.2,
+   7.1
+  ],
+  "tris": 1354,
+  "bytes": 69300,
+  "notes": "Gestileerde sfinx op sokkel, kijkt naar -Y; gestreepte goud/turkoois nemes, gouden baard, staart langs de zijkant"
+ }
+]

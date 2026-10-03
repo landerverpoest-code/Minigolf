@@ -34,7 +34,7 @@ def _perp(t):
 
 
 def tube(pts, radii, verts=8, material=None, cap0=True, cap1=True, name='tube', mats=None, ring_mats=None,
-         squash=None, twist=0.0, jitter=0.0, seed=1):
+         squash=None, twist=0.0, jitter=0.0, seed=1, ribs=0.0):
     """Buis langs een polylijn. radii = straal per punt (0 aan het eind = punt).
     ring_mats: materiaalindex per segment (len(pts)-1). squash: (sx, sy) ellips-factor per ring (optioneel lijst)."""
     pts = [Vector(p) for p in pts]
@@ -62,6 +62,7 @@ def tube(pts, radii, verts=8, material=None, cap0=True, cap1=True, name='tube', 
         for k in range(verts):
             a = 2 * math.pi * k / verts + twist * i
             j = 1 + (rnd.uniform(-jitter, jitter) if jitter else 0)
+            if ribs: j *= (1 + ribs) if k % 2 == 0 else (1 - ribs)
             ring.append(len(vs)); vs.append(p + (nn * math.cos(a) * sx + bb * math.sin(a) * sy) * r * j)
         rings.append(ring)
     for i in range(n - 1):

@@ -45,6 +45,21 @@
   "notes": "verkoolde kronkelige kale boom met gloeiende sintels op takpunten en gloeiende scheuren in de stam (glow_ember)"
  },
  {
+  "name": "lava_pool_rim",
+  "theme": "volcano",
+  "file": "models/volcano/lava_pool_rim.glb",
+  "kind": "scatter",
+  "footprint": 1.3,
+  "height": 0.398,
+  "size": [
+   2.61,
+   2.814
+  ],
+  "tris": 814,
+  "bytes": 40880,
+  "notes": "vlakke gloeiende lavaplas (hete gele kern + oranje rand) met drijvende korstplaten in een ring van basaltrotsen"
+ },
+ {
   "name": "lava_rock_a",
   "theme": "volcano",
   "file": "models/volcano/lava_rock_a.glb",
@@ -90,6 +105,21 @@
   "notes": "groepje scherpe basaltscherven met as op de toppen en een klein gloeiend lavaplasje"
  },
  {
+  "name": "mini_volcano",
+  "theme": "volcano",
+  "file": "models/volcano/mini_volcano.glb",
+  "kind": "hero",
+  "footprint": 11.5,
+  "height": 14.992,
+  "size": [
+   23.206,
+   23.805
+  ],
+  "tris": 1890,
+  "bytes": 90972,
+  "notes": "achtergrondvulkaan: geribde kegel (basalt/bruin/as), gloeiende lava in de krater, 4 lavastromen (glow_lava), rotsblokken en cartoon-rookpluim"
+ },
+ {
   "name": "obsidian_crystals",
   "theme": "volcano",
   "file": "models/volcano/obsidian_crystals.glb",
@@ -133,5 +163,20 @@
   "tris": 247,
   "bytes": 16708,
   "notes": "rotskegeltje met gloeiende opening (glow_lava), zwavelkorstjes op de rand, lavastroompjes over de flank"
+ },
+ {
+  "name": "tiki_shrine",
+  "theme": "volcano",
+  "file": "models/volcano/tiki_shrine.glb",
+  "kind": "hero",
+  "footprint": 2.6,
+  "height": 5.983,
+  "size": [
+   4.593,
+   5.086
+  ],
+  "tris": 2922,
+  "bytes": 127376,
+  "notes": "stenen tiki op getrapte basaltvoet met trap; gloeiende ogen, mond, veerpunt, fakkelvlammen en offerschaal (glow_lava); wangkrullen, tanden, armen in reli\u00ebf, verentooi"
  }
 ]

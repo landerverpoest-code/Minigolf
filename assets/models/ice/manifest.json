@@ -5,14 +5,29 @@
   "file": "models/ice/frozen_tree.glb",
   "kind": "scatter",
   "footprint": 0.6,
-  "height": 3.977,
+  "height": 4.251,
   "size": [
-   3.154,
-   2.968
+   2.866,
+   2.704
   ],
-  "tris": 891,
-  "bytes": 49796,
+  "tris": 777,
+  "bytes": 44172,
   "notes": "Kale bevroren boom: rijp op de bovenkant van de takken, ijspegels en ijsklompjes aan de takpunten"
+ },
+ {
+  "name": "ice_arch",
+  "theme": "ice",
+  "file": "models/ice/ice_arch.glb",
+  "kind": "hero",
+  "footprint": 3.2,
+  "height": 6.407,
+  "size": [
+   10.933,
+   4.464
+  ],
+  "tris": 1030,
+  "bytes": 64356,
+  "notes": "Grote bevroren ijsboog met gelaagd ijs, sneeuwkap, ijspegels, ijsschotsen en gloeiende kristallen (glow_ice)"
  },
  {
   "name": "ice_crystals",
@@ -67,12 +82,57 @@
   "footprint": 1.9,
   "height": 1.66,
   "size": [
-   4.376,
+   4.454,
    4.587
   ],
-  "tris": 3030,
-  "bytes": 168712,
+  "tris": 3160,
+  "bytes": 175508,
   "notes": "Iglo van verspringende sneeuwblokken met voegen, ingangstunnel naar -Y met warme gloed (glow_inside)"
+ },
+ {
+  "name": "penguin_group",
+  "theme": "ice",
+  "file": "models/ice/penguin_group.glb",
+  "kind": "scatter",
+  "footprint": 0.6,
+  "height": 0.79,
+  "size": [
+   1.229,
+   1.291
+  ],
+  "tris": 866,
+  "bytes": 39300,
+  "notes": "Drie schattige pinguins (twee volwassen, een grijs kuiken) op een ijsschotsje; kijken naar -Y"
+ },
+ {
+  "name": "polar_cabin",
+  "theme": "ice",
+  "file": "models/ice/polar_cabin.glb",
+  "kind": "hero",
+  "footprint": 2.8,
+  "height": 4.755,
+  "size": [
+   5.828,
+   4.732
+  ],
+  "tris": 3716,
+  "bytes": 178868,
+  "notes": "Blokhut van stammen met dik sneeuwdak, ijspegels, stenen schoorsteen, deur met luifel, warme ramen + lantaarn (glow_window), houtstapel"
+ },
+ {
+  "name": "sled",
+  "theme": "ice",
+  "file": "models/ice/sled.glb",
+  "kind": "edge",
+  "footprint": 0.55,
+  "height": 0.295,
+  "size": [
+   1.231,
+   0.504
+  ],
+  "tris": 298,
+  "bytes": 20908,
+  "notes": "Houten slee met rode gekrulde glijders, touw en een plukje sneeuw"
  },
  {
   "name": "snowman",

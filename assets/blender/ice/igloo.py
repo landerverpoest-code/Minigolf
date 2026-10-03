@@ -7,6 +7,7 @@ BLOCK = mat('snow_block', '#eef5ff', rough=0.6)
 JOINT = mat('ice_joint', '#9fc6e6', rough=0.5)
 GLOW = mat('glow_inside', '#ffb867', rough=0.5, emit='#ff9a3a', emit_strength=7.0)
 SNOW = mat('snow', '#f7fbff', rough=0.75)
+WOOD = mat('wood_dark', '#5e3e26', rough=0.85)
 rnd = random.Random(4)
 
 R = 1.5; T = 0.16; GAP = 0.035
@@ -105,8 +106,16 @@ shade_smooth(drift, 60)
 for (x, y, rz) in [(1.55, -1.45, 0.4), (1.85, -1.1, 1.1)]:
     b = box((0.42, 0.28, 0.24), loc=(x, y, 0.12), rot=(0, 0, rz), material=BLOCK, bevel=0.03)
 box((0.42, 0.28, 0.24), loc=(1.68, -1.3, 0.36), rot=(0, 0, 0.8), material=BLOCK, bevel=0.03)
-m = rock(0.4, loc=(-1.75, -1.05, 0.0), scale=(1.3, 1.0, 0.55), seed=3, jitter=0.08, material=SNOW)
+m = lathe([(0.55, 0.0), (0.42, 0.12), (0.22, 0.2), (0.0, 0.22)], verts=9, material=SNOW, jitter=0.1, seed=5, loc=(-1.75, -1.0, 0))
 shade_smooth(m, 60)
+# lantaarn aan een paaltje naast de ingang
+LX, LY = -1.05, -2.25
+cyl(0.04, 1.3, loc=(LX, LY, 0.65), verts=5, material=WOOD)
+box((0.34, 0.05, 0.05), loc=(LX + 0.15, LY, 1.27), material=WOOD)
+lan = cyl(0.08, 0.2, loc=(LX + 0.28, LY, 1.1), verts=6, material=GLOW)
+cone(0.11, 0.1, loc=(LX + 0.28, LY, 1.25), verts=6, material=WOOD)
+cyl(0.09, 0.03, loc=(LX + 0.28, LY, 0.99), verts=6, material=WOOD)
+m = rock(0.25, loc=(LX, LY, 0.0), scale=(1.2, 1.0, 0.5), seed=8, jitter=0.05, material=SNOW)
 for v in m.data.vertices: v.co.z = max(v.co.z, 0.0)
 join_all('igloo')
 report()

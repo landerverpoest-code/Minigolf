@@ -387,3 +387,34 @@ def crater(rc=0.2, material=None, inner=None, seg=8, h=0.05):
     if inner is not None:
         set_mat(o, inner, lambda c, n: math.hypot(c.x, c.y) < rc * 0.8)
     return o
+
+
+def smooth_path(pts, n=3, closed=False):
+    """Catmull-Rom: n tussenpunten per segment (gladde buizen/krullen)."""
+    P = [Vector(p) for p in pts]
+    out = []
+    m = len(P)
+    rng = range(m) if closed else range(m - 1)
+    for i in rng:
+        p0 = P[(i - 1) % m] if (closed or i > 0) else P[0] * 2 - P[1]
+        p1 = P[i]; p2 = P[(i + 1) % m]
+        p3 = P[(i + 2) % m] if (closed or i + 2 < m) else P[-1] * 2 - P[-2]
+        for k in range(n):
+            t = k / n; t2 = t * t; t3 = t2 * t
+            out.append(0.5 * ((2 * p1) + (-p0 + p2) * t + (2 * p0 - 5 * p1 + 4 * p2 - p3) * t2 + (-p0 + 3 * p1 - 3 * p2 + p3) * t3))
+    if not closed:
+        out.append(P[-1])
+    return out
+
+
+def interp(vals, n=3):
+    """Waarden (bv. stralen) lineair interpoleren zodat ze bij smooth_path(…, n) passen."""
+    out = []
+    for a, b in zip(vals, vals[1:]):
+        out += [a + (b - a) * k / n for k in range(n)]
+    return out + [vals[-1]]
+
+
+def link_bm(bm, name='mesh', material=None, smooth=False, recalc=False):
+    """bmesh -> nieuw object in de scène."""
+    return _link(bm, name, material, smooth, recalc)

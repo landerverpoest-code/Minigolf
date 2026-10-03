@@ -2624,6 +2624,7 @@ const DECOR = {
   space: { space: true, heroes: 4 },
   finale: { land: -0.35, near: 45, far: 40, edge: 55, heroes: 3, mound: '#2a2028' },
 };
+const DECOR_W = { festival_tent: 0.35, iron_fence: 0.4, fence_gate: 0.5, bedouin_tent: 0.5, tent_striped: 0.5, market_stall: 0.6, hay_cart: 0.7, scarecrow: 0.5, scarecrow_spooky: 0.6, camel: 0.6, rover: 0.6, oak_tree: 2.2, birch_tree: 1.8, snowy_pine: 2.4, snowy_pine_small: 1.6, palm_tree: 1.6, cypress_tree: 1.8, twisted_tree: 1.8, date_palm: 1.4, saguaro_cactus: 1.5, charred_tree: 1.4, gold_column: 0.7 }; // keuzegewicht per model
 function decorateModels(ctx) {
   const env = ctx.def.theme.env, cfg = DECOR[env];
   if (!cfg || !mdlReady(env) || H.decorated) return;
@@ -2667,8 +2668,11 @@ function decorateModels(ctx) {
   for (const [n, dMin, dMax, pool, cast] of rings) {
     if (!pool.length) continue;
     const lists = new Map(pool.map(m => [m.key, []]));
+    // grote modellen minder vaak (anders staat de omgeving vol met tenten of hekken)
+    const wts = pool.map(m => (DECOR_W[m.e.name] || 1) / (0.6 + (m.e.footprint || 0.6))), wsum = wts.reduce((a, b) => a + b, 0);
+    const pick = () => { let u = rnd() * wsum; for (let k = 0; k < pool.length; k++) { u -= wts[k]; if (u <= 0) return pool[k]; } return pool[pool.length - 1]; };
     for (let i = 0; i < n; i++) {
-      const m = pool[Math.floor(rnd() * pool.length)], s = 0.8 + rnd() * 0.45, r = (m.e.footprint || 0.6) * s;
+      const m = pick(), s = 0.8 + rnd() * 0.45, r = (m.e.footprint || 0.6) * s;
       const p = spot(r, dMin, dMax); if (!p) continue;
       const y = mound(p[0], p[1], p[2], r); H.occ.push([p[0], p[1], r * 0.8]);
       lists.get(m.key).push({ x: p[0], y, z: p[1], ry: rnd() * TAU, s });

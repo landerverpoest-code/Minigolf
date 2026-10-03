@@ -15,7 +15,7 @@ icicle_spots = []
 
 def branch(p0, d, L, r, depth, verts):
     p0 = Vector(p0); d = Vector(d).normalized()
-    n = 3 if depth > 0 else 2
+    n = 3 if depth > 1 else 2
     pts = [p0]; p = p0.copy(); dd = d.copy()
     for i in range(n):
         dd = (dd + Vector((rnd.uniform(-0.25, 0.25), rnd.uniform(-0.25, 0.25), rnd.uniform(-0.05, 0.15)))).normalized()
@@ -58,7 +58,7 @@ branch(Vector(trunk_pts[-1]), (0.05, 0.1, 1), 1.7, 0.1, 1, 4)
 for p in icicle_spots[:9]:
     cone(0.035, rnd.uniform(0.18, 0.32), loc=p - Vector((0, 0, 0.12)), rot=(math.pi, 0, 0), verts=4, material=ICE)
 # rijp-klompjes aan de takpunten
-for i, p in enumerate(tips[::2][:8]):
+for i, p in enumerate(tips[::3][:6]):
     ico(0.09, loc=p, sub=1, material=ICE2 if i % 2 else ICE, scale=(1, 1, 1.2), jitter=0.02, seed=i)
 # sneeuwhoopje
 mound = lathe([(0.7, 0.0), (0.55, 0.09), (0.3, 0.15), (0.0, 0.16)], verts=9, material=SNOW, jitter=0.07, seed=5)
