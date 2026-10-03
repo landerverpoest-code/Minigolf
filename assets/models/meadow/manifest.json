@@ -1,0 +1,189 @@
+[
+ {
+  "name": "barn",
+  "theme": "meadow",
+  "file": "models/meadow/barn.glb",
+  "kind": "hero",
+  "footprint": 4.6,
+  "height": 8.724,
+  "size": [
+   8.919,
+   8.558
+  ],
+  "tris": 4894,
+  "bytes": 171344,
+  "notes": "rode schuur met wit lijstwerk, gambreldak met pannenrijen, schuifdeuren met X, open hooizolder, koepeltje met windhaan, silo met ladder"
+ },
+ {
+  "name": "birch_tree",
+  "theme": "meadow",
+  "file": "models/meadow/birch_tree.glb",
+  "kind": "scatter",
+  "footprint": 0.35,
+  "height": 5.156,
+  "size": [
+   2.479,
+   2.351
+  ],
+  "tris": 872,
+  "bytes": 24364,
+  "notes": "berk: witte stam met donkere streepjes, lichte luchtige kruin aan zichtbare takken"
+ },
+ {
+  "name": "bush_flowering",
+  "theme": "meadow",
+  "file": "models/meadow/bush_flowering.glb",
+  "kind": "scatter",
+  "footprint": 0.6,
+  "height": 1.124,
+  "size": [
+   1.617,
+   1.22
+  ],
+  "tris": 814,
+  "bytes": 36004,
+  "notes": "ronde bloeiende struik met roze/witte bloemetjes"
+ },
+ {
+  "name": "fence_gate",
+  "theme": "meadow",
+  "file": "models/meadow/fence_gate.glb",
+  "kind": "scatter",
+  "footprint": 1.5,
+  "height": 1.216,
+  "size": [
+   3.324,
+   0.578
+  ],
+  "tris": 860,
+  "bytes": 25476,
+  "notes": "rustiek houten hekwerk (3 m) met half open poortje, ijzeren scharnieren en grasplukjes"
+ },
+ {
+  "name": "flower_patch",
+  "theme": "meadow",
+  "file": "models/meadow/flower_patch.glb",
+  "kind": "edge",
+  "footprint": 0.18,
+  "height": 0.318,
+  "size": [
+   0.451,
+   0.446
+  ],
+  "tris": 240,
+  "bytes": 18588,
+  "notes": "plukje van 8 bloemen (rood/geel/paars/wit) met stelen, blaadjes en grassprieten"
+ },
+ {
+  "name": "hay_bales",
+  "theme": "meadow",
+  "file": "models/meadow/hay_bales.glb",
+  "kind": "scatter",
+  "footprint": 0.95,
+  "height": 1.811,
+  "size": [
+   1.954,
+   1.432
+  ],
+  "tris": 688,
+  "bytes": 28532,
+  "notes": "stapel van 3 ronde hooibalen met rood touw, spiraal op de kopse kanten en los hooi"
+ },
+ {
+  "name": "mushroom_cluster",
+  "theme": "meadow",
+  "file": "models/meadow/mushroom_cluster.glb",
+  "kind": "edge",
+  "footprint": 0.17,
+  "height": 0.29,
+  "size": [
+   0.391,
+   0.251
+  ],
+  "tris": 285,
+  "bytes": 11316,
+  "notes": "3 rode vliegenzwammen met witte stippen en grassprietjes"
+ },
+ {
+  "name": "oak_tree",
+  "theme": "meadow",
+  "file": "models/meadow/oak_tree.glb",
+  "kind": "scatter",
+  "footprint": 0.55,
+  "height": 4.862,
+  "size": [
+   3.705,
+   3.25
+  ],
+  "tris": 835,
+  "bytes": 23128,
+  "notes": "eik: gelaagde kruin in 2 groentinten, stam met wortels en takken"
+ },
+ {
+  "name": "rock_mossy",
+  "theme": "meadow",
+  "file": "models/meadow/rock_mossy.glb",
+  "kind": "scatter",
+  "footprint": 0.75,
+  "height": 0.975,
+  "size": [
+   1.656,
+   1.289
+  ],
+  "tris": 491,
+  "bytes": 40324,
+  "notes": "ronde grijze kei met overhangende moskap in 2 tinten, kleine steen en kiezels"
+ },
+ {
+  "name": "scarecrow",
+  "theme": "meadow",
+  "file": "models/meadow/scarecrow.glb",
+  "kind": "scatter",
+  "footprint": 0.45,
+  "height": 2.021,
+  "size": [
+   1.5,
+   0.659
+  ],
+  "tris": 776,
+  "bytes": 42016,
+  "notes": "vogelverschrikker: jute hoofd met gestikt gezicht, strohoed, rood hemd met lapje, spijkerbroek, stro"
+ },
+ {
+  "name": "tree_stump",
+  "theme": "meadow",
+  "file": "models/meadow/tree_stump.glb",
+  "kind": "post",
+  "footprint": 0.32,
+  "height": 0.633,
+  "size": [
+   0.594,
+   0.594
+  ],
+  "tris": 542,
+  "bytes": 22336,
+  "notes": "boomstronk met jaarringen, wortels, scheutje en paddenstoeltjes; binnen r=0.32"
+ },
+ {
+  "name": "windmill",
+  "theme": "meadow",
+  "file": "models/meadow/windmill.glb",
+  "kind": "hero",
+  "footprint": 2.6,
+  "height": 9.948,
+  "size": [
+   7.185,
+   5.521
+  ],
+  "tris": 3622,
+  "bytes": 157364,
+  "notes": "molen: stenen voet, houten achtkant met overnaadse planken, omloop met reling, rode kap met staart; 4 hekwerkwieken (deels met zeil) als spin_sails",
+  "spin": [
+   {
+    "node": "spin_sails",
+    "axis": "z",
+    "speed": 0.9
+   }
+  ]
+ }
+]

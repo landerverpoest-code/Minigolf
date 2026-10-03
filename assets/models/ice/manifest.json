@@ -1,0 +1,122 @@
+[
+ {
+  "name": "frozen_tree",
+  "theme": "ice",
+  "file": "models/ice/frozen_tree.glb",
+  "kind": "scatter",
+  "footprint": 0.6,
+  "height": 3.977,
+  "size": [
+   3.154,
+   2.968
+  ],
+  "tris": 891,
+  "bytes": 49796,
+  "notes": "Kale bevroren boom: rijp op de bovenkant van de takken, ijspegels en ijsklompjes aan de takpunten"
+ },
+ {
+  "name": "ice_crystals",
+  "theme": "ice",
+  "file": "models/ice/ice_crystals.glb",
+  "kind": "edge",
+  "footprint": 0.3,
+  "height": 0.7,
+  "size": [
+   0.681,
+   0.644
+  ],
+  "tris": 236,
+  "bytes": 19564,
+  "notes": "Cluster cyaan ijskristallen (lage roughness, lichte emissie); middelste kristallen gloeien (glow_crystal)"
+ },
+ {
+  "name": "ice_rock",
+  "theme": "ice",
+  "file": "models/ice/ice_rock.glb",
+  "kind": "scatter",
+  "footprint": 0.9,
+  "height": 1.379,
+  "size": [
+   2.657,
+   1.778
+  ],
+  "tris": 357,
+  "bytes": 28868,
+  "notes": "Grijsblauwe rots met dikke sneeuwkap, ijsvlakken, ijspegels en kristallen"
+ },
+ {
+  "name": "icicle_post",
+  "theme": "ice",
+  "file": "models/ice/icicle_post.glb",
+  "kind": "post",
+  "footprint": 0.32,
+  "height": 1.872,
+  "size": [
+   0.633,
+   0.584
+  ],
+  "tris": 342,
+  "bytes": 21036,
+  "notes": "Cluster ijspieken (stalagmieten) als paal-obstakel, binnen r=0.32 tot 0.6 m; kleine pieken gloeien (glow_ice)"
+ },
+ {
+  "name": "igloo",
+  "theme": "ice",
+  "file": "models/ice/igloo.glb",
+  "kind": "hero",
+  "footprint": 1.9,
+  "height": 1.66,
+  "size": [
+   4.376,
+   4.587
+  ],
+  "tris": 3030,
+  "bytes": 168712,
+  "notes": "Iglo van verspringende sneeuwblokken met voegen, ingangstunnel naar -Y met warme gloed (glow_inside)"
+ },
+ {
+  "name": "snowman",
+  "theme": "ice",
+  "file": "models/ice/snowman.glb",
+  "kind": "scatter",
+  "footprint": 0.55,
+  "height": 2.062,
+  "size": [
+   2.0,
+   1.236
+  ],
+  "tris": 890,
+  "bytes": 36620,
+  "notes": "Sneeuwpop: drie bollen, wortelneus, kolen-ogen en knopen, rode sjaal, takken-armen en hoge hoed (kijkt naar -Y)"
+ },
+ {
+  "name": "snowy_pine",
+  "theme": "ice",
+  "file": "models/ice/snowy_pine.glb",
+  "kind": "scatter",
+  "footprint": 0.6,
+  "height": 5.245,
+  "size": [
+   2.997,
+   3.152
+  ],
+  "tris": 492,
+  "bytes": 30948,
+  "notes": "Gelaagde den met sneeuwkap en druppelrand op elke laag"
+ },
+ {
+  "name": "snowy_pine_small",
+  "theme": "ice",
+  "file": "models/ice/snowy_pine_small.glb",
+  "kind": "scatter",
+  "footprint": 0.4,
+  "height": 2.704,
+  "size": [
+   1.662,
+   1.715
+  ],
+  "tris": 270,
+  "bytes": 18644,
+  "notes": "Kleine besneeuwde den met drie lagen"
+ }
+]

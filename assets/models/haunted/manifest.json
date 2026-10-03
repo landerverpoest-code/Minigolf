@@ -1,0 +1,212 @@
+[
+ {
+  "name": "bare_bush",
+  "theme": "haunted",
+  "file": "models/haunted/bare_bush.glb",
+  "kind": "scatter",
+  "footprint": 0.5,
+  "height": 0.829,
+  "size": [
+   1.422,
+   1.149
+  ],
+  "tris": 580,
+  "bytes": 34796,
+  "notes": "doornige dode struik met een paar verdroogde bessen"
+ },
+ {
+  "name": "coffin",
+  "theme": "haunted",
+  "file": "models/haunted/coffin.glb",
+  "kind": "edge",
+  "footprint": 0.62,
+  "height": 0.396,
+  "size": [
+   1.277,
+   0.683
+  ],
+  "tris": 258,
+  "bytes": 17716,
+  "notes": "oude houten doodskist, deksel scheef open, paars satijn binnenin, benige vingers"
+ },
+ {
+  "name": "crooked_lamp",
+  "theme": "haunted",
+  "file": "models/haunted/crooked_lamp.glb",
+  "kind": "scatter",
+  "footprint": 0.3,
+  "height": 2.982,
+  "size": [
+   0.817,
+   0.505
+  ],
+  "tris": 536,
+  "bytes": 27964,
+  "notes": "kromme ijzeren straatlantaarn met hangende lantaarn (glow_lamp)"
+ },
+ {
+  "name": "glow_mushrooms",
+  "theme": "haunted",
+  "file": "models/haunted/glow_mushrooms.glb",
+  "kind": "edge",
+  "footprint": 0.18,
+  "height": 0.34,
+  "size": [
+   0.295,
+   0.261
+  ],
+  "tris": 254,
+  "bytes": 11600,
+  "notes": "cluster lichtgevende paddenstoelen (hoedjes = glow_shroom)"
+ },
+ {
+  "name": "haunted_well",
+  "theme": "haunted",
+  "file": "models/haunted/haunted_well.glb",
+  "kind": "scatter",
+  "footprint": 0.75,
+  "height": 1.792,
+  "size": [
+   1.881,
+   1.464
+  ],
+  "tris": 732,
+  "bytes": 42348,
+  "notes": "afgebrokkelde stenen put met ketting, emmer en groen gloeiend water (glow_well)"
+ },
+ {
+  "name": "iron_fence",
+  "theme": "haunted",
+  "file": "models/haunted/iron_fence.glb",
+  "kind": "scatter",
+  "footprint": 1.5,
+  "height": 1.57,
+  "size": [
+   3.16,
+   0.411
+  ],
+  "tris": 678,
+  "bytes": 39432,
+  "notes": "smeedijzeren hekdeel (3 m breed langs X) met puntige spijlen en stenen pilaren"
+ },
+ {
+  "name": "jack_o_lantern",
+  "theme": "haunted",
+  "file": "models/haunted/jack_o_lantern.glb",
+  "kind": "edge",
+  "footprint": 0.25,
+  "height": 0.455,
+  "size": [
+   0.489,
+   0.457
+  ],
+  "tris": 271,
+  "bytes": 13724,
+  "notes": "uitgesneden pompoen; gezicht = glow_pumpkin"
+ },
+ {
+  "name": "mausoleum",
+  "theme": "haunted",
+  "file": "models/haunted/mausoleum.glb",
+  "kind": "hero",
+  "footprint": 2.3,
+  "height": 4.841,
+  "size": [
+   4.571,
+   5.029
+  ],
+  "tris": 2072,
+  "bytes": 116952,
+  "notes": "kleine crypte met zuilen, ijzeren hekdeuren (\u00e9\u00e9n op een kier), gebarsten dak; groene gloed binnen, oculus, zijramen en vuurschalen = glow_crypt"
+ },
+ {
+  "name": "scarecrow_spooky",
+  "theme": "haunted",
+  "file": "models/haunted/scarecrow_spooky.glb",
+  "kind": "scatter",
+  "footprint": 0.4,
+  "height": 2.275,
+  "size": [
+   1.62,
+   0.64
+  ],
+  "tris": 698,
+  "bytes": 39904,
+  "notes": "gerafelde vogelverschrikker met pompoenhoofd (glow_pumpkin), heksenhoed en kraai"
+ },
+ {
+  "name": "tombstone_a",
+  "theme": "haunted",
+  "file": "models/haunted/tombstone_a.glb",
+  "kind": "edge",
+  "footprint": 0.35,
+  "height": 0.708,
+  "size": [
+   0.686,
+   0.263
+  ],
+  "tris": 278,
+  "bytes": 17732,
+  "notes": "afgeronde grafsteen met kruisreli\u00ebf, barst, mos, licht scheef"
+ },
+ {
+  "name": "tombstone_b",
+  "theme": "haunted",
+  "file": "models/haunted/tombstone_b.glb",
+  "kind": "edge",
+  "footprint": 0.35,
+  "height": 0.77,
+  "size": [
+   0.662,
+   0.33
+  ],
+  "tris": 294,
+  "bytes": 18636,
+  "notes": "kruisvormige grafsteen, scheef, barst, afgebroken stuk, mos"
+ },
+ {
+  "name": "tombstone_c",
+  "theme": "haunted",
+  "file": "models/haunted/tombstone_c.glb",
+  "kind": "edge",
+  "footprint": 0.3,
+  "height": 0.935,
+  "size": [
+   0.44,
+   0.37
+  ],
+  "tris": 242,
+  "bytes": 15812,
+  "notes": "obelisk-grafsteen op getrapte voet, barst, mos"
+ },
+ {
+  "name": "twisted_tree",
+  "theme": "haunted",
+  "file": "models/haunted/twisted_tree.glb",
+  "kind": "scatter",
+  "footprint": 1.0,
+  "height": 4.868,
+  "size": [
+   3.501,
+   2.844
+  ],
+  "tris": 730,
+  "bytes": 34184,
+  "notes": "kronkelige kale boom met krullende takken en holte met gloeiende oogjes (glow_eyes)"
+ },
+ {
+  "name": "witch_hut",
+  "theme": "haunted",
+  "file": "models/haunted/witch_hut.glb",
+  "kind": "hero",
+  "footprint": 1.9,
+  "height": 6.007,
+  "size": [
+   3.308,
+   3.128
+  ],
+  "tris": 1568,
+  "bytes": 88172,
+  "notes": "scheef heksenhuisje met gelapt dak, schoorsteen, verlichte ramen + maansikkel in de deur (glow_window)"
+ }
+]

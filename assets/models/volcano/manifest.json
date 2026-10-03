@@ -1,0 +1,137 @@
+[
+ {
+  "name": "basalt_columns",
+  "theme": "volcano",
+  "file": "models/volcano/basalt_columns.glb",
+  "kind": "scatter",
+  "footprint": 1.3,
+  "height": 3.144,
+  "size": [
+   3.332,
+   2.703
+  ],
+  "tris": 746,
+  "bytes": 37256,
+  "notes": "cluster zeshoekige basaltzuilen van verschillende hoogte met as op de toppen, omgevallen stukken en een gloeiende spleet"
+ },
+ {
+  "name": "bones",
+  "theme": "volcano",
+  "file": "models/volcano/bones.glb",
+  "kind": "edge",
+  "footprint": 0.22,
+  "height": 0.195,
+  "size": [
+   0.448,
+   0.41
+  ],
+  "tris": 289,
+  "bytes": 9256,
+  "notes": "cartoony schedel met grote oogkassen en twee knokige botten"
+ },
+ {
+  "name": "charred_tree",
+  "theme": "volcano",
+  "file": "models/volcano/charred_tree.glb",
+  "kind": "scatter",
+  "footprint": 0.7,
+  "height": 3.942,
+  "size": [
+   3.173,
+   2.282
+  ],
+  "tris": 579,
+  "bytes": 29972,
+  "notes": "verkoolde kronkelige kale boom met gloeiende sintels op takpunten en gloeiende scheuren in de stam (glow_ember)"
+ },
+ {
+  "name": "lava_rock_a",
+  "theme": "volcano",
+  "file": "models/volcano/lava_rock_a.glb",
+  "kind": "scatter",
+  "footprint": 0.75,
+  "height": 1.727,
+  "size": [
+   1.546,
+   1.082
+  ],
+  "tris": 296,
+  "bytes": 17452,
+  "notes": "hoge gekartelde basaltspits met 2 brokken en gloeiende scheuren (glow_lava)"
+ },
+ {
+  "name": "lava_rock_b",
+  "theme": "volcano",
+  "file": "models/volcano/lava_rock_b.glb",
+  "kind": "scatter",
+  "footprint": 1.2,
+  "height": 1.095,
+  "size": [
+   2.457,
+   1.698
+  ],
+  "tris": 544,
+  "bytes": 28452,
+  "notes": "brede gespleten basaltkei met gloeiende lavakern in de spleet, scheuren en brokjes"
+ },
+ {
+  "name": "lava_rock_c",
+  "theme": "volcano",
+  "file": "models/volcano/lava_rock_c.glb",
+  "kind": "scatter",
+  "footprint": 0.5,
+  "height": 0.978,
+  "size": [
+   0.891,
+   0.937
+  ],
+  "tris": 366,
+  "bytes": 20552,
+  "notes": "groepje scherpe basaltscherven met as op de toppen en een klein gloeiend lavaplasje"
+ },
+ {
+  "name": "obsidian_crystals",
+  "theme": "volcano",
+  "file": "models/volcano/obsidian_crystals.glb",
+  "kind": "edge",
+  "footprint": 0.25,
+  "height": 0.581,
+  "size": [
+   0.511,
+   0.385
+  ],
+  "tris": 273,
+  "bytes": 17936,
+  "notes": "glanzende zwarte en paarse obsidiaanscherven op een basaltvoetje (lage roughness)"
+ },
+ {
+  "name": "rock_post",
+  "theme": "volcano",
+  "file": "models/volcano/rock_post.glb",
+  "kind": "post",
+  "footprint": 0.45,
+  "height": 0.92,
+  "size": [
+   0.778,
+   0.816
+  ],
+  "tris": 240,
+  "bytes": 14224,
+  "notes": "stevige vulkanische kei (binnen r=0.45) met schuin brok erop, as op de toppen en gloeiende scheuren"
+ },
+ {
+  "name": "steam_vent",
+  "theme": "volcano",
+  "file": "models/volcano/steam_vent.glb",
+  "kind": "edge",
+  "footprint": 0.5,
+  "height": 0.594,
+  "size": [
+   1.066,
+   0.85
+  ],
+  "tris": 247,
+  "bytes": 16708,
+  "notes": "rotskegeltje met gloeiende opening (glow_lava), zwavelkorstjes op de rand, lavastroompjes over de flank"
+ }
+]

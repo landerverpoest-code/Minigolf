@@ -1,0 +1,204 @@
+[
+ {
+  "name": "alien_crystals",
+  "theme": "space",
+  "file": "models/space/alien_crystals.glb",
+  "kind": "edge",
+  "footprint": 0.28,
+  "height": 0.657,
+  "size": [
+   0.642,
+   0.586
+  ],
+  "tris": 196,
+  "bytes": 14912,
+  "notes": "cluster gloeiende kristallen (glow_crystal magenta + glow_crystal_cyan) op een rotsje"
+ },
+ {
+  "name": "alien_plant",
+  "theme": "space",
+  "file": "models/space/alien_plant.glb",
+  "kind": "edge",
+  "footprint": 0.38,
+  "height": 0.744,
+  "size": [
+   0.777,
+   0.715
+  ],
+  "tris": 262,
+  "bytes": 13924,
+  "notes": "krullende buitenaardse plant met gloeiende bolletjes (glow_bulb)"
+ },
+ {
+  "name": "antenna_tower",
+  "theme": "space",
+  "file": "models/space/antenna_tower.glb",
+  "kind": "scatter",
+  "footprint": 0.85,
+  "height": 6.48,
+  "size": [
+   1.7,
+   1.7
+  ],
+  "tris": 608,
+  "bytes": 38700,
+  "notes": "driepotige vakwerkmast met paneelantennes, schoteltje en knipperend glow_beacon-licht"
+ },
+ {
+  "name": "beacon_pylon",
+  "theme": "space",
+  "file": "models/space/beacon_pylon.glb",
+  "kind": "scatter",
+  "footprint": 0.45,
+  "height": 1.795,
+  "size": [
+   0.821,
+   0.821
+  ],
+  "tris": 454,
+  "bytes": 29228,
+  "notes": "korte baken-pyloon met lichtring (glow_ring)"
+ },
+ {
+  "name": "cargo_crates",
+  "theme": "space",
+  "file": "models/space/cargo_crates.glb",
+  "kind": "edge",
+  "footprint": 0.42,
+  "height": 0.8,
+  "size": [
+   0.97,
+   0.605
+  ],
+  "tris": 256,
+  "bytes": 18276,
+  "notes": "stapel sci-fi kratten met strepen (glow cyaan + glow_magenta) en goudfolie bus"
+ },
+ {
+  "name": "habitat_dome",
+  "theme": "space",
+  "file": "models/space/habitat_dome.glb",
+  "kind": "hero",
+  "footprint": 2.7,
+  "height": 4.39,
+  "size": [
+   5.865,
+   6.85
+  ],
+  "tris": 2590,
+  "bytes": 145988,
+  "notes": "geodetische glazen koepel op ringvoet met verlichte raamstroken (glow_window), luchtsluis en goudfolie tanks"
+ },
+ {
+  "name": "moon_rock_a",
+  "theme": "space",
+  "file": "models/space/moon_rock_a.glb",
+  "kind": "scatter",
+  "footprint": 0.95,
+  "height": 0.765,
+  "size": [
+   2.232,
+   1.69
+  ],
+  "tris": 434,
+  "bytes": 25260,
+  "notes": "gefacetteerde maanrots met kraters (geometrie) en kiezels"
+ },
+ {
+  "name": "moon_rock_b",
+  "theme": "space",
+  "file": "models/space/moon_rock_b.glb",
+  "kind": "scatter",
+  "footprint": 0.95,
+  "height": 1.873,
+  "size": [
+   2.322,
+   1.738
+  ],
+  "tris": 568,
+  "bytes": 31728,
+  "notes": "hoge scheve gefacetteerde maanrots + kraterrots en kiezels"
+ },
+ {
+  "name": "rocket_pad",
+  "theme": "space",
+  "file": "models/space/rocket_pad.glb",
+  "kind": "hero",
+  "footprint": 3.3,
+  "height": 11.34,
+  "size": [
+   6.715,
+   6.53
+  ],
+  "tris": 2478,
+  "bytes": 130776,
+  "notes": "retro raket met vinnen-poten, patrijspoorten (glow_window) op lanceerplatform met vakwerktoren en loopbrug"
+ },
+ {
+  "name": "rover",
+  "theme": "space",
+  "file": "models/space/rover.glb",
+  "kind": "scatter",
+  "footprint": 0.85,
+  "height": 1.5,
+  "size": [
+   1.42,
+   1.82
+  ],
+  "tris": 748,
+  "bytes": 44128,
+  "notes": "zeswielige maanrover (rijrichting -Y) met rocker-bogie, zonnepaneel, camerakop (glow-ogen) en antenne"
+ },
+ {
+  "name": "satellite_dish",
+  "theme": "space",
+  "file": "models/space/satellite_dish.glb",
+  "kind": "hero",
+  "footprint": 2.0,
+  "height": 6.18,
+  "size": [
+   4.16,
+   3.947
+  ],
+  "tris": 1344,
+  "bytes": 80740,
+  "notes": "grote schotel op sokkel; spin_dish draait langzaam rond verticale as; glow-rand en voedingspunt",
+  "spin": [
+   {
+    "node": "spin_dish",
+    "axis": "y",
+    "speed": 0.25
+   }
+  ]
+ },
+ {
+  "name": "solar_array",
+  "theme": "space",
+  "file": "models/space/solar_array.glb",
+  "kind": "scatter",
+  "footprint": 0.45,
+  "height": 2.495,
+  "size": [
+   3.56,
+   0.912
+  ],
+  "tris": 552,
+  "bytes": 33848,
+  "notes": "zonnepaneel-vleugels op een paal; cellen als losse geometrie (rasterlijnen = frame)"
+ },
+ {
+  "name": "ufo",
+  "theme": "space",
+  "file": "models/space/ufo.glb",
+  "kind": "hero",
+  "footprint": 2.1,
+  "height": 2.422,
+  "size": [
+   4.333,
+   4.321
+  ],
+  "tris": 1776,
+  "bytes": 64768,
+  "notes": "cartoon-vliegende schotel met glazen koepel en alientje; oorsprong onderaan (game laat hem zweven); glow_lights rond de rand + straalring"
+ }
+]
