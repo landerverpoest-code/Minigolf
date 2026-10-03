@@ -842,8 +842,8 @@ HOLES.push({
     { type: 'slider', a: [0, -20.1], b: [0, -23.5], off: [0, -3.8], times: [2.2, 0.8, 2.2, 0.8], phase: 3.0, style: 'house' },
   ],
   specials: [
-    { type: 'lanterns', items: [{ pos: [-5.6, -29.4], bridge: 'bridgeL', lit: 10 }, { pos: [5.6, -29.4], bridge: 'bridgeR', lit: 10 }],
-      name: 'Lantaarns', desc: 'Achter het huis gaapt een afgrond. Raak een lantaarn: de verborgen brug aan die kant licht 10 seconden op. Flikkert hij, dan verdwijnt de brug bijna.' },
+    { type: 'lanterns', items: [{ pos: [-5.6, -29.4], bridge: 'bridgeL', lit: Infinity }, { pos: [5.6, -29.4], bridge: 'bridgeR', lit: Infinity }],
+      name: 'Lantaarns', desc: 'Achter het huis gaapt een afgrond. Raak een lantaarn: de verborgen brug aan die kant licht op en blijft zichtbaar.' },
     { type: 'swingwall', c: [0, -41.8], len: 2.4, a0: 0, a1: Math.PI / 2, hold: 3, move: 0.9, name: 'Draaiende muur', desc: 'In de crypte kantelt een muur telkens een kwartslag en verandert de doorgang naar het gat.' },
     { type: 'ghost', c: [0, -22], ax: 5.5, az: 14, wx: 0.31, wz: 0.37, period: 4.6, warn: 1.0, radius: 3.2, name: 'Het spook', desc: 'Zweeft door muren. Wordt het doorzichtig en licht het op, dan blaast het je bal weg.' },
   ],
@@ -2204,6 +2204,7 @@ const SPECIALS = {
       o.items.push(I);
     }
     o.update = () => {};
+    o.reset = () => { for (const I of o.items) I.until = -1; }; // nieuwe beurt: lantaarns weer uit
     o.visual = (t, dt) => {
       for (const I of o.items) {
         const rem = I.until - t, lit = rem > 0, flick = lit && rem < 2.5 ? (Math.sin(t * 28) > 0 ? 1 : 0.25) : 1;
