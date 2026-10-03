@@ -63,6 +63,12 @@
   .hcard { text-align: left; padding: 12px; border-radius: 12px; background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.18); cursor: pointer; transition: transform .12s, background .2s; }
   .hcard:hover { background: rgba(255,255,255,.18); transform: translateY(-2px); }
   .hcard .ic { font-size: 28px; } .hcard .nm { font-weight: bold; font-size: 16px; margin: 4px 0 2px; } .hcard .th { opacity: .75; font-size: 13px; } .hcard .st { margin-top: 6px; font-size: 13px; } .hcard .st b { color: #ffd84a; }
+  .world { margin: 10px 0 14px; padding: 10px; border-radius: 14px; background: rgba(0,0,0,.22); }
+  .world .wh { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; text-align: left; }
+  .world .wh .ic { font-size: 26px; } .world .wh .wn { font-weight: bold; font-size: 18px; flex: 1; } .world .wh .wb { font-size: 13px; opacity: .85; } .world .wh .wb b { color: #ffd84a; }
+  .wgrid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-top: 8px; }
+  .wgrid .hcard { padding: 9px 10px; } .wgrid .hcard .nm { font-size: 14px; }
+  @media (max-width: 520px) { .wgrid .hcard .ic { display: none; } .wgrid .hcard .nm { font-size: 12.5px; } .wgrid .hcard .th, .wgrid .hcard .st { font-size: 11.5px; } }
   .instr { text-align: left; font-size: 14px; line-height: 1.5; }
   .instr h3 { margin: 14px 0 6px; color: #ffd84a; font-size: 16px; }
   .instr ul { margin: 0; padding-left: 18px; } .instr li { margin: 3px 0; }
@@ -75,7 +81,7 @@
 
 <div id="hud" class="hidden">
   <div id="hudLeft" class="panel">
-    <div id="hHole">Hole 1 / 9</div>
+    <div id="hHole">Hole 1</div>
     <div id="hName">-</div>
     <div class="row"><span>Par <b id="hPar">2</b></span><span>Slagen <b id="hStrokes">0</b></span><span>Totaal <b id="hTotal">0</b></span></div>
     <div id="hPlayer"></div>
@@ -95,13 +101,13 @@
 <div id="menu" class="screen">
   <div class="card panel">
     <h1>Minigolf Avontuur</h1>
-    <div class="sub">9 werelden · lange banen · banen die veranderen</div>
+    <div class="sub">9 werelden · 27 banen · banen die veranderen</div>
     <div class="players" id="playerSel">
       <button data-n="1" class="sel">1 speler</button><button data-n="2">2</button><button data-n="3">3</button><button data-n="4">4</button>
     </div>
     <div class="menuBtns">
-      <button class="big" id="bStart">▶ ALLE HOLES</button>
-      <button class="big alt" id="bPick">🗺 KIES EEN HOLE</button>
+      <button class="big" id="bStart">▶ ALLE 27 HOLES</button>
+      <button class="big alt" id="bPick">🗺 KIES WERELD OF HOLE</button>
     </div>
     <div class="row2"><button id="bInstr">❓ Instructies</button><button id="bQual">⚙ Kwaliteit: hoog</button></div>
     <div id="best"></div>
@@ -109,8 +115,9 @@
 </div>
 
 <div id="pickScr" class="screen hidden"><div class="card panel wide">
-  <h2 style="margin:0">Kies een hole</h2>
-  <div class="grid" id="holeGrid"></div>
+  <h2 style="margin:0">Kies een wereld of hole</h2>
+  <div style="opacity:.8;font-size:14px;margin-top:4px">Een wereld = de 3 holes van een thema na elkaar, met scorekaart.</div>
+  <div id="holeGrid"></div>
   <button id="bPickBack">← Terug</button>
 </div></div>
 <div id="instrScr" class="screen hidden" style="z-index:20"><div class="card panel wide instr" id="instrCard"></div></div>
@@ -3067,19 +3074,33 @@ function yawToward(x, z, tx, tz) { return Math.atan2(-(tx - x), -(tz - z)); }
 //  SPELVERLOOP
 // =====================================================================
 const COLORS = ['#ffffff', '#ff5252', '#40c4ff', '#ffd740'];
-const G = { state: 'menu', mode: 'all', players: [], cp: 0, hole: 0, paused: false, nPlayers: 1, introT: 0, charging: false, chargeT: 0, aim: null, power: 0, timers: [] };
+// ----- werelden: elk thema heeft 3 holes; HOLES wordt per wereld gesorteerd (origineel eerst) -----
+const WORLD_ORDER = ['meadow', 'volcano', 'castle', 'water', 'ice', 'desert', 'haunted', 'space', 'finale'];
+function holeKey(h) { return h.name.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''); }
+const LEGACY_KEYS = HOLES.slice(0, 9).map(holeKey); // vroeger werden beste scores per index (0-8) bewaard
+HOLES.forEach((h, i) => { h._i = i; });
+HOLES.sort((a, b) => WORLD_ORDER.indexOf(a.theme.env) - WORLD_ORDER.indexOf(b.theme.env) || a._i - b._i);
+const WORLDS = WORLD_ORDER.map(env => {
+  const hs = HOLES.map((h, i) => i).filter(i => HOLES[i].theme.env === env);
+  return hs.length ? { env, name: HOLES[hs[0]].themeName, icon: HOLES[hs[0]].icon, holes: hs } : null;
+}).filter(Boolean);
+HOLES.forEach((h, i) => { h.world = WORLDS.findIndex(w => w.env === h.theme.env); h.wn = WORLDS[h.world].holes.indexOf(i) + 1; h.key = holeKey(h); });
+
+const G = { state: 'menu', mode: 'all', players: [], cp: 0, hole: 0, seq: [0], si: 0, world: 0, paused: false, nPlayers: 1, introT: 0, charging: false, chargeT: 0, aim: null, power: 0, timers: [] };
 const $ = id => document.getElementById(id);
 function P() { return G.players[G.cp]; }
 // timers in speltijd: ze staan stil tijdens de pauze
 function later(fn, ms) { G.timers.push({ t: ms / 1000, fn }); }
 function clearTimers() { G.timers = []; }
 function tickTimers(dt) { if (!G.timers.length) return; const due = []; for (const tm of G.timers) { tm.t -= dt; if (tm.t <= 0) due.push(tm); } if (due.length) { G.timers = G.timers.filter(tm => tm.t > 0); due.forEach(tm => tm.fn()); } }
-// mode 'all' = alle 9 holes achter elkaar, 'single' = één losse hole
-function startGame(n, mode = 'all', hole = 0) {
+// mode 'all' = alle 27 holes achter elkaar, 'world' = de 3 holes van wereld 'arg', 'single' = losse hole 'arg'
+function startGame(n, mode = 'all', arg = 0) {
   SND.init(); clearTimers(); G.paused = false;
   G.mode = mode; G.players = []; for (let i = 0; i < n; i++) G.players.push({ name: n > 1 ? 'Speler ' + (i + 1) : 'Jij', color: COLORS[i], scores: [], max: [], strokes: 0 });
   ['menu', 'final', 'pickScr', 'scorePop', 'pauseScr', 'choiceScr'].forEach(id => $(id).classList.add('hidden')); $('hud').classList.remove('hidden');
-  loadHole(mode === 'single' ? hole : 0);
+  G.seq = mode === 'single' ? [arg] : mode === 'world' ? WORLDS[arg].holes.slice() : HOLES.map((h, i) => i);
+  G.world = mode === 'world' ? arg : HOLES[G.seq[0]].world; G.si = 0;
+  loadHole(G.seq[0]);
 }
 function loadHole(i) {
   clearTimers(); // timers van de vorige hole mogen niet blijven hangen
@@ -3088,7 +3109,7 @@ function loadHole(i) {
   G.state = 'intro'; G.introT = 0; Cam.ov = 1; Cam.ovTarget = 1; Cam.zo = 0;
   $('bOverview').classList.remove('on');
   startTurn(true);
-  showBanner(`Hole ${i + 1}`, def.name); // alleen kort de naam van de hole
+  showBanner(`Hole ${i + 1} · ${def.themeName} ${def.wn}`, def.name); // alleen kort de naam van de hole
   later(() => { hideBanner(); Cam.ovTarget = 0; }, 1900);
   later(() => { if (G.state === 'intro') G.state = 'play'; updateHUD(); }, 2600);
 }
@@ -3210,11 +3231,18 @@ function finishTurn(score, isMax) {
   }, 1700);
 }
 // beste score per hole (localStorage, met try/catch)
-function holeBests() { try { return JSON.parse(localStorage.getItem('minigolf3d_holes') || '{}') || {}; } catch (e) { return {}; } }
-function saveHoleBest(i, s) { const b = holeBests(); if (!b[i] || s < b[i]) { b[i] = s; try { localStorage.setItem('minigolf3d_holes', JSON.stringify(b)); } catch (e) { /* opslag niet beschikbaar */ } } }
+function holeBests() {
+  let b = {}; try { b = JSON.parse(localStorage.getItem('minigolf3d_holes') || '{}') || {}; } catch (e) { b = {}; }
+  for (const k of Object.keys(b)) if (/^\d+$/.test(k)) { const nk = LEGACY_KEYS[+k]; if (nk && (!b[nk] || b[k] < b[nk])) b[nk] = b[k]; delete b[k]; } // oude opslag per index
+  return b;
+}
+function bestOf(i) { return holeBests()[HOLES[i].key]; }
+function saveHoleBest(i, s) { const b = holeBests(), k = HOLES[i].key; if (!b[k] || s < b[k]) { b[k] = s; try { localStorage.setItem('minigolf3d_holes', JSON.stringify(b)); } catch (e) { /* opslag niet beschikbaar */ } } }
+function recordKey() { return G.mode === 'world' ? 'minigolf3d_w_' + WORLDS[G.world].env : 'minigolf3d_best27'; }
+function loadRecord(key) { try { return JSON.parse(localStorage.getItem(key) || 'null'); } catch (e) { return null; } }
 function showSingleResult() {
   G.state = 'scorecard';
-  const def = HOLES[G.hole], best = holeBests()[G.hole];
+  const def = HOLES[G.hole], best = bestOf(G.hole);
   let html = `<div style="opacity:.8;letter-spacing:2px">HOLE ${G.hole + 1} · ${def.name.toUpperCase()} · PAR ${def.par}</div>`;
   if (G.players.length === 1) {
     const p = G.players[0], s = p.scores[G.hole], lab = p.max[G.hole] ? { text: 'Gestopt', cls: 'bad' } : scoreLabel(s, def.par);
@@ -3236,8 +3264,8 @@ function scoreLabel(s, par) {
   const text = names[d] || (d < 0 ? d : '+' + d);
   return { text, color: d < 0 ? '#6dff8a' : d === 0 ? '#9fd3ff' : '#ff8a65', cls: d < 0 ? 'good' : d === 0 ? 'par' : 'bad' };
 }
-function totalOf(p) { return p.scores.reduce((a, b) => a + (b || 0), 0); }
-function parSoFar(n) { let s = 0; for (let i = 0; i < n; i++) s += HOLES[i].par; return s; }
+function totalOf(p) { return G.seq.reduce((a, i) => a + (p.scores[i] || 0), 0); }
+function parSoFar(n) { let s = 0; for (let k = 0; k < n && k < G.seq.length; k++) s += HOLES[G.seq[k]].par; return s; } // par van de eerste n holes van de reeks
 function showScoreCard() {
   G.state = 'scorecard';
   const def = HOLES[G.hole];
@@ -3249,28 +3277,42 @@ function showScoreCard() {
     const best = Math.min(...G.players.map(p => p.scores[G.hole]));
     html += `<div class="lbl good">${G.players.filter(p => p.scores[G.hole] === best).map(p => p.name).join(' & ')}</div>`;
   }
-  html += `<table><tr><th>Speler</th><th>Slagen</th><th></th><th>Totaal</th></tr>` + G.players.map(p => { const s = p.scores[G.hole], lab = p.max[G.hole] ? { text: 'Gestopt', cls: 'bad' } : scoreLabel(s, def.par); const t = totalOf(p), d = t - parSoFar(G.hole + 1); return `<tr><td><span style="color:${p.color}">●</span> ${p.name}</td><td>${s}</td><td class="${lab.cls}">${lab.text}</td><td>${t} (${d > 0 ? '+' + d : d === 0 ? 'E' : d})</td></tr>`; }).join('') + `</table>`;
-  html += `<button class="big" id="bNext">${G.hole < 8 ? 'VOLGENDE HOLE ▶' : 'EINDSTAND ▶'}</button>`;
+  html += `<table><tr><th>Speler</th><th>Slagen</th><th></th><th>Totaal</th></tr>` + G.players.map(p => { const s = p.scores[G.hole], lab = p.max[G.hole] ? { text: 'Gestopt', cls: 'bad' } : scoreLabel(s, def.par); const t = totalOf(p), d = t - parSoFar(G.si + 1); return `<tr><td><span style="color:${p.color}">●</span> ${p.name}</td><td>${s}</td><td class="${lab.cls}">${lab.text}</td><td>${t} (${d > 0 ? '+' + d : d === 0 ? 'E' : d})</td></tr>`; }).join('') + `</table>`;
+  const more = G.si < G.seq.length - 1;
+  html += `<button class="big" id="bNext">${more ? 'VOLGENDE HOLE ▶' : 'EINDSTAND ▶'}</button>`;
   $('scoreCard').innerHTML = html; $('scorePop').classList.remove('hidden');
-  $('bNext').onclick = () => { $('scorePop').classList.add('hidden'); if (G.hole < 8) loadHole(G.hole + 1); else showFinal(); };
+  $('bNext').onclick = () => { $('scorePop').classList.add('hidden'); if (more) { G.si++; loadHole(G.seq[G.si]); } else showFinal(); };
 }
 function showFinal() {
   G.state = 'final'; $('hud').classList.add('hidden');
-  const totalPar = parSoFar(9);
-  let html = `<h2 style="margin:0">Eindstand</h2><div class="scrollx"><table><tr><th>Hole</th>${HOLES.map((h, i) => `<th>${i + 1}</th>`).join('')}<th>Tot</th></tr><tr><td>Par</td>${HOLES.map(h => `<td>${h.par}</td>`).join('')}<td>${totalPar}</td></tr>`;
-  html += G.players.map(p => `<tr><td style="color:${p.color}">${p.name}</td>${HOLES.map((h, i) => { const s = p.scores[i], l = scoreLabel(s, h.par); return `<td class="${p.max[i] ? 'bad' : l.cls}">${s}</td>`; }).join('')}<td><b>${totalOf(p)}</b></td></tr>`).join('') + `</table></div>`;
+  const totalPar = parSoFar(G.seq.length), seq = G.seq;
+  const title = G.mode === 'world' ? `${WORLDS[G.world].icon} Wereld ${WORLDS[G.world].name}` : 'Eindstand';
+  let html = `<h2 style="margin:0">${title}</h2><div class="scrollx">`;
+  if (seq.length <= 9) { // per hole
+    html += `<table><tr><th>Hole</th>${seq.map(i => `<th>${i + 1}</th>`).join('')}<th>Tot</th></tr><tr><td>Par</td>${seq.map(i => `<td>${HOLES[i].par}</td>`).join('')}<td>${totalPar}</td></tr>`;
+    html += G.players.map(p => `<tr><td style="color:${p.color}">${p.name}</td>${seq.map(i => { const s = p.scores[i], l = scoreLabel(s, HOLES[i].par); return `<td class="${p.max[i] ? 'bad' : l.cls}">${s}</td>`; }).join('')}<td><b>${totalOf(p)}</b></td></tr>`).join('') + `</table>`;
+  } else { // per wereld (3 holes per rij)
+    html += `<table><tr><th style="text-align:left">Wereld</th><th>Par</th>${G.players.map(p => `<th style="color:${p.color}">${p.name}</th>`).join('')}</tr>`;
+    html += WORLDS.map(w => { const par = w.holes.reduce((a, i) => a + HOLES[i].par, 0);
+      return `<tr><td style="text-align:left">${w.icon} ${w.name}</td><td>${par}</td>${G.players.map(p => { const ss = w.holes.map(i => p.scores[i] || 0), t = ss.reduce((a, b) => a + b, 0); return `<td class="${t < par ? 'good' : t === par ? 'par' : 'bad'}" title="${ss.join(' · ')}">${t} <span style="opacity:.6;font-size:11px">(${ss.join('·')})</span></td>`; }).join('')}</tr>`; }).join('');
+    html += `<tr><td style="text-align:left"><b>Totaal</b></td><td><b>${totalPar}</b></td>${G.players.map(p => `<td><b>${totalOf(p)}</b></td>`).join('')}</tr></table>`;
+  }
+  html += `</div>`;
   const ranked = G.players.slice().sort((a, b) => totalOf(a) - totalOf(b)); const best = ranked[0], d = totalOf(best) - totalPar;
-  const rating = d <= -6 ? '🏆 Minigolf-legende!' : d <= -3 ? '🥇 Echte pro!' : d <= 0 ? '⭐ Prima gespeeld!' : d <= 6 ? '👍 Goed gedaan!' : d <= 14 ? '🙂 Oefenen maar!' : '😅 Volgende keer beter!';
+  const sc = seq.length / 9, rating = d <= -6 * sc ? '🏆 Minigolf-legende!' : d <= -3 * sc ? '🥇 Echte pro!' : d <= 0 ? '⭐ Prima gespeeld!' : d <= 6 * sc ? '👍 Goed gedaan!' : d <= 14 * sc ? '🙂 Oefenen maar!' : '😅 Volgende keer beter!';
   html += `<div class="lbl ${d < 0 ? 'good' : d === 0 ? 'par' : 'bad'}">${G.players.length > 1 ? best.name + ' wint!' : (d > 0 ? '+' + d : d === 0 ? 'Par' : d)}</div>`;
   html += `<div>${totalOf(best)} slagen · ${d > 0 ? d + ' boven' : d < 0 ? -d + ' onder' : 'precies op'} par</div><div class="rating">${rating}</div>`;
-  let hs = null; try { hs = JSON.parse(localStorage.getItem('minigolf3d_best') || 'null'); } catch (e) { hs = null; }
+  const rk = recordKey(); let hs = loadRecord(rk);
   let newRec = false;
-  if (!hs || totalOf(best) < hs.total) { newRec = true; hs = { total: totalOf(best), diff: d, date: new Date().toLocaleDateString('nl-BE') }; try { localStorage.setItem('minigolf3d_best', JSON.stringify(hs)); } catch (e) {} }
+  if (!hs || totalOf(best) < hs.total) { newRec = true; hs = { total: totalOf(best), diff: d, date: new Date().toLocaleDateString('nl-BE') }; try { localStorage.setItem(rk, JSON.stringify(hs)); } catch (e) {} }
   html += `<div style="margin:8px 0">${newRec ? '🎉 <b>Nieuw record!</b>' : `Highscore: <b>${hs.total}</b> (${hs.diff > 0 ? '+' + hs.diff : hs.diff}) op ${hs.date}`}</div>`;
-  html += `<button class="big" id="bAgain">OPNIEUW SPELEN</button><br><br><button id="bMenu">Startscherm</button>`;
+  const nextW = G.mode === 'world' && G.world < WORLDS.length - 1;
+  html += `${nextW ? `<button class="big" id="bNextW">VOLGENDE WERELD: ${WORLDS[G.world + 1].icon} ${WORLDS[G.world + 1].name} ▶</button><br><br>` : ''}<button class="${nextW ? '' : 'big'}" id="bAgain">OPNIEUW SPELEN</button><br><br><div class="row2"><button id="bPick3">🗺 Andere wereld</button><button id="bMenu">Startscherm</button></div>`;
   $('finalCard').innerHTML = html; $('final').classList.remove('hidden');
   SND.fanfare(); confetti(Cam.tx, 1, Cam.tz, 250);
-  $('bAgain').onclick = () => startGame(G.players.length, 'all');
+  $('bAgain').onclick = () => startGame(G.players.length, G.mode, G.mode === 'world' ? G.world : 0);
+  if (nextW) $('bNextW').onclick = () => startGame(G.players.length, 'world', G.world + 1);
+  $('bPick3').onclick = () => { $('final').classList.add('hidden'); showPick(); };
   $('bMenu').onclick = () => toMenu();
 }
 function toMenu() {
@@ -3292,23 +3334,30 @@ function toast(text, color = '#fff') { const el = $('toast'); el.textContent = t
 function updateHUD() {
   if (!G.players.length) return;
   const def = HOLES[G.hole], p = P();
-  $('hHole').textContent = `Hole ${G.hole + 1} / 9`; $('hName').textContent = def.name; $('hPar').textContent = def.par; $('hStrokes').textContent = p.strokes;
+  $('hHole').textContent = G.mode === 'all' ? `Hole ${G.si + 1} / ${G.seq.length}` : G.mode === 'world' ? `${def.icon} ${def.themeName} · hole ${G.si + 1} / ${G.seq.length}` : `Hole ${G.hole + 1} · ${def.themeName} ${def.wn}`; $('hName').textContent = def.name; $('hPar').textContent = def.par; $('hStrokes').textContent = p.strokes;
   const tot = totalOf(p) + (p.scores[G.hole] === undefined ? p.strokes : 0); $('hTotal').textContent = tot;
   $('hPlayer').innerHTML = G.players.length > 1 ? `<i style="background:${p.color}"></i> ${p.name} is aan de beurt` : '';
 }
 function showBest() {
-  let hs = null; try { hs = JSON.parse(localStorage.getItem('minigolf3d_best') || 'null'); } catch (e) { hs = null; }
-  $('best').innerHTML = hs ? `🏆 Highscore: <b>${hs.total}</b> slagen (${hs.diff > 0 ? '+' + hs.diff : hs.diff === 0 ? 'par' : hs.diff}) — ${hs.date}` : '';
+  const hs = loadRecord('minigolf3d_best27');
+  $('best').innerHTML = hs ? `🏆 Highscore 27 holes: <b>${hs.total}</b> slagen (${hs.diff > 0 ? '+' + hs.diff : hs.diff === 0 ? 'par' : hs.diff}) — ${hs.date}` : '';
 }
 function showPick() {
   const best = holeBests();
-  $('holeGrid').innerHTML = HOLES.map((h, i) => `<div class="hcard" data-i="${i}"><div class="ic">${h.icon}</div><div class="nm">${i + 1}. ${h.name}</div><div class="th">${h.themeName} · par ${h.par}</div><div class="st">Beste: <b>${best[i] || '—'}</b></div></div>`).join('');
+  $('holeGrid').innerHTML = WORLDS.map((w, wi) => {
+    const rec = loadRecord('minigolf3d_w_' + w.env);
+    return `<div class="world"><div class="wh"><span class="ic">${w.icon}</span><span class="wn">${wi + 1}. ${w.name}</span><span class="wb">Record: <b>${rec ? rec.total : '—'}</b></span><button data-w="${wi}">▶ Speel wereld</button></div>
+      <div class="wgrid">${w.holes.map(i => { const h = HOLES[i]; return `<div class="hcard" data-i="${i}"><div class="ic">${h.icon}</div><div class="nm">${i + 1}. ${h.name}</div><div class="th">par ${h.par}</div><div class="st">Beste: <b>${best[h.key] || '—'}</b></div></div>`; }).join('')}</div></div>`;
+  }).join('');
   $('holeGrid').querySelectorAll('.hcard').forEach(c => c.onclick = () => { SND.init(); startGame(G.nPlayers, 'single', +c.dataset.i); });
+  $('holeGrid').querySelectorAll('button[data-w]').forEach(b => b.onclick = () => { SND.init(); startGame(G.nPlayers, 'world', +b.dataset.w); });
   $('menu').classList.add('hidden'); $('pickScr').classList.remove('hidden');
 }
 let instrWasPaused = false;
 function showInstr() {
-  const els = HOLES.map((h, i) => `<div class="el"><b>${h.icon} ${i + 1}. ${h.name}</b> (par ${h.par})<br>` + h.specials.map(sp => `<b>${sp.name}:</b> ${sp.desc}`).join('<br>') + `</div>`).join('');
+  const els = WORLDS.map(w => { const seen = new Set(), sps = [];
+    for (const i of w.holes) for (const sp of HOLES[i].specials || []) if (!seen.has(sp.name)) { seen.add(sp.name); sps.push(sp); }
+    return `<div class="el"><b>${w.icon} ${w.name}</b>: ${w.holes.map(i => `${i + 1}. ${HOLES[i].name} (par ${HOLES[i].par})`).join(' · ')}<br>` + sps.map(sp => `<b>${sp.name}:</b> ${sp.desc}`).join('<br>') + `</div>`; }).join('');
   $('instrCard').innerHTML = `<h2 style="margin:0;text-align:center">Instructies</h2>
     <h3>Besturing</h3><ul>
       <li><b>Slaan:</b> klik of tik bij de bal en sleep naar achteren (katapult). Hoe verder je sleept, hoe harder. Loslaten = slaan.</li>
