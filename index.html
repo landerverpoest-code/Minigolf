@@ -137,6 +137,7 @@
 </div></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script><!-- voor de Blender-decor (optioneel) -->
 <script>
 'use strict';
 /* =====================================================================
@@ -1059,8 +1060,10 @@ function isCachedTex(t) { for (const k in TEX) if (TEX[k] === t) return true; re
 // alles van een hole vrijgeven: geometrie, materialen en per-hole textures (gedeelde textures blijven)
 function disposeTree(obj) {
   obj.traverse(o => {
-    if (o.geometry) o.geometry.dispose();
+    if (o.geometry && !o.geometry.userData.shared) o.geometry.dispose();
+    if (o.isInstancedMesh && o.dispose) o.dispose();
     if (o.material) (Array.isArray(o.material) ? o.material : [o.material]).forEach(m => {
+      if (m.userData.shared) return; // Blender-modellen worden hergebruikt
       for (const k of MAP_KEYS) if (m[k] && !isCachedTex(m[k])) m[k].dispose();
       m.dispose();
     });
@@ -1091,7 +1094,7 @@ function buildHole(idx) {
   const def = HOLES[idx], th = def.theme;
   holeGroup = new THREE.Group(); scene.add(holeGroup);
   H = { idx, def, t: 0, floors: [], zones: [], statics: [], kins: [], updaters: [], occluders: [], special: null, lights: [], torchLights: [],
-    cleanups: [], attractors: [], byId: {}, floorsById: {}, zonesById: {} };
+    cleanups: [], attractors: [], byId: {}, floorsById: {}, zonesById: {}, occ: [], glowMats: new Set(), decorated: false };
   const g = holeGroup;
   const hole = { x: def.hole[0], z: def.hole[1] };
   // --- vloeren ---
@@ -1151,7 +1154,10 @@ function buildHole(idx) {
   H.bounds = bb; H.center = [(bb[0] + bb[2]) / 2, (bb[1] + bb[3]) / 2]; H.size = Math.max(bb[2] - bb[0], bb[3] - bb[1]);
   // --- sfeer ---
   applyTheme(def);
-  ENV[th.env]({ g, def, H, upd: f => H.updaters.push(f), occ: m => H.occluders.push(m) });
+  const ctx = { g, def, H, mdl: mdlReady(th.env), upd: f => H.updaters.push(f), occ: m => H.occluders.push(m) };
+  ENV[th.env](ctx); H.ctx = ctx;
+  decorateModels(ctx);
+  H.updaters.push((t) => { let k = 0; for (const m of H.glowMats) { m.emissiveIntensity = m.userData.glow * (0.82 + Math.sin(t * 2.2 + k++ * 1.7) * 0.18); } }); // gloeiende delen pulseren
   const sd = new THREE.Vector3().fromArray(th.sun.dir).normalize();
   sun.target.position.set(H.center[0], 0, H.center[1]);
   sun.position.set(H.center[0] + sd.x * 60, sd.y * 60, H.center[1] + sd.z * 60);
@@ -1202,7 +1208,12 @@ function addBridgeDeco(F) { // houten palen onder de bruggen
 }
 
 function buildPost(p) {
-  const g = holeGroup;
+  const g = holeGroup, mk = POST_MODELS[p.kind], M0 = mk && MDL.models[mk];
+  if (M0) { // Blender-model, geschaald naar de botsstraal
+    const big = p.kind === 'tower';
+    placeModel(mk, p.x, 0, p.z, hashStr(p.x.toFixed(2) + p.z.toFixed(2)) % 628 / 100, p.r / (M0.e.footprint || p.r), g, true, big);
+    return;
+  }
   switch (p.kind) {
     case 'stump': { mesh(CYL(p.r, p.r * 1.15, 0.5, 14), M('#6d4c2f', { map: tex('wood') }), g, p.x, 0.25, p.z); mesh(CYL(p.r * 0.95, p.r * 0.95, 0.02, 14), M('#c8a070'), g, p.x, 0.51, p.z, false); break; }
     case 'rock': { const m = mesh(new THREE.DodecahedronGeometry(p.r * 1.25, 0), M('#3a302c', { map: tex('rock'), flatShading: true }), g, p.x, 0.3, p.z); m.scale.y = 0.8; m.rotation.y = p.x; break; }
@@ -2488,10 +2499,221 @@ function courseDist(x, z) {
 }
 // vaste decorplek, maar opschuiven (spiraal naar buiten) als de baan daar ligt
 function placeFree(x, z, r) {
-  if (courseDist(x, z) > r) return [x, z];
-  for (let d = 1; d < 80; d += 1) for (let k = 0; k < 16; k++) { const a = k / 16 * TAU + d; const px = x + Math.cos(a) * d, pz = z + Math.sin(a) * d; if (courseDist(px, pz) > r) return [px, pz]; }
-  return [x, z];
+  const ok = (px, pz) => courseDist(px, pz) > r && occFree(px, pz, r * 0.8);
+  let out = [x, z];
+  if (!ok(x, z)) { search: for (let d = 1; d < 80; d += 1) for (let k = 0; k < 16; k++) { const a = k / 16 * TAU + d; const px = x + Math.cos(a) * d, pz = z + Math.sin(a) * d; if (ok(px, pz)) { out = [px, pz]; break search; } } }
+  H.occ.push([out[0], out[1], r * 0.8]); return out;
 }
+function occupy(p, r) { H.occ.push([p[0], p[1], r]); return p; }
+// =====================================================================
+//  BLENDER-DECORATIE
+//  Modellen gemaakt met Blender (assets/blender → assets/models), per thema gebundeld in
+//  models/<thema>.js door tools/build_models.py. Ze worden op de achtergrond geladen; ontbreekt
+//  een pakket of de GLTFLoader, dan blijft gewoon de procedurele decoratie staan.
+// =====================================================================
+const MDL = { themes: {}, models: {}, loading: {} };
+// ronde obstakels op de baan die een Blender-versie hebben (footprint van het model = standaardstraal)
+const POST_MODELS = { stump: 'meadow/tree_stump', rock: 'volcano/rock_post', tower: 'castle/tower_post', well: 'castle/well', palm: 'water/palm_post', icicle: 'ice/icicle_post', cactus: 'desert/cactus_post' };
+function mdlReady(env) { return MDL.themes[env] === true; }
+function loadThemeModels(env) {
+  if (MDL.loading[env]) return MDL.loading[env];
+  return (MDL.loading[env] = new Promise(done => {
+    if (!THREE.GLTFLoader) { MDL.themes[env] = false; return done(false); }
+    const finish = () => {
+      const pack = (window.MG_MODELS || {})[env]; if (!pack || !pack.data) { MDL.themes[env] = false; return done(false); }
+      const loader = new THREE.GLTFLoader();
+      Promise.all(pack.manifest.map(e => new Promise(ok => {
+        try {
+          const s = atob(pack.data[e.name]), u = new Uint8Array(s.length); for (let i = 0; i < s.length; i++) u[i] = s.charCodeAt(i);
+          loader.parse(u.buffer, '', gl => { try { MDL.models[env + '/' + e.name] = prepModel(gl.scene, e, env); } catch (err) { /* kapot model overslaan */ } ok(); }, () => ok());
+        } catch (err) { ok(); }
+      }))).then(() => { delete pack.data; MDL.themes[env] = true; done(true); }); // base64 vrijgeven
+    };
+    if ((window.MG_MODELS || {})[env]) return finish();
+    const sc = document.createElement('script'); sc.src = 'models/' + env + '.js'; sc.async = true;
+    sc.onload = finish; sc.onerror = () => { MDL.themes[env] = false; done(false); };
+    document.head.appendChild(sc);
+  }));
+}
+// geometrie met een matrix 'bakken' (los van eventuele interleaved buffers van de loader)
+function bakeGeo(src, m) {
+  const p = src.attributes.position, n = src.attributes.normal, c = p.count, v = new THREE.Vector3(), nm = new THREE.Matrix3().getNormalMatrix(m);
+  const pos = new Float32Array(c * 3), nor = new Float32Array(c * 3);
+  for (let i = 0; i < c; i++) {
+    v.set(p.getX(i), p.getY(i), p.getZ(i)).applyMatrix4(m); pos[i * 3] = v.x; pos[i * 3 + 1] = v.y; pos[i * 3 + 2] = v.z;
+    if (n) { v.set(n.getX(i), n.getY(i), n.getZ(i)).applyMatrix3(nm).normalize(); nor[i * 3] = v.x; nor[i * 3 + 1] = v.y; nor[i * 3 + 2] = v.z; }
+  }
+  const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.BufferAttribute(pos, 3)); g.setAttribute('normal', new THREE.BufferAttribute(nor, 3));
+  if (src.index) g.setIndex(Array.from(src.index.array)); else g.setIndex([...Array(c).keys()]);
+  if (!n) g.computeVertexNormals();
+  return g;
+}
+function joinGeos(gs) { // geïndexeerde merge; resultaat is gedeeld (wordt niet per hole opgeruimd)
+  let g = gs[0];
+  if (gs.length > 1) {
+    let nv = 0; for (const q of gs) nv += q.attributes.position.count;
+    const pos = new Float32Array(nv * 3), nor = new Float32Array(nv * 3), idx = []; let o = 0;
+    for (const q of gs) { pos.set(q.attributes.position.array, o * 3); nor.set(q.attributes.normal.array, o * 3); const a = q.index.array; for (let k = 0; k < a.length; k++) idx.push(a[k] + o); o += q.attributes.position.count; q.dispose(); }
+    g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.BufferAttribute(pos, 3)); g.setAttribute('normal', new THREE.BufferAttribute(nor, 3)); g.setIndex(idx);
+  }
+  g.computeBoundingSphere(); g.userData.shared = true; return g;
+}
+function prepModel(root, e, env) {
+  root.updateMatrixWorld(true);
+  const spinCfg = {}; for (const s of e.spin || []) spinCfg[s.node] = s;
+  const groups = new Map(), spins = [], inv = new THREE.Matrix4();
+  root.traverse(o => {
+    if (!o.isMesh) return;
+    let sn = null; for (let a = o; a && a !== root; a = a.parent) if (spinCfg[a.name]) { sn = a; break; }
+    const mat = o.material; mat.userData.shared = true;
+    if (/^glow/i.test(mat.name || '')) { mat.userData.glow = mat.emissiveIntensity || 1; mat.toneMapped = true; }
+    const g = bakeGeo(o.geometry, sn ? inv.copy(sn.matrixWorld).invert().multiply(o.matrixWorld) : o.matrixWorld);
+    if (sn) { let q = spins.find(x => x.node === sn); if (!q) spins.push(q = { node: sn, cfg: spinCfg[sn.name], geos: new Map() }); if (!q.geos.has(mat)) q.geos.set(mat, []); q.geos.get(mat).push(g); return; }
+    if (!groups.has(mat)) groups.set(mat, []); groups.get(mat).push(g);
+  });
+  const parts = [...groups].map(([mat, gs]) => ({ mat, geo: joinGeos(gs) }));
+  const sp = spins.map(q => {
+    const pos = new THREE.Vector3(), quat = new THREE.Quaternion(), scl = new THREE.Vector3(); q.node.matrixWorld.decompose(pos, quat, scl);
+    const ax = q.cfg.axis || 'y';
+    return { pos, quat, scl, m: q.node.matrixWorld.clone(), axis: new THREE.Vector3(ax === 'x' ? 1 : 0, ax === 'y' ? 1 : 0, ax === 'z' ? 1 : 0), speed: q.cfg.speed || 1, parts: [...q.geos].map(([mat, gs]) => ({ mat, geo: joinGeos(gs) })) };
+  });
+  const glow = [...new Set(parts.concat(...sp.map(s => s.parts)).map(p => p.mat).filter(m => m.userData.glow))];
+  return { e, env, key: env + '/' + e.name, parts, spins: sp, glow };
+}
+// één model als losse groep (hero's, obstakels): gedeelde geometrie, draaiende onderdelen, gloeiende materialen
+// occ = true: eigen materialen en camera-doorzichtigheid (zoals torens en muren)
+function placeModel(key, x, y, z, ry = 0, s = 1, parent = holeGroup, cast = true, occ = false) {
+  const M0 = MDL.models[key]; if (!M0) return null;
+  const g = new THREE.Group(); g.position.set(x, y, z); g.rotation.y = ry; g.scale.setScalar(s); parent.add(g);
+  const own = new Map(), matOf = mt => { if (!occ) return mt; if (!own.has(mt)) { const c = mt.clone(); c.userData = { glow: mt.userData.glow }; own.set(mt, c); if (c.userData.glow) H.glowMats.add(c); } return own.get(mt); };
+  for (const p of M0.parts) { const m = new THREE.Mesh(p.geo, matOf(p.mat)); m.castShadow = cast; m.receiveShadow = true; g.add(m); if (occ) { m.userData.occ = true; H.occluders.push(m); } }
+  for (const sp of M0.spins) {
+    const pv = new THREE.Group(); pv.position.copy(sp.pos); pv.scale.copy(sp.scl); g.add(pv);
+    for (const p of sp.parts) { const m = new THREE.Mesh(p.geo, matOf(p.mat)); m.castShadow = cast; pv.add(m); }
+    const base = sp.quat.clone(), q = new THREE.Quaternion(), ph = x * 0.37 + z * 0.11;
+    H.updaters.push(t => { q.setFromAxisAngle(sp.axis, t * sp.speed + ph); pv.quaternion.copy(base).multiply(q); });
+  }
+  if (!occ) for (const m of M0.glow) H.glowMats.add(m);
+  return g;
+}
+// veel kopieën: één InstancedMesh per materiaal (draaiende onderdelen staan dan stil)
+function instModel(key, list, cast = false) {
+  const M0 = MDL.models[key]; if (!M0 || !list.length) return;
+  const mk = (geo, mat, extra) => {
+    const im = new THREE.InstancedMesh(geo, mat, list.length);
+    list.forEach((it, i) => { _e.set(0, it.ry || 0, 0); _q.setFromEuler(_e); _s.setScalar(it.s || 1); _p.set(it.x, it.y, it.z); _m4.compose(_p, _q, _s); if (extra) _m4.multiply(extra); im.setMatrixAt(i, _m4); });
+    im.instanceMatrix.needsUpdate = true; im.castShadow = cast; im.receiveShadow = true; im.frustumCulled = false; holeGroup.add(im);
+  };
+  for (const p of M0.parts) mk(p.geo, p.mat, null);
+  for (const sp of M0.spins) for (const p of sp.parts) mk(p.geo, p.mat, sp.m);
+  for (const m of M0.glow) H.glowMats.add(m);
+}
+function hashStr(s) { let h = 2166136261; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return h >>> 0; }
+function occFree(x, z, r) { for (const o of H.occ) if (Math.hypot(x - o[0], z - o[1]) < r + o[2]) return false; return true; }
+// per thema: minimale terreinhoogte voor 'land' en hoeveel modellen in elke ring
+const DECOR = {
+  meadow: { land: -0.05, near: 70, far: 80, edge: 90, heroes: 2 },
+  volcano: { land: -0.35, near: 50, far: 50, edge: 60, heroes: 2, mound: '#2a2220' },
+  castle: { land: -0.2, near: 55, far: 80, edge: 55, heroes: 3 },
+  water: { land: 0.05, near: 26, far: 20, edge: 0, heroes: 3, mound: '#e2cc95', water: ['sailboat', 'buoy'], waterN: 12 },
+  ice: { land: -0.3, near: 55, far: 70, edge: 60, heroes: 3 },
+  desert: { land: -0.3, near: 50, far: 55, edge: 60, heroes: 3 },
+  haunted: { land: -0.3, near: 60, far: 60, edge: 70, heroes: 2 },
+  space: { space: true, heroes: 4 },
+  finale: { land: -0.35, near: 45, far: 40, edge: 55, heroes: 3, mound: '#2a2028' },
+};
+function decorateModels(ctx) {
+  const env = ctx.def.theme.env, cfg = DECOR[env];
+  if (!cfg || !mdlReady(env) || H.decorated) return;
+  H.decorated = true;
+  const all = Object.values(MDL.models).filter(m => m.env === env), by = k => all.filter(m => m.e.kind === k);
+  const rnd = mulberry(hashStr(ctx.def.key || ctx.def.name)), th = ctx.th || (() => 0), q = Q.high ? 1 : 0.5;
+  const bb = H.bounds, cx = H.center[0], cz = H.center[1];
+  const moundM = cfg.mound ? M(cfg.mound, { map: tex(env === 'water' ? 'sand' : 'rock'), roughness: 1, flatShading: env !== 'water' }) : null;
+  // plek zoeken: afstand tot de baan tussen dMin en dMax, vrij van andere decor, op land (of op een heuveltje)
+  const spot = (r, dMin, dMax, water) => {
+    for (let k = 0; k < 60; k++) {
+      const a = rnd() * TAU, d = dMin + r + rnd() * (dMax - dMin);
+      const x = clamp(cx + Math.cos(a) * (d + (bb[2] - bb[0]) / 2), bb[0] - dMax - r, bb[2] + dMax + r), z = clamp(cz + Math.sin(a) * (d + (bb[3] - bb[1]) / 2), bb[1] - dMax - r, bb[3] + dMax + r);
+      const cd = courseDist(x, z); if (cd < dMin + r || cd > dMax + r) continue;
+      if (!occFree(x, z, r)) continue;
+      const y = Math.min(th(x, z), th(x + r * 0.7, z), th(x - r * 0.7, z), th(x, z + r * 0.7), th(x, z - r * 0.7));
+      if (water) { if (y > -0.9) continue; return [x, z, -0.32]; }
+      if (y < cfg.land && !moundM) continue;
+      return [x, z, y];
+    }
+    return null;
+  };
+  const mound = (x, z, y, r) => { // heuveltje onder een model dat anders in water/lava zou staan
+    if (!moundM || y >= cfg.land) return Math.max(y, 0) - 0.05;
+    const m = mesh(new THREE.SphereGeometry(r * 1.25 + 0.6, 14, 8, 0, TAU, 0, Math.PI / 2), moundM, holeGroup, x, -0.45, z, false, true); m.scale.y = 0.22;
+    return -0.45 + (r * 1.25 + 0.6) * 0.22 - 0.12;
+  };
+  // 1) hero's: grote blikvangers rond de baan, naar de baan gedraaid
+  const heroes = by('hero').slice().sort((a, b) => hashStr(a.key + ctx.def.name) - hashStr(b.key + ctx.def.name));
+  if (cfg.space) { spacePlatforms(ctx, heroes, by('scatter').concat(by('edge')), rnd); }
+  else for (const h of heroes.slice(0, cfg.heroes)) {
+    const r = h.e.footprint || 2;
+    const p = spot(r, 6, 34); if (!p) continue;
+    const y = mound(p[0], p[1], p[2], r); H.occ.push([p[0], p[1], r]);
+    placeModel(h.key, p[0], y, p[1], Math.atan2(cx - p[0], cz - p[1]) + (rnd() - 0.5) * 0.5, 1, holeGroup, true, courseDist(p[0], p[1]) < 14);
+  }
+  if (cfg.space) return;
+  // 2) verspreide modellen: dichtbij (met schaduw) en verder weg (alleen hoge modellen)
+  const sc = by('scatter'), water = cfg.water || [];
+  const rings = [[cfg.near * q, 1.2, 26, sc.filter(m => !water.includes(m.e.name)), true], [cfg.far * q, 26, 95, sc.filter(m => !water.includes(m.e.name) && (m.e.height || 0) > 2.2), false]];
+  for (const [n, dMin, dMax, pool, cast] of rings) {
+    if (!pool.length) continue;
+    const lists = new Map(pool.map(m => [m.key, []]));
+    for (let i = 0; i < n; i++) {
+      const m = pool[Math.floor(rnd() * pool.length)], s = 0.8 + rnd() * 0.45, r = (m.e.footprint || 0.6) * s;
+      const p = spot(r, dMin, dMax); if (!p) continue;
+      const y = mound(p[0], p[1], p[2], r); H.occ.push([p[0], p[1], r * 0.8]);
+      lists.get(m.key).push({ x: p[0], y, z: p[1], ry: rnd() * TAU, s });
+    }
+    for (const [k, l] of lists) instModel(k, l, cast);
+  }
+  // 3) drijvende modellen (bootjes, boeien) op het water
+  for (const nm of water) {
+    const m = MDL.models[env + '/' + nm]; if (!m) continue; const l = [];
+    for (let i = 0; i < (cfg.waterN || 8) * q / water.length; i++) { const p = spot(m.e.footprint || 1, 3, 40, true); if (!p) continue; H.occ.push([p[0], p[1], m.e.footprint || 1]); l.push({ x: p[0], y: p[2], z: p[1], ry: rnd() * TAU, s: 0.9 + rnd() * 0.3 }); }
+    l.forEach((it, i) => { const g = placeModel(m.key, it.x, it.y, it.z, it.ry, it.s, holeGroup, false); if (g) H.updaters.push(t => { const lv = H.tide ? H.tide.level(t) : -0.32; g.position.y = lv + Math.sin(t * 1.3 + i) * 0.06; g.rotation.z = Math.sin(t * 0.9 + i * 2) * 0.05; }); });
+  }
+  // 4) randdetails vlak naast de muren
+  const ed = by('edge');
+  if (ed.length && cfg.edge) {
+    const lists = new Map(ed.map(m => [m.key, []]));
+    for (const [x, z, rr] of edgePoints(cfg.edge, hashStr(ctx.def.name) % 9973, 0.45, 2.6)) {
+      const m = ed[Math.floor(rr * ed.length * 0.999)], r = (m.e.footprint || 0.3);
+      if (courseDist(x, z) < r + 0.15 || !occFree(x, z, r)) continue;
+      const y = th(x, z); if (y < cfg.land) continue;
+      H.occ.push([x, z, r]); lists.get(m.key).push({ x, y: y - 0.02, z, ry: rr * 40, s: 0.85 + (rr * 7 % 1) * 0.35 });
+    }
+    for (const [k, l] of lists) instModel(k, l, false);
+  }
+}
+// ruimte: zwevende platforms met elk een hero-model en wat kleine spullen
+function spacePlatforms(ctx, heroes, small, rnd) {
+  const bb = H.bounds, cx = H.center[0], cz = H.center[1];
+  const rockM = M('#5a5560', { map: tex('rock'), flatShading: true, roughness: 0.95 }), plateM = M('#c8d0dc', { metalness: 0.6, roughness: 0.4 });
+  const floaters = heroes.filter(h => /ufo/.test(h.e.name)), grounded = heroes.filter(h => !/ufo/.test(h.e.name));
+  let n = 0;
+  for (const h of grounded) {
+    if (n >= 4) break;
+    const r = Math.max(3, (h.e.footprint || 2) + 1.8);
+    let p = null;
+    for (let k = 0; k < 80 && !p; k++) { const a = rnd() * TAU, d = 9 + rnd() * 22; const x = cx + Math.cos(a) * (d + (bb[2] - bb[0]) / 2), z = cz + Math.sin(a) * (d + (bb[3] - bb[1]) / 2); if (courseDist(x, z) > r + 4 && occFree(x, z, r + 2)) p = [x, z]; }
+    if (!p) continue; n++;
+    const y = -1.2 - rnd() * 2.5, grp = new THREE.Group(); grp.position.set(p[0], y, p[1]); holeGroup.add(grp); H.occ.push([p[0], p[1], r + 2]);
+    const rock = mesh(new THREE.CylinderGeometry(r, r * 0.35, 2.6, 9, 2), rockM, grp, 0, -1.3, 0, false, true); rock.rotation.y = rnd() * 3;
+    mesh(new THREE.CylinderGeometry(r * 0.97, r * 0.97, 0.12, 24), plateM, grp, 0, 0.02, 0, false, true);
+    placeModel(h.key, 0, 0.08, 0, Math.atan2(cx - p[0], cz - p[1]), 1, grp, true);
+    for (let k = 0; k < 3 && small.length; k++) { const m = small[Math.floor(rnd() * small.length)], a = rnd() * TAU, d = r * (0.62 + rnd() * 0.25); placeModel(m.key, Math.cos(a) * d, 0.08, Math.sin(a) * d, rnd() * TAU, 0.8, grp, false); }
+    const ph = rnd() * 6; H.updaters.push(t => { grp.position.y = y + Math.sin(t * 0.5 + ph) * 0.25; });
+  }
+  for (const h of floaters) { const a = rnd() * TAU, d = 14 + rnd() * 10; const g = placeModel(h.key, cx + Math.cos(a) * d, 9, cz + Math.sin(a) * d, 0, 1, holeGroup, false); if (g) H.updaters.push(t => { g.position.y = 8 + Math.sin(t * 0.8) * 0.8; g.rotation.y = t * 0.4; }); }
+}
+
 function textBanner(text, w, h, bg, fg) { return textTex(text, { bg, color: fg, size: Math.floor(h * 0.6), w, h }); }
 
 const ENV = {
@@ -2500,8 +2722,10 @@ const ENV = {
     terrain(ctx, { base: -0.08, amp: 16, c0: '#5fae3e', c1: '#4b8d33', c2: '#86956a', tex: 'meadow', texScale: 4 });
     const r = mulberry(11);
     mountains(ctx, { n: 18, rMin: 230, rMax: 280, hMin: 50, hMax: 95, color: '#7d8fa8', snow: '#ffffff', snowLine: 0.7, seed: 3 });
-    forest(ctx, scatter(90, 16, 110, 21, 6), 'round');
-    forest(ctx, [[7, -8, 0.9], [-12, -36, 0.6]].map(([x, z, q]) => [...placeFree(x, z, 2.5), q]), 'round', { scale: 1.6 });
+    if (!ctx.mdl) { // zonder Blender-modellen: procedurele bomen
+      forest(ctx, scatter(90, 16, 110, 21, 6), 'round');
+      forest(ctx, [[7, -8, 0.9], [-12, -36, 0.6]].map(([x, z, q]) => [...placeFree(x, z, 2.5), q]), 'round', { scale: 1.6 });
+    }
     // voorgrond: bloemen, grasplukjes en steentjes langs de omheining
     const cols = ['#ff5a8a', '#ffd23f', '#ffffff', '#b07bff', '#ff8c42'];
     const fl = edgePoints(520, 31, 0.3, 5);
@@ -2509,11 +2733,13 @@ const ENV = {
     tufts(ctx, edgePoints(700, 32, 0.2, 6), ['#2e7d32', '#388e3c', '#33691e', '#558b2f']);
     pebbles(ctx, edgePoints(70, 33, 0.6, 5), '#6d6d6d', 0.22);
     // schuur en hooibalen
-    const S = ctx.def.set || {}, bp = placeFree(...(S.barn || [-17, -28]), 7);
-    const barn = new THREE.Group(); barn.position.set(bp[0], 0, bp[1]); barn.rotation.y = 0.5; ctx.g.add(barn);
-    mesh(BOX(6, 3.5, 4.5), M('#b5332e', { map: tex('wood') }), barn, 0, 1.75, 0); const roof = mesh(CONE(4.4, 2.2, 4), M('#5d4037'), barn, 0, 4.6, 0); roof.rotation.y = Math.PI / 4; roof.scale.z = 0.75;
-    mesh(BOX(2, 2.4, 0.1), M('#f5f5f5'), barn, 0, 1.2, 2.26);
-    for (let k = 0; k < 4; k++) mesh(CYL(0.7, 0.7, 1.2, 14), M('#e6c35c', { roughness: 1 }), barn, -2 + k * 1.4, 0.7, 4).rotation.z = Math.PI / 2;
+    if (!ctx.mdl) {
+      const S = ctx.def.set || {}, bp = placeFree(...(S.barn || [-17, -28]), 7);
+      const barn = new THREE.Group(); barn.position.set(bp[0], 0, bp[1]); barn.rotation.y = 0.5; ctx.g.add(barn);
+      mesh(BOX(6, 3.5, 4.5), M('#b5332e', { map: tex('wood') }), barn, 0, 1.75, 0); const roof = mesh(CONE(4.4, 2.2, 4), M('#5d4037'), barn, 0, 4.6, 0); roof.rotation.y = Math.PI / 4; roof.scale.z = 0.75;
+      mesh(BOX(2, 2.4, 0.1), M('#f5f5f5'), barn, 0, 1.2, 2.26);
+      for (let k = 0; k < 4; k++) mesh(CYL(0.7, 0.7, 1.2, 14), M('#e6c35c', { roughness: 1 }), barn, -2 + k * 1.4, 0.7, 4).rotation.z = Math.PI / 2;
+    }
     clouds(ctx, 18);
     // vlinders
     const bfs = [];
@@ -2578,7 +2804,7 @@ const ENV = {
     inst(ctx, BOX(3, 2.4, 3), M('#ffffff', { map: tex('stone'), roughness: 0.9 }), houses.map(([x, z, q]) => ({ x, y: ctx.th(x, z) + 1.2, z, ry: q * 3, c: new THREE.Color('#e8ddcc').offsetHSL(0, 0, (q - 0.5) * 0.2).getHex() })), true, true);
     inst(ctx, CONE(2.6, 1.8, 4), M('#ffffff', { roughness: 0.8 }), houses.map(([x, z, q]) => ({ x, y: ctx.th(x, z) + 3.3, z, ry: q * 3 + Math.PI / 4, c: q > 0.5 ? '#9c3b2b' : '#6d4c41' })), true);
     mountains(ctx, { n: 16, rMin: 210, rMax: 270, hMin: 50, hMax: 100, color: '#5a5a7a', snow: '#f0e8ff', snowLine: 0.75, seed: 4 });
-    forest(ctx, scatter(110, 18, 110, 51, 7), 'pine', { color: '#2e6b3a' });
+    forest(ctx, scatter(ctx.mdl ? 45 : 110, ctx.mdl ? 60 : 18, 110, 51, 7), 'pine', { color: '#2e6b3a' }); // met Blender-decor alleen ver weg
     tufts(ctx, edgePoints(400, 53, 0.3, 4), ['#2e7d32', '#33691e', '#558b2f']);
     pebbles(ctx, edgePoints(60, 54, 0.4, 3), '#6a6a6a', 0.2);
     clouds(ctx, 16, '#ffd6c0', 0.7);
@@ -2665,14 +2891,16 @@ const ENV = {
       foam(ctx, [[c[0], c[1] - 0.05], [c[2], c[1] - 0.05]], 0.4, -0.25, false); foam(ctx, [[c[0], c[3] + 0.05], [c[2], c[3] + 0.05]], -0.4, -0.25, false);
     }
     mountains(ctx, { n: 20, rMin: 170, rMax: 260, hMin: 50, hMax: 110, color: '#8fb4d8', snow: '#ffffff', snowLine: 0.5, seed: 9, wide: 0.8 });
-    forest(ctx, scatter(90, 16, 100, 81, 6), 'pine', { color: '#2f5d50', snow: true });
+    if (!ctx.mdl) forest(ctx, scatter(90, 16, 100, 81, 6), 'pine', { color: '#2f5d50', snow: true });
     tufts(ctx, edgePoints(250, 82, 0.3, 4), ['#e3f2fd', '#bbdefb', '#ffffff'], 0.5); // ijskristallen
     pebbles(ctx, edgePoints(70, 83, 0.4, 4), '#f4f9ff', 0.3); // sneeuwhoopjes
     // iglo + sneeuwpoppen
+    if (!ctx.mdl) {
     const ig = placeFree(...(S.igloo || [8, -6]), 3.4);
     mesh(new THREE.SphereGeometry(2.2, 20, 12, 0, TAU, 0, Math.PI / 2), M('#f4f9ff', { map: tex('snow') }), ctx.g, ig[0], -0.05, ig[1], true, true);
     mesh(new THREE.CylinderGeometry(0.8, 0.8, 1.6, 12, 1, false, 0, Math.PI), M('#eef6ff'), ctx.g, ig[0], 0.2, ig[1] + 2.1, true).rotation.set(Math.PI / 2, 0, Math.PI / 2);
-    for (const [x, z] of [[-6, 4], [5, -20], [-21, -42]].map(([x, z]) => placeFree(x, z, 1.3))) { const s = new THREE.Group(); s.position.set(x, 0, z); ctx.g.add(s); const sn = M('#ffffff', { roughness: 0.9 }); mesh(SPH(0.7, 14, 10), sn, s, 0, 0.6, 0); mesh(SPH(0.5, 14, 10), sn, s, 0, 1.55, 0); mesh(SPH(0.35, 14, 10), sn, s, 0, 2.25, 0); mesh(CONE(0.07, 0.4, 8), M('#ff7a1a'), s, 0, 2.25, 0.45, false).rotation.x = Math.PI / 2; for (const e of [-1, 1]) mesh(SPH(0.05, 6, 4), M('#111'), s, e * 0.12, 2.35, 0.3, false); mesh(CYL(0.3, 0.3, 0.4, 12), M('#222'), s, 0, 2.65, 0); }
+    }
+    for (const [x, z] of ctx.mdl ? [] : [[-6, 4], [5, -20], [-21, -42]].map(([x, z]) => placeFree(x, z, 1.3))) { const s = new THREE.Group(); s.position.set(x, 0, z); ctx.g.add(s); const sn = M('#ffffff', { roughness: 0.9 }); mesh(SPH(0.7, 14, 10), sn, s, 0, 0.6, 0); mesh(SPH(0.5, 14, 10), sn, s, 0, 1.55, 0); mesh(SPH(0.35, 14, 10), sn, s, 0, 2.25, 0); mesh(CONE(0.07, 0.4, 8), M('#ff7a1a'), s, 0, 2.25, 0.45, false).rotation.x = Math.PI / 2; for (const e of [-1, 1]) mesh(SPH(0.05, 6, 4), M('#111'), s, e * 0.12, 2.35, 0.3, false); mesh(CYL(0.3, 0.3, 0.4, 12), M('#222'), s, 0, 2.65, 0); }
     // noorderlicht
     const aur = [];
     for (let i = 0; i < 3; i++) { const g = new THREE.PlaneGeometry(280, 55, 40, 1); const m = new THREE.Mesh(g, new THREE.MeshBasicMaterial({ map: tex('aurora'), transparent: true, opacity: 0.6, blending: THREE.AdditiveBlending, side: THREE.DoubleSide, depthWrite: false, fog: false, color: ['#7dffb0', '#7fb2ff', '#d08aff'][i] })); m.position.set(H.center[0] + (i - 1) * 40, 75 + i * 12, H.center[1] - 190 - i * 20); ctx.g.add(m); aur.push({ m, base: g.attributes.position.array.slice() }); }
@@ -2713,7 +2941,7 @@ const ENV = {
     }
     // sfinx
     const sp = placeFree(...(S.sphinx || [-14, -20]), 5);
-    const sx = new THREE.Group(); sx.position.set(sp[0], 0, sp[1]); sx.rotation.y = 0.2; ctx.g.add(sx);
+    const sx = new THREE.Group(); sx.position.set(sp[0], 0, sp[1]); sx.rotation.y = 0.2; ctx.g.add(sx); sx.visible = !ctx.mdl; // met Blender-decor staat er een mooiere sfinx
     const ss = M('#d9b97f', { map: tex('sandstone') });
     mesh(BOX(6, 2, 2.4), ss, sx, 0, 1, 0); for (const z of [-0.7, 0.7]) mesh(BOX(2.5, 0.6, 0.7), ss, sx, 3.8, 0.3, z);
     mesh(BOX(1.6, 1.8, 1.6), ss, sx, 2.6, 2.6, 0); mesh(BOX(1.3, 1.4, 2.4), M('#3a6aa0'), sx, 2.4, 2.8, 0); mesh(BOX(0.4, 0.6, 0.5), ss, sx, 3.5, 2.4, 0);
@@ -2721,7 +2949,7 @@ const ENV = {
     // verre piramides + obelisken
     for (let i = 0; i < 4; i++) { const a = -2.2 + i * 0.5, d = 150 + i * 30; const p = mesh(CONE(30 + i * 6, 34 + i * 6, 4), M('#d9b07a'), ctx.g, H.center[0] + Math.cos(a) * d, 16 + i * 3, H.center[1] + Math.sin(a) * d, false); p.rotation.y = Math.PI / 4; }
     const ob = scatter(8, 20, 60, 92, 8);
-    inst(ctx, CONE(0.8, 7, 4), M('#d7b47c', { map: tex('sandstone') }), ob.map(([x, z, q]) => ({ x, y: ctx.th(x, z) + 3.4, z, ry: Math.PI / 4 })), true);
+    if (!ctx.mdl) inst(ctx, CONE(0.8, 7, 4), M('#d7b47c', { map: tex('sandstone') }), ob.map(([x, z, q]) => ({ x, y: ctx.th(x, z) + 3.4, z, ry: Math.PI / 4 })), true);
     for (const [x, z] of scatter(16, 9, 45, 91, 4)) { if (gorge(z) > 6) buildPost({ x, z, r: 0.3, kind: 'cactus' }); }
     pebbles(ctx, edgePoints(120, 93, 0.4, 4), '#c9a070', 0.22);
     tufts(ctx, edgePoints(200, 94, 0.4, 5), ['#a1887f', '#8d6e63', '#c0ca33'], 0.3); // droog gras
@@ -2744,8 +2972,8 @@ const ENV = {
       for (const s of [-1, 1]) mesh(scaleUV(BOX(pw + 0.2, 12, 0.4), 4, 3), M('#2a2630', { map: tex('stone') }), ctx.g, pcx, -6.1, pcz + s * (pd / 2 - 0.05), false, true);
       for (const s of [-1, 1]) mesh(scaleUV(BOX(0.4, 12, pd), 2, 3), M('#2a2630', { map: tex('stone') }), ctx.g, pcx + s * (pw / 2 - 0.2), -6.1, pcz, false, true);
     }
-    forest(ctx, scatter(70, 12, 90, 101, 4), 'dead', { trunk: '#2a2420', scale: 1.5 });
-    const gp = scatter(60, 6, 40, 102, 2);
+    if (!ctx.mdl) forest(ctx, scatter(70, 12, 90, 101, 4), 'dead', { trunk: '#2a2420', scale: 1.5 });
+    const gp = ctx.mdl ? [] : scatter(60, 6, 40, 102, 2);
     inst(ctx, BOX(0.8, 1.1, 0.2), M('#ffffff', { map: tex('stone') }), gp.map(([x, z, q]) => ({ x, y: ctx.th(x, z) + 0.45, z, ry: q * 1.5, rz: (q - 0.5) * 0.3, s: 0.8 + q * 0.5, c: new THREE.Color('#5c6066').offsetHSL(0, 0, (q - 0.5) * 0.15).getHex() })), true, true);
     tufts(ctx, edgePoints(300, 103, 0.3, 4), ['#3a4a2a', '#4a3a2a', '#2a3a2a'], 0.45);
     // maan
@@ -2774,7 +3002,7 @@ const ENV = {
     const winM = new THREE.MeshBasicMaterial({ color: '#ffb84a' });
     for (let k = 0; k < 8; k++) mesh(BOX(1, 1.4, 0.1), winM, man, -6 + (k % 4) * 4, 2.5 + Math.floor(k / 4) * 3.5, 3.55, false);
     // pompoenen
-    for (const [x, z] of (S.pumpkins || [[-5.8, -10], [5.8, 1], [-5.7, -2], [8, -16], [-8, -44]]).map(([x, z]) => placeFree(x, z, 0.5))) { const p = mesh(SPH(0.3, 14, 10), M('#c24a00', { emissive: '#ff5a00', emissiveIntensity: 0.12 }), ctx.g, x, 0.22, z); p.scale.y = 0.8; mesh(BOX(0.22, 0.08, 0.05), new THREE.MeshBasicMaterial({ color: '#ffb74d' }), p, 0, 0, 0.29, false); }
+    for (const [x, z] of ctx.mdl ? [] : (S.pumpkins || [[-5.8, -10], [5.8, 1], [-5.7, -2], [8, -16], [-8, -44]]).map(([x, z]) => placeFree(x, z, 0.5))) { const p = mesh(SPH(0.3, 14, 10), M('#c24a00', { emissive: '#ff5a00', emissiveIntensity: 0.12 }), ctx.g, x, 0.22, z); p.scale.y = 0.8; mesh(BOX(0.22, 0.08, 0.05), new THREE.MeshBasicMaterial({ color: '#ffb74d' }), p, 0, 0, 0.29, false); }
     // vleermuizen
     const bats = [];
     for (let i = 0; i < 10; i++) { const b = new THREE.Group(); ctx.g.add(b); const bm = M('#111', { side: THREE.DoubleSide }); mesh(SPH(0.12, 8, 6), bm, b, 0, 0, 0, false); const w1 = new THREE.Mesh(new THREE.PlaneGeometry(0.5, 0.25).translate(0.25, 0, 0), bm), w2 = new THREE.Mesh(new THREE.PlaneGeometry(0.5, 0.25).translate(-0.25, 0, 0), bm); w1.rotation.x = w2.rotation.x = -Math.PI / 2; const wg1 = new THREE.Group(), wg2 = new THREE.Group(); wg1.add(w1); wg2.add(w2); b.add(wg1, wg2); bats.push({ b, wg1, wg2, s: i * 0.8, r: 4 + i * 1.3, y: 3 + (i % 3) }); }
@@ -3046,7 +3274,7 @@ function updateCamera(dt) {
   const wantZo = Math.max(ball.state === 'moving' || ball.air > 0 ? clamp((spd - 5) * 0.4, 0, 7) : 0, aimP * 3);
   Cam.zo += (wantZo - Cam.zo) * (1 - Math.exp(-dt * (wantZo > Cam.zo ? 2.5 : 0.8)));
   let yaw = Cam.yaw, tx = Cam.tx, ty = Cam.ty, tz = Cam.tz, dist = Cam.dist + Cam.zo, pitch = Cam.pitch;
-  if (G.state === 'menu') { yaw = Cam.orbit; tx = H.center[0]; tz = H.center[1]; ty = 0; dist = H.size * 0.75 + 8; pitch = 0.6; }
+  if (G.state === 'menu') { yaw = Cam.orbit; tx = H.center[0]; tz = H.center[1]; ty = 0; dist = (H.size * 0.75 + 8) * (Cam.menuDist || 1); pitch = Cam.menuPitch || 0.6; }
   const cp = Math.cos(pitch), spn = Math.sin(pitch), fx_ = -Math.sin(yaw), fz_ = -Math.cos(yaw);
   const fpos = tmpV.set(tx - fx_ * dist * cp, ty + dist * spn, tz - fz_ * dist * cp);
   const flook = tmpV2.set(tx, ty + 0.3, tz);
@@ -3105,6 +3333,8 @@ function startGame(n, mode = 'all', arg = 0) {
 function loadHole(i) {
   clearTimers(); // timers van de vorige hole mogen niet blijven hangen
   G.hole = i; buildHole(i); applyEnvMaps(); G.cp = 0;
+  const env = HOLES[i].theme.env, Hb = H;
+  if (!mdlReady(env)) loadThemeModels(env).then(ok => { if (ok && H === Hb) { decorateModels(H.ctx); applyEnvMaps(); } });
   const def = HOLES[i];
   G.state = 'intro'; G.introT = 0; Cam.ov = 1; Cam.ovTarget = 1; Cam.zo = 0;
   $('bOverview').classList.remove('on');
@@ -3549,6 +3779,11 @@ function frame(now) {
 
 // ---------- start ----------
 buildHole(0); applyEnvMaps(); resetBall(HOLES[0].start[0], HOLES[0].start[1]); showBest();
+// Blender-decor: zodra het pakket van het menuthema binnen is de achtergrond opnieuw opbouwen, daarna de andere thema's laden
+loadThemeModels(HOLES[0].theme.env).then(ok => {
+  if (ok && G.state === 'menu') { buildHole(0); applyEnvMaps(); resetBall(HOLES[0].start[0], HOLES[0].start[1]); }
+  WORLD_ORDER.reduce((pr, env) => pr.then(() => loadThemeModels(env)), Promise.resolve());
+});
 ['bQual', 'bQual2'].forEach(id => $(id).textContent = '⚙ Kwaliteit: ' + (Q.high ? 'hoog' : 'laag'));
 requestAnimationFrame(frame);
 // debug/test-hulpje
