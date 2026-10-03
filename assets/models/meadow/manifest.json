@@ -4,7 +4,7 @@
   "theme": "meadow",
   "file": "models/meadow/barn.glb",
   "kind": "hero",
-  "footprint": 4.6,
+  "footprint": 5.0,
   "height": 8.724,
   "size": [
    8.919,
@@ -20,13 +20,13 @@
   "file": "models/meadow/birch_tree.glb",
   "kind": "scatter",
   "footprint": 0.35,
-  "height": 5.156,
+  "height": 5.144,
   "size": [
-   2.479,
-   2.351
+   2.467,
+   2.262
   ],
   "tris": 872,
-  "bytes": 24364,
+  "bytes": 24360,
   "notes": "berk: witte stam met donkere streepjes, lichte luchtige kruin aan zichtbare takken"
  },
  {
@@ -35,13 +35,13 @@
   "file": "models/meadow/bush_flowering.glb",
   "kind": "scatter",
   "footprint": 0.6,
-  "height": 1.124,
+  "height": 1.131,
   "size": [
-   1.617,
-   1.22
+   1.642,
+   1.215
   ],
   "tris": 814,
-  "bytes": 36004,
+  "bytes": 35996,
   "notes": "ronde bloeiende struik met roze/witte bloemetjes"
  },
  {
@@ -110,13 +110,13 @@
   "file": "models/meadow/oak_tree.glb",
   "kind": "scatter",
   "footprint": 0.55,
-  "height": 4.862,
+  "height": 4.94,
   "size": [
-   3.705,
-   3.25
+   3.625,
+   3.286
   ],
   "tris": 835,
-  "bytes": 23128,
+  "bytes": 22912,
   "notes": "eik: gelaagde kruin in 2 groentinten, stam met wortels en takken"
  },
  {
@@ -124,7 +124,7 @@
   "theme": "meadow",
   "file": "models/meadow/rock_mossy.glb",
   "kind": "scatter",
-  "footprint": 0.75,
+  "footprint": 0.8,
   "height": 0.975,
   "size": [
    1.656,

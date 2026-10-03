@@ -67,4 +67,4 @@ for k in range(4):
 o = join(parts, 'tent_striped')
 smooth(o, 40)
 report()
-finish('castle', 'tent_striped', kind='scatter', footprint=1.6, notes='rond toernooitent met rood/crème banen, blauw-gouden geschulpte rand, open deurflappen, gouden bol, blauwe wimpel en scheerlijnen')
+finish('castle', 'tent_striped', kind='scatter', footprint=2.2, notes='rond toernooitent met rood/crème banen, blauw-gouden geschulpte rand, open deurflappen, gouden bol, blauwe wimpel en scheerlijnen')

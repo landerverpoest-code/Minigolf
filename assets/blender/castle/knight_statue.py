@@ -127,4 +127,4 @@ for p_ in o.data.polygons:
         p_.material_index = mi
 smooth(o, 40)
 report()
-finish('castle', 'knight_statue', kind='hero', footprint=1.0, notes='stenen ridderbeeld (helm met vizier en gouden kam, schouderstukken, cape, schild met gouden kruis) leunend op zwaard met gouden pareerstang, op gelaagde sokkel met gouden plaquette en mos')
+finish('castle', 'knight_statue', kind='hero', footprint=1.3, notes='stenen ridderbeeld (helm met vizier en gouden kam, schouderstukken, cape, schild met gouden kruis) leunend op zwaard met gouden pareerstang, op gelaagde sokkel met gouden plaquette en mos')

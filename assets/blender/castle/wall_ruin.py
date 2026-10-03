@@ -71,4 +71,4 @@ for p_ in o.data.polygons:
         p_.material_index = mi
 smooth(o, 40)
 report()
-finish('castle', 'wall_ruin', kind='scatter', footprint=1.6, notes='afgebrokkeld stuk kantelenmuur uit losse blokken (2 steentinten), gat in de muur, gevallen stenen, mos en graspollen')
+finish('castle', 'wall_ruin', kind='scatter', footprint=1.8, notes='afgebrokkeld stuk kantelenmuur uit losse blokken (2 steentinten), gat in de muur, gevallen stenen, mos en graspollen')

@@ -80,4 +80,4 @@ for k, (x, y) in enumerate(((-0.75, -0.7), (-1.05, -0.45))):
     parts.append(cone(0.1, 0.12, loc=(x, y, 0.56), verts=5, material=cream))
 o = join(parts, 'market_stall')
 report()
-finish('castle', 'market_stall', kind='scatter', footprint=1.2, notes='houten marktkraam met rood/crème gestreepte luifel en geschulpte rand; kratten met appels en broden, kazen, krat kool en jute zakken')
+finish('castle', 'market_stall', kind='scatter', footprint=1.3, notes='houten marktkraam met rood/crème gestreepte luifel en geschulpte rand; kratten met appels en broden, kazen, krat kool en jute zakken')

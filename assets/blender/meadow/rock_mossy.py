@@ -73,4 +73,4 @@ for i, (x, y, r) in enumerate(((-0.62, -0.3, 0.1), (0.25, -0.62, 0.08), (-0.4, 0
     parts.append(p)
 join(parts, 'rock_mossy')
 report()
-finish('meadow', 'rock_mossy', kind='scatter', footprint=0.75, notes='ronde grijze kei met overhangende moskap in 2 tinten, kleine steen en kiezels')
+finish('meadow', 'rock_mossy', kind='scatter', footprint=0.8, notes='ronde grijze kei met overhangende moskap in 2 tinten, kleine steen en kiezels')

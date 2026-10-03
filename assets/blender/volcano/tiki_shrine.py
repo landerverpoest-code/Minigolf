@@ -138,4 +138,4 @@ parts.append(torus(0.25, 0.05, loc=(0, 0.66, HZ + 0.7), rot=(math.pi / 2, 0, 0),
 s = join(parts, 'tiki_shrine')
 smooth(s, 40)
 report()
-finish('volcano', 'tiki_shrine', kind='hero', footprint=2.6, notes='stenen tiki op getrapte basaltvoet met trap; gloeiende ogen, mond, veerpunt, fakkelvlammen en offerschaal (glow_lava); wangkrullen, tanden, armen in reliëf, verentooi')
+finish('volcano', 'tiki_shrine', kind='hero', footprint=3.0, notes='stenen tiki op getrapte basaltvoet met trap; gloeiende ogen, mond, veerpunt, fakkelvlammen en offerschaal (glow_lava); wangkrullen, tanden, armen in reliëf, verentooi')

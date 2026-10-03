@@ -1,17 +1,32 @@
 [
  {
+  "name": "bedouin_tent",
+  "theme": "desert",
+  "file": "models/desert/bedouin_tent.glb",
+  "kind": "scatter",
+  "footprint": 1.4,
+  "height": 2.15,
+  "size": [
+   2.77,
+   4.325
+  ],
+  "tris": 631,
+  "bytes": 36296,
+  "notes": "Gestreepte bedoe\u00efenententtent (terracotta/cr\u00e8me) met palen, opengeslagen flappen, scheerlijnen, lantaarntje en een kleed met kussens en theepot voor de ingang (-Y)"
+ },
+ {
   "name": "broken_column",
   "theme": "desert",
   "file": "models/desert/broken_column.glb",
   "kind": "scatter",
   "footprint": 1.2,
-  "height": 1.63,
+  "height": 1.639,
   "size": [
-   3.512,
-   2.617
+   3.709,
+   2.713
   ],
-  "tris": 644,
-  "bytes": 35332,
+  "tris": 852,
+  "bytes": 44536,
   "notes": "Afgebroken Egyptische zuil met geschilderde banden, een omgevallen zuilstuk en een lotuskapiteel op de grond"
  },
  {
@@ -28,6 +43,21 @@
   "tris": 482,
   "bytes": 32004,
   "notes": "Zuilcactus als paal-obstakel: binnen r=0.34 tot 0.6 m, armen hoger op binnen r~0.6"
+ },
+ {
+  "name": "camel",
+  "theme": "desert",
+  "file": "models/desert/camel.glb",
+  "kind": "scatter",
+  "footprint": 0.8,
+  "height": 2.16,
+  "size": [
+   2.207,
+   0.795
+  ],
+  "tris": 882,
+  "bytes": 41024,
+  "notes": "Cartoon-dromedaris met rood-goud-turkooise zadeldeken met kwastjes en zadel; loopt langs +X, kop kijkt licht naar -Y"
  },
  {
   "name": "date_palm",
@@ -133,5 +163,20 @@
   "tris": 1354,
   "bytes": 69300,
   "notes": "Gestileerde sfinx op sokkel, kijkt naar -Y; gestreepte goud/turkoois nemes, gouden baard, staart langs de zijkant"
+ },
+ {
+  "name": "urns",
+  "theme": "desert",
+  "file": "models/desert/urns.glb",
+  "kind": "edge",
+  "footprint": 0.3,
+  "height": 0.54,
+  "size": [
+   0.623,
+   0.668
+  ],
+  "tris": 298,
+  "bytes": 11988,
+  "notes": "Drie terracotta potten/kruiken met geschilderde banden (turkoois, cr\u00e8me, donkerrood)"
  }
 ]
