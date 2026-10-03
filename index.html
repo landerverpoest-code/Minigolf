@@ -932,6 +932,293 @@ HOLES.push({
   },
 });
 
+// ===== NIEUWE HOLES (Spookhuis, Ruimte, Finale) =====
+
+// ---------- Spookhuis 2: De Grafkelder ----------
+// Kerkhofpad met een draaideur naar een crypte van 2x3 grafkamers. Twee draaiende muren op de kruispunten
+// openen om beurten andere doorgangen tussen de kamers; het gat ligt op het altaar in de laatste kamer.
+HOLES.push({
+  name: 'De Grafkelder', themeName: 'Spookhuis', icon: '⚰️', par: 4, voidKind: 'abyss', surf: 'grassDark',
+  start: [-3.5, 1], hole: [4.2, -28.2], aim: [-3.5, -10],
+  floor: [
+    { poly: RECT(-6.5, 3, -0.5, -10) },
+    { poly: RECT(-7, -10, 7, -31), surf: 'stone' },
+    { poly: RECT(1.4, -25.4, 6.6, -30.6), surf: 'carpet' }, // altaarkleed rond het gat
+  ],
+  walls: [
+    LINE([[-6.5, -10], [-6.5, 3], [-0.5, 3], [-0.5, -10]], { style: 'iron' }),
+    LINE([[-4.75, -10], [-7, -10], [-7, -31], [7, -31], [7, -10], [-2.25, -10]], { style: 'stone', h: 1.2 }),
+    // grafkamers: muren met openingen rond de kruispunten (0,-17) en (0,-24)
+    LINE([[0, -10], [0, -14.9]], { style: 'stone', h: 1.2 }), LINE([[0, -19.1], [0, -21.9]], { style: 'stone', h: 1.2 }), LINE([[0, -26.1], [0, -31]], { style: 'stone', h: 1.2 }),
+    LINE([[-7, -17], [-2.1, -17]], { style: 'stone', h: 1.2 }), LINE([[2.1, -17], [7, -17]], { style: 'stone', h: 1.2 }),
+    LINE([[-7, -24], [-2.1, -24]], { style: 'stone', h: 1.2 }), LINE([[2.1, -24], [7, -24]], { style: 'stone', h: 1.2 }),
+    LOOP(RECT(-5.3, -19.5, -3.9, -21.5), { style: 'stone', h: 0.6 }), LOOP(RECT(3.8, -12.2, 5.2, -14.2), { style: 'stone', h: 0.6 }), // sarcofagen
+  ],
+  zones: [{ type: 'mud', poly: CIRC(-1.6, -0.6, 0.85, 16) }],
+  blocks: [
+    { x: -5.2, z: -2.4, w: 1.0, d: 0.28, rot: 0.2, kind: 'grave' }, { x: -1.7, z: -4.0, w: 1.0, d: 0.28, rot: -0.15, kind: 'grave' },
+    { x: -3.4, z: -6.6, w: 0.9, d: 0.28, rot: 0.05, kind: 'grave' }, { x: -5.4, z: -8.4, w: 0.9, d: 0.28, rot: -0.1, kind: 'grave' },
+    { x: -1.6, z: -8.6, w: 0.9, d: 0.28, rot: 0.12, kind: 'grave' },
+  ],
+  movers: [{ type: 'rotbar', c: [-3.5, -10], arms: 4, len: 1.12, w: 1.1, phase: 0.4, style: 'door' }],
+  torches: [[-6.6, -13.4], [6.6, -13.4], [-6.6, -27.6]],
+  set: { housePosts: [[-7, -10], [7, -10], [-7, -31], [7, -31], [0, -31], [0, -10], [-7, -17], [7, -17], [-7, -24], [7, -24]],
+    candles: [[1.8, -30.2], [6.2, -30.2], [6.2, -25.8]], moon: ['#ff6a5a', '#ffb4a8'], pumpkins: [[-7.6, 1.5], [0.4, -3], [-7.6, -6], [8.2, -14], [8.2, -27]] },
+  specials: [
+    { type: 'swingwall', c: [0, -17], len: 2.0, a0: 0, a1: Math.PI / 2, hold: 3, move: 0.9,
+      name: 'Draaiende grafmuren', desc: 'Op de twee kruispunten in de crypte kantelen muren telkens een kwartslag. Staat de ene dwars, dan staat de andere open: wacht in een grafkamer tot jouw doorgang vrij is.' },
+    { type: 'swingwall', c: [0, -24], len: 2.0, a0: Math.PI / 2, a1: 0, hold: 3, move: 0.9,
+      name: 'Tweede grafmuur', desc: 'Draait precies andersom dan de eerste muur. Gloeiende runen = hij gaat zo kantelen.' },
+    { type: 'ghost', c: [0, -20.5], ax: 5.0, az: 8.5, wx: 0.29, wz: 0.41, period: 5.2, warn: 1.0, radius: 3.0,
+      name: 'Het kelderspook', desc: 'Zweeft door de grafkamers en door de muren. Licht het op, dan blaast het je bal weg, soms juist door een open doorgang.' },
+  ],
+  theme: {
+    env: 'haunted', wall: 'house', flag: '#ff1744',
+    sky: ['#120208', '#4a0f1a', '#14060a'], sun: { dir: [-0.4, 0.6, -0.6], color: '#ff9a8a', int: 0.6 }, hemi: ['#b07080', '#1a0a10', 0.7],
+    fog: ['#2a0e18', 20, 120], exposure: 1.3, stars: true,
+    music: { root: 196, scale: [0, 1, 3, 5, 6, 8, 10], chord: [0, 3, 6], tempo: 58, wave: 'triangle', density: 0.22, chirp: 'owl', noise: ['bandpass', 300, 0.03], seed: 17 },
+  },
+});
+
+// ---------- Spookhuis 3: Het Dwaallichtkerkhof ----------
+// Kerkhof aan een diepe afgrond. Links een loopbrug met valluiken die om beurten openklappen; rechts een
+// kronkelend verborgen pad dat oplicht als je de lantaarn raakt. Op het crypte-eiland waakt een spookridder.
+HOLES.push((() => {
+  // kronkelpad: middellijn + breedte -> één veelhoek (rechte stukjes aan begin en eind voor nette randen)
+  const band = (pts, w) => {
+    const Lp = [], Rp = [];
+    for (let i = 0; i < pts.length; i++) {
+      const a = pts[Math.max(0, i - 1)], b = pts[Math.min(pts.length - 1, i + 1)]; let dx = b[0] - a[0], dz = b[1] - a[1]; const l = Math.hypot(dx, dz); dx /= l; dz /= l;
+      Lp.push([pts[i][0] - dz * w / 2, pts[i][1] + dx * w / 2]); Rp.push([pts[i][0] + dz * w / 2, pts[i][1] - dx * w / 2]);
+    }
+    return Lp.concat(Rp.reverse());
+  };
+  const path = band([[4.8, -9.9], [4.8, -11], [5.9, -14], [3.5, -17.6], [4.6, -21.2], [2.6, -24.6], [2.6, -26.1]], 3.0);
+  return {
+    name: 'Het Dwaallichtkerkhof', themeName: 'Spookhuis', icon: '🕯️', par: 4, voidKind: 'abyss', surf: 'grassDark',
+    start: [0, 1.8], hole: [3.4, -35.4], aim: [-1, -10],
+    floor: [
+      { poly: RECT(-8, 4, 8, -10) },
+      { poly: RECT(-7.6, -10, -4.4, -12.8), surf: 'wood', bridge: true }, { poly: RECT(-7.6, -15.4, -4.4, -19.6), surf: 'wood', bridge: true }, { poly: RECT(-7.6, -22.2, -4.4, -26), surf: 'wood', bridge: true },
+      { poly: path, surf: 'stone', id: 'path' },
+      { poly: RECT(-8, -26, 8, -40), surf: 'stone' },
+    ],
+    walls: [
+      LINE([[-7.6, -10], [-8, -10], [-8, 4], [8, 4], [8, -10], [6.3, -10]], { style: 'iron' }),
+      LINE([[-4.4, -10], [3.3, -10]], { style: 'iron' }),
+      LINE([[-7.7, -10], [-7.7, -26]], { style: 'rail', t: 0.16 }), LINE([[-4.3, -10], [-4.3, -26]], { style: 'rail', t: 0.16 }),
+      LINE([[-4.4, -26], [1.1, -26]], { style: 'stone' }),
+      LINE([[4.1, -26], [8, -26], [8, -40], [-8, -40], [-8, -26], [-7.6, -26]], { style: 'stone' }),
+    ],
+    zones: [{ type: 'mud', poly: CIRC(-5.6, -36.6, 1.0, 16) }],
+    blocks: [
+      { x: -5.0, z: -0.8, w: 1.0, d: 0.28, rot: 0.1, kind: 'grave' }, { x: 3.6, z: 0.6, w: 1.0, d: 0.28, rot: -0.2, kind: 'grave' },
+      { x: -2.2, z: -4.2, w: 1.0, d: 0.28, rot: 0.15, kind: 'grave' }, { x: 5.6, z: -4.6, w: 0.9, d: 0.28, rot: -0.1, kind: 'grave' },
+      { x: 1.2, z: -6.6, w: 0.9, d: 0.28, rot: 0.05, kind: 'grave' }, { x: -6.2, z: -6.4, w: 0.9, d: 0.28, rot: -0.15, kind: 'grave' },
+    ],
+    torches: [[-7.5, -27], [7.5, -27]],
+    set: { pit: [-8.4, -9.8, 8.4, -26.2], mansion: [0, -60], housePosts: [[-8, -26], [8, -26], [-8, -40], [8, -40]],
+      candles: [[-7.4, -39.4], [7.4, -39.4], [6.2, -36.6]], pumpkins: [[-9, 2], [9, -2], [-9, -33], [9, -36], [2, 5.5]] },
+    specials: [
+      { type: 'hauntTrapdoors', T: 5, open: 1.6, warn: 1.0, doors: [{ rect: [-7.6, -12.8, -4.4, -15.4], phase: 0 }, { rect: [-7.6, -19.6, -4.4, -22.2], phase: 2.5 }],
+        name: 'Valluiken', desc: 'De loopbrug over de afgrond heeft twee valluiken die om beurten openklappen. Rammelt een luik en gloeien de kieren groen, dan gaat het zo open. Halverwege kun je veilig wachten.' },
+      { type: 'lanterns', items: [{ pos: [7.0, -8.4], bridge: 'path', lit: Infinity }],
+        name: 'Dwaallicht-lantaarn', desc: 'Raak de lantaarn bij de afgrond: een kronkelend pad over de diepte licht op en blijft zichtbaar. Mik goed, het pad heeft geen randen.' },
+      { type: 'knight', pos: [-0.6, -31.8], chain: 1.7, spin: 3.0, pause: 1.8,
+        name: 'De spookridder', desc: 'Een leeg harnas bewaakt de crypte en zwaait zijn morgenster in een vast ritme. Wacht op de korte pauze.' },
+    ],
+    theme: {
+      env: 'haunted', wall: 'house', flag: '#ffea00',
+      sky: ['#081a18', '#2f5a4a', '#0c1a16'], sun: { dir: [-0.5, 0.5, -0.6], color: '#c8ffd8', int: 0.6 }, hemi: ['#7ab8a0', '#14201a', 0.72],
+      fog: ['#1c3a30', 22, 130], exposure: 1.25, stars: true,
+      music: { root: 247, scale: [0, 2, 3, 7, 8], chord: [0, 3, 7], tempo: 70, wave: 'sine', density: 0.28, chirp: 'owl', noise: ['bandpass', 420, 0.03], seed: 18 },
+    },
+  };
+})());
+
+// ---------- Ruimte 2: Dubbelster ----------
+// Grote arena met twee planeten achter elkaar en een middenwand met twee krachtveldpoorten die om beurten openen.
+// Buig de bal met de zwaartekracht rond de eerste planeet door de open poort en rond de tweede naar het gat.
+HOLES.push({
+  name: 'Dubbelster', themeName: 'Ruimte', icon: '🌌', par: 3, voidKind: 'abyss', surf: 'metal',
+  start: [0, 9.5], hole: [0, -26], aim: [0, -6],
+  floor: [{ poly: RECT(-2.5, 12, 2.5, 6) }, { poly: RECT(-1.6, 6.2, 1.6, -0.2) },
+    { poly: [[-6, 0], [6, 0], [10, -4], [10, -24], [6, -28], [-6, -28], [-10, -24], [-10, -4]] }],
+  walls: [
+    LINE([[-1.6, 0], [-1.6, 6], [-2.5, 6], [-2.5, 12], [2.5, 12], [2.5, 6], [1.6, 6], [1.6, 0]]),
+    LINE([[-1.6, 0], [-6, 0], [-10, -4], [-10, -24], [-6, -28], [6, -28], [10, -24], [10, -4], [6, 0], [1.6, 0]]),
+    LINE([[-10, -14], [-7.4, -14]]), LINE([[-4.1, -14], [4.1, -14]]), LINE([[7.4, -14], [10, -14]]), // middenwand met twee poorten
+  ],
+  posts: [{ x: -8, z: -7.5, r: 0.55, kind: 'rock' }, { x: 8.1, z: -9, r: 0.5, kind: 'rock' }, { x: -7.9, z: -20.5, r: 0.5, kind: 'rock' }, { x: 7.7, z: -19.5, r: 0.55, kind: 'rock' }],
+  set: { strips: [[0, 9, 4.6], [0, 4, 2.8], [0, 1.6, 2.8], [-5.75, -13.2, 3.1], [5.75, -13.2, 3.1], [-5.75, -14.8, 3.1], [5.75, -14.8, 3.1]] },
+  specials: [
+    { type: 'spaceField', mode: 'timer', a: [-7.4, -14], b: [-4.1, -14], times: [3.5, 3.5], phase: 0, warn: 0.9, sweep: [-7.6, -14.6, -3.9, -13.4], color: '#00e5ff',
+      name: 'Krachtveldpoorten', desc: 'De middenwand heeft twee poorten met een krachtveld. Ze gaan om beurten aan en uit; flikkert een veld, dan gaat het zo weer aan. Een veld gaat nooit aan als je bal in de poort ligt.' },
+    { type: 'spaceField', mode: 'timer', a: [4.1, -14], b: [7.4, -14], times: [3.5, 3.5], phase: 3.5, warn: 0.9, sweep: [3.9, -14.6, 7.6, -13.4], color: '#ff2fd0',
+      name: 'Tweede krachtveld', desc: 'Staat uit als het eerste aan staat, en omgekeerd.' },
+    { type: 'planet', c: [0, -7], r: 1.4, R: 5.4, g: 7, name: 'Planeet Castor', desc: 'Blokkeert de rechte weg naar de poorten. Mik ernaast en laat zijn zwaartekracht je bal in een boog naar een open poort buigen.' },
+    { type: 'planet', c: [0, -21], r: 1.4, R: 5.4, g: 7, name: 'Planeet Pollux', desc: 'Staat voor het gat. Een goed gemikte boog rond Pollux brengt je bal precies op de vlag af.' },
+    { type: 'drone', c: [0, -7], r: 4.0, w: 0.55, period: 3.2, scale: 0.6, a0: 1, color: '#ffd54f', name: 'Maanrobot Kiep', desc: 'Draait als een maantje rond Castor en stompt met zijn arm naar de planeet toe.' },
+    { type: 'drone', c: [0, -21], r: 4.0, w: -0.5, period: 3.6, phase: 1, scale: 0.6, a0: 4, color: '#80cbc4', name: 'Maanrobot Koep', desc: 'Draait de andere kant op rond Pollux.' },
+  ],
+  theme: {
+    env: 'space', wall: 'metal', flag: '#ff2fd0',
+    sky: ['#10001c', '#3a0a4a', '#06020c'], sun: { dir: [-0.5, 0.6, 0.3], color: '#ffc0f0', int: 1.0 }, hemi: ['#c070ff', '#200a30', 0.65],
+    fog: ['#14041e', 70, 340], exposure: 1.15, stars: true,
+    music: { root: 196, scale: [0, 2, 4, 7, 9], chord: [0, 7, 16], tempo: 96, wave: 'sine', density: 0.36, chirp: 'beep', noise: ['lowpass', 180, 0.04], seed: 21 },
+  },
+});
+
+// ---------- Ruimte 3: Neonflipper ----------
+// Een flipperkast in de ruimte: schiet de bal door de lanceerbaan langs de bovenboog, waar de energiekern staat.
+// Raak de kern om het krachtveld voor de jackpotkamer uit te schakelen; daar draait een luchtsluis rond het gat.
+HOLES.push({
+  name: 'Neonflipper', themeName: 'Ruimte', icon: '🎯', par: 3, voidKind: 'abyss', surf: 'metal',
+  start: [7.3, 0.6], hole: [-5.5, -3.8], aim: [7.3, -14],
+  floor: [{ poly: [[6, 2], [8.6, 2], ...ARC(0.3, -27, 8.3, 0, -Math.PI, 28), [-8, -1], [6, -1]] }],
+  walls: [
+    LINE([[6, -20], [6, 2], [8.6, 2], [8.6, -27]]),
+    LINE(ARC(0.3, -27, 8.3, 0, -Math.PI, 36)),
+    LINE([[-8, -27], [-8, -1], [6, -1]]),
+    LINE([[-4.4, -8.2], [-3, -8.2], [-3, -1]]), // jackpotkamer (poort met krachtveld van x -8 tot -4.4)
+    LINE([[2.2, -1], [4.4, -3.6]]), LINE([[-3, -4.6], [-1.2, -1]]), // schuine kaatsranden onderaan
+  ],
+  zones: [{ type: 'lowg', poly: RECT(6.15, 1.85, 8.45, -19) }],
+  bumpers: [{ x: -2.4, z: -25, r: 0.55 }, { x: 2.7, z: -25.4, r: 0.55 }, { x: 0.2, z: -21.4, r: 0.55 }, { x: -4.3, z: -15.2, r: 0.5 }, { x: 3.4, z: -13.6, r: 0.5 }],
+  movers: [
+    { type: 'rotbar', c: [-0.6, -12.5], arms: 2, len: 1.8, w: 1.5, phase: 0, style: 'blade' },
+    { type: 'ring', c: [-5.5, -3.8], r: 1.3, gaps: [0, Math.PI], gapW: 1.15, w: 0.7 },
+  ],
+  set: { strips: [[-6.2, -8.9, 3.4], [-6.2, -9.3, 3.4]] },
+  specials: [
+    { type: 'spaceField', mode: 'core', a: [-8, -8.2], b: [-4.4, -8.2], core: [-5.76, -31.24], sweep: [-8.1, -8.8, -4.3, -7.6], color: '#ffab40',
+      name: 'Energiekern & krachtveld', desc: 'De jackpotkamer met het gat zit achter een krachtveld. Raak de gloeiende energiekern bovenaan de boog: het veld valt uit en blijft uit. Rond het gat draait een luchtsluis: wacht tot een opening naar je toe staat.' },
+    { type: 'drone', c: [0.1, -23.8], r: 3.6, w: 0.5, period: 3.0, scale: 0.6, a0: 0.5, color: '#ff8a65', name: 'Flipperrobot Pling', desc: 'Cirkelt rond de bumpers en geeft je bal een duw als hij langskomt.' },
+  ],
+  theme: {
+    env: 'space', wall: 'metal', flag: '#ff9100',
+    sky: ['#0a0408', '#3a140a', '#050206'], sun: { dir: [-0.5, 0.5, 0.4], color: '#ffb36b', int: 1.2 }, hemi: ['#ff9a6a', '#200a10', 0.6],
+    fog: ['#1a0806', 70, 340], exposure: 1.15, stars: true,
+    music: { root: 220, scale: [0, 3, 5, 7, 10], chord: [0, 7, 10], tempo: 128, wave: 'square', density: 0.45, chirp: 'beep', noise: ['lowpass', 240, 0.04], seed: 19 },
+  },
+});
+
+// ---------- Finale 2: De Sterrenburcht ----------
+// Kasteel, vulkaan en ruimte in één: raak het schild om de ophaalbrug over de lavagracht te laten zakken, steek
+// de lavarivier over als hij gestold is en buig de bal in de sterrenkoepel rond de planeet naar het podium.
+HOLES.push({
+  name: 'De Sterrenburcht', themeName: 'Finale', icon: '🏰', par: 5, voidKind: 'lava', surf: 'grass',
+  start: [0, 1], hole: [13, -42.4], aim: [-4.4, -9],
+  floor: [
+    { poly: RECT(-5, 3, 5, -12) },                                   // kasteelplein
+    { poly: RECT(-4, -15.6, 17, -23), surf: 'rock' },                 // vulkaanpad
+    { poly: RECT(10.8, -22.9, 15.2, -24.8), surf: 'metal' },          // luchtsluis naar de koepel
+    { poly: CIRC(13, -30.5, 6.5, 40), surf: 'metal' },                // sterrenkoepel
+    { poly: RECT(10.5, -36.2, 15.5, -39), surf: 'stone', ramp: { p0: [13, -36.2], p1: [13, -39], h0: 0, h1: 0.7 } },
+    { poly: RECT(10.5, -39, 15.5, -44.5), surf: 'carpet', h: 0.7 },   // podium
+  ],
+  walls: [
+    LINE([[-1.5, -12], [-5, -12], [-5, 3], [5, 3], [5, -12], [1.5, -12]], { style: 'castle', t: 0.5 }),
+    LINE([[-1.5, -15.6], [-4, -15.6], [-4, -23], [10.8, -23]], { style: 'rock' }),
+    LINE([[15.2, -23], [17, -23], [17, -15.6], [1.5, -15.6]], { style: 'rock' }),
+    LINE([[10.8, -23], [10.8, -24.45]], { style: 'metal' }), LINE([[15.2, -23], [15.2, -24.45]], { style: 'metal' }),
+    ...islandWalls(13, -30.5, 6.5, [[Math.PI / 2, 0.37], [-Math.PI / 2, 0.41]], { style: 'metal' }),
+    LINE([[10.42, -36.45], [10.5, -44.5], [15.5, -44.5], [15.58, -36.45]], { h: 1.3 }),
+  ],
+  zones: [
+    { id: 'river', type: 'lava', poly: RECT(8.6, -15.75, 11.4, -22.85) },
+    { type: 'sand', poly: CIRC(3.2, -2.2, 1.0, 16) },
+  ],
+  posts: [{ x: -2.7, z: -16.6, r: 1.1, kind: 'tower' }, { x: 2.7, z: -16.6, r: 1.1, kind: 'tower' }, { x: 4.5, z: -21, r: 0.45, kind: 'rock' }, { x: 15, z: -19, r: 0.45, kind: 'rock' }],
+  movers: [{ type: 'drawbridge', id: 'bridge', mode: 'trigger', x1: -1.5, x2: 1.5, hinge: -15.7, len: 3.75, move: 1.4, down: Infinity }],
+  torches: [[-2, -11.5], [2, -11.5], [10.9, -40.8], [15.1, -40.8]],
+  set: { arch: [10.2, 15.8, -45.1], arches: [[0, 2.4, -16.6, 4.4]],
+    flags: [[-5.6, -4], [5.6, -8], [-4.6, -19], [6.5, -14.9], [17.6, -19], [8.5, -23.6], [6.2, -31], [19.8, -30.5], [10, -38], [16, -38]] },
+  specials: [
+    { type: 'shield', pos: [-4.45, -9], normal: [1, 0], target: 'bridge',
+      name: 'Schild & ophaalbrug', desc: 'De kasteelpoort ligt aan een lavagracht. Raak het schild aan de muur: de ophaalbrug zakt en blijft liggen.' },
+    { type: 'eruption', river: 'river', T: 14, geyser: [10, -14.3],
+      name: 'Lavarivier', desc: 'Na een uitbarsting van de geiser stolt de lavarivier over het vulkaanpad tot een stenen brug, en smelt dan weer. Gloeiende scheuren = bijna gesmolten.' },
+    { type: 'planet', c: [13, -30.5], r: 1.3, R: 4.6, g: 7,
+      name: 'De sterrenkoepel', desc: 'Een planeetje midden in de koepel trekt je bal aan. Mik naast de planeet en laat de bal in een boog naar het podium buigen.' },
+    { type: 'knight', pos: [0, -6.2], chain: 1.7, spin: 3.0, pause: 1.7, name: 'De burchtridder', desc: 'Bewaakt het kasteelplein en zwaait zijn morgenster in een vast ritme.' },
+    { type: 'drone', c: [13, -30.5], r: 3.8, w: 0.55, period: 3.3, scale: 0.6, a0: 2, color: '#ffd54f', name: 'Satelliet Sputnik', desc: 'Draait rondjes om de planeet en stompt met zijn arm naar binnen.' },
+  ],
+  theme: {
+    env: 'finale', wall: 'stone', flag: '#2979ff',
+    sky: ['#13235a', '#f0a060', '#ffd8a0'], sun: { dir: [0.6, 0.35, -0.6], color: '#ffd9a0', int: 1.25 }, hemi: ['#9fb4ff', '#3a1a10', 0.6],
+    fog: ['#c08070', 60, 280], exposure: 1.05,
+    music: { root: 294, scale: [0, 2, 4, 5, 7, 9, 11], chord: [0, 4, 7], tempo: 112, wave: 'triangle', density: 0.42, chirp: 'crackle', noise: ['lowpass', 150, 0.05], seed: 20 },
+  },
+});
+
+// ---------- Finale 3: De Laatste Storm ----------
+// IJs, woestijn en spookhuis: steek de geul over op drijvende ijsschotsen (of neem het pad langs de pinguïn),
+// laat de tornado je over de lavakloof slingeren (of neem de brug achter het duin) en verslaag het spook en de
+// draaiende muur in de crypte voor het podium.
+HOLES.push({
+  name: 'De Laatste Storm', themeName: 'Finale', icon: '🌪️', par: 5, voidKind: 'lava', surf: 'ice',
+  start: [0, 1], hole: [0, -49.6], aim: [0, -12],
+  floor: [
+    { poly: RECT(-5, 3, 5, -9) },                                                                // ijsvlakte
+    { poly: [[-5, -3], [-9.4, -3], [-9.4, -16], [-6.4, -16], [-6.4, -6.4], [-5, -6.4]], surf: 'stone' }, // omweg
+    { poly: RECT(-9.4, -15.5, 6, -27), surf: 'stone' },                                         // binnenplaats van de tornado
+    { poly: RECT(6, -15.5, 9.6, -27), surf: 'stone' },                                          // zijpad
+    { poly: RECT(9.6, -24, 14.6, -27), surf: 'sand' },                                          // nis voor het duin
+    { poly: RECT(6, -27, 9.6, -31.5), surf: 'stone', bridge: true },                            // brug over de kloof
+    { poly: RECT(-6, -31.5, 10, -44), surf: 'stone' },                                          // crypte
+    { poly: RECT(-3, -44, 3, -46.5), surf: 'stone', ramp: { p0: [0, -44], p1: [0, -46.5], h0: 0, h1: 0.7 } },
+    { poly: RECT(-3, -46.5, 3, -52), surf: 'carpet', h: 0.7 },                                  // podium
+  ],
+  walls: [
+    LINE([[-5, -15.5], [-5, -6.4]], { style: 'ice' }), LINE([[-5, -3], [-5, 3], [5, 3], [5, -15.5]], { style: 'ice' }),
+    LINE([[-5, -6.4], [-6.4, -6.4], [-6.4, -15.5], [-5, -15.5]], { style: 'ice' }),
+    LINE([[-5, -3], [-9.4, -3], [-9.4, -27]], { style: 'sandstone' }),
+    LINE([[5, -15.5], [9.6, -15.5], [9.6, -24], [14.6, -24], [14.6, -27], [9.6, -27]], { style: 'sandstone' }),
+    LINE([[6, -15.5], [6, -19]], { style: 'sandstone' }), LINE([[6, -23], [6, -27]], { style: 'sandstone' }),
+    LINE([[5.9, -27], [5.9, -31.5]], { style: 'rail', t: 0.16 }), LINE([[9.7, -27], [9.7, -31.5]], { style: 'rail', t: 0.16 }),
+    LINE([[9.6, -31.5], [10, -31.5], [10, -44], [3, -44]], { style: 'stone' }), LINE([[-3, -44], [-6, -44], [-6, -31.5]], { style: 'stone' }),
+    LINE([[-3, -44], [-3, -52], [3, -52], [3, -44]], { h: 1.3 }),
+  ],
+  zones: [
+    { type: 'water', poly: RECT(-4.85, -9.02, 4.85, -15.48), hidden: true },
+    { type: 'snow', poly: RECT(-4.85, 2.85, 4.85, 1.9) }, { type: 'snow', poly: CIRC(3.4, -5.4, 0.9, 16) },
+    { type: 'snow', poly: RECT(-9.25, -7.2, -6.55, -13.2) }, // sneeuw op de omweg: veilig maar traag
+    { type: 'sand', poly: RECT(-9.25, -25.3, 5.85, -27) }, { type: 'sand', poly: CIRC(4, -17.6, 0.9, 16) }, // zandrand voor de lavakloof
+    { type: 'sand', poly: RECT(-5.85, -31.6, 5.9, -33.0) }, // zandrand aan de kloofkant van de crypte
+  ],
+  posts: [{ x: -3.3, z: -3.8, r: 0.32, kind: 'icicle' }, { x: 2.6, z: -7.2, r: 0.32, kind: 'icicle' }, { x: -8, z: -8.5, r: 0.32, kind: 'icicle' },
+    { x: 7.8, z: -18.2, r: 0.34, kind: 'cactus' }, { x: -8.3, z: -18, r: 0.34, kind: 'cactus' }],
+  blocks: [
+    { x: -3.6, z: -35.6, w: 1.0, d: 0.28, rot: 0.15, kind: 'grave' }, { x: 6.6, z: -36.2, w: 1.0, d: 0.28, rot: -0.1, kind: 'grave' },
+    { x: -4.2, z: -40.4, w: 0.9, d: 0.28, rot: -0.2, kind: 'grave' }, { x: 7.4, z: -41.2, w: 0.9, d: 0.28, rot: 0.1, kind: 'grave' },
+  ],
+  torches: [[-2.6, -45.6], [2.6, -45.6]],
+  set: { arch: [-3.3, 3.3, -52.6], channels: [[-5, -9, 5, -15.5]],
+    flags: [[-5.6, 0], [5.6, -4], [-10, -10], [-10, -22], [10.2, -18], [15.2, -25.5], [-6.6, -36], [10.6, -38], [-3.6, -48], [3.6, -48]] },
+  specials: [
+    { type: 'floes', rows: [
+      { z0: -8.9, z1: -11.1, cx: 0, w: 3.4, amp: 2.3, period: 9, phase: 0 },
+      { z0: -10.9, z1: -13.3, cx: 0, w: 3.6, breakT: 12 },
+      { z0: -13.1, z1: -15.6, cx: 0, w: 3.4, amp: 2.3, period: 9, phase: Math.PI },
+    ], name: 'IJsschotsen', desc: 'In de geul drijven ijsschotsen heen en weer; liggen ze op één lijn, dan vormen ze een brug. De middelste barst, zinkt en groeit weer aan. Liever veilig? Neem het pad links.' },
+    { type: 'tornado', c: [-1.7, -21.3], rx: 3.6, rz: 3.4, period: 14, capR: 1.25, fling: 16, air: 1.0, landZ: -36.5,
+      dune: { a: [6.2, -25.5], b: [9.4, -25.5], r: 0.8, off: [4.2, 0], sweep: [6, -27, 14.6, -24] },
+      name: 'De tornado', desc: 'Trekt rondjes over de binnenplaats en slingert je bal in zijn bewegingsrichting weg, met wat geluk over de lavakloof. Elke ronde schuift hij het duin voor of weg van de brug op het zijpad.' },
+    { type: 'swingwall', c: [0, -41.6], len: 2.4, a0: 0, a1: Math.PI / 2, hold: 3, move: 0.9,
+      name: 'Draaiende cryptemuur', desc: 'Voor het podium kantelt een muur telkens een kwartslag en verandert de weg naar de oprit.' },
+    { type: 'penguin', a: [-7.9, -8.4], b: [-7.9, -14.2], stand: 1.2, slide: 1.8, name: 'De pinguïn', desc: 'Glijdt op zijn buik over het besneeuwde omweggetje heen en weer en duwt je bal opzij.' },
+    { type: 'ghost', c: [2, -38.6], ax: 4.5, az: 2.2, wx: 0.33, wz: 0.45, period: 5.2, warn: 1.0, radius: 2.8,
+      name: 'Het stormspook', desc: 'Zweeft door de crypte. Licht het op, dan blaast het je bal weg.' },
+  ],
+  theme: {
+    env: 'finale', wall: 'stone', flag: '#00e5ff',
+    sky: ['#0a1020', '#3a4a6a', '#0a0e18'], sun: { dir: [0.3, 0.7, 0.5], color: '#c0d8ff', int: 0.95 }, hemi: ['#8aa8d8', '#2a1010', 0.6],
+    fog: ['#2a3048', 50, 240], exposure: 1.1, stars: true,
+    music: { root: 233, scale: [0, 2, 3, 5, 7, 8, 10], chord: [0, 3, 7], tempo: 104, wave: 'sawtooth', density: 0.4, chirp: 'wind', noise: ['bandpass', 500, 0.04], seed: 22 },
+  },
+});
+
 // =====================================================================
 //  RENDERER / SCENE
 // =====================================================================
@@ -2291,6 +2578,142 @@ const SPECIALS = {
     o.onHit = (pr, imp) => { if (o.react <= 0 && imp > 1) { o.react = 1; SND.boing(); } };
     return o;
   },
+
+  // ----- nieuw (Spookhuis, Ruimte, Finale) -----
+  // ---------- Valluiken (Spookhuis): luiken in een loopbrug boven de afgrond ----------
+  // d.doors = [{ rect: [x0, z0, x1, z1], phase }]. Elk luik is een vloerstuk dat open is in de laatste
+  // d.open seconden van elke cyclus van d.T seconden (dan valt de bal in de afgrond). Vlak voor het
+  // openklappen schudt het luik en gloeien de kieren groen (d.warn seconden). Alleen de spelklok telt.
+  hauntTrapdoors(d) {
+    const o = { group: new THREE.Group(), prims: [], doors: [] };
+    const T = d.T, OPEN = d.open, WARN = d.warn || 1.0, MV = 0.3;
+    const phaseOf = (t, dr) => (((t + dr.phase) % T) + T) % T;
+    const isOpen = (t, dr) => phaseOf(t, dr) >= T - OPEN;
+    const wood = M('#b89a7a', { map: tex('wood') }), iron = M('#2a2a30', { metalness: 0.7, roughness: 0.4 });
+    for (const dr of d.doors) {
+      const [x0, z0, x1, z1] = dr.rect, poly = RECT(x0, z0, x1, z1);
+      // het luik is een vloer die verdwijnt als het openstaat (geen andere vloer eronder = afgrond)
+      const F = { poly, bb: polyBB(poly), surf: 'wood', h: 0, hAt: () => 0, acc: null, active: () => !isOpen(H.t, dr) };
+      H.floors.push(F);
+      const w = (x1 - x0) / 2, dep = Math.abs(z1 - z0), cx = (x0 + x1) / 2, cz = (z0 + z1) / 2;
+      // twee klapdeuren, scharnierend aan de leuningen
+      const leaves = [-1, 1].map(s => {
+        const hinge = new THREE.Group(); hinge.position.set(s < 0 ? x0 : x1, 0, cz); o.group.add(hinge);
+        const leaf = mesh(scaleUV(BOX(w - 0.03, 0.1, dep - 0.04), 0.8, 0.8), wood, hinge, -s * w / 2, -0.05, 0, true, true);
+        for (const zz of [-dep * 0.3, dep * 0.3]) mesh(BOX(w * 0.92, 0.02, 0.12), iron, leaf, 0, 0.055, zz, false);
+        mesh(new THREE.TorusGeometry(0.09, 0.022, 6, 12), iron, leaf, s * w * 0.3, 0.06, 0, false).rotation.x = Math.PI / 2;
+        return { hinge, s };
+      });
+      for (const zz of [z0, z1]) mesh(BOX(x1 - x0, 0.05, 0.1), iron, o.group, cx, 0.012, zz, false); // ijzeren kader
+      const crackM = new THREE.MeshBasicMaterial({ color: '#7dff9a', transparent: true, opacity: 0, depthWrite: false });
+      mesh(BOX(0.05, 0.03, dep - 0.1), crackM, o.group, cx, 0.012, cz, false);
+      const glowM = new THREE.MeshBasicMaterial({ color: '#5aff8a', transparent: true, opacity: 0, depthWrite: false, blending: THREE.AdditiveBlending, side: THREE.DoubleSide });
+      const glow = mesh(new THREE.PlaneGeometry(x1 - x0 - 0.1, dep - 0.1), glowM, o.group, cx, -0.9, cz, false); glow.rotation.x = -Math.PI / 2;
+      o.doors.push({ dr, F, leaves, crackM, glowM, cx, cz, prevOpen: false, prevWarn: false });
+    }
+    o.update = () => {};
+    o.visual = (t, dt) => {
+      for (const D of o.doors) {
+        const p = phaseOf(t, D.dr), open = p >= T - OPEN, warn = !open && p >= T - OPEN - WARN;
+        let a = 0;
+        if (open) { const e = p - (T - OPEN); a = e < MV ? 1.7 * smooth(e / MV) : p > T - MV ? 1.7 * (1 - smooth((p - (T - MV)) / MV)) : 1.7; }
+        else if (warn) a = 0.035 + Math.sin(t * 40 + D.cz) * 0.035; // rammelen
+        D.leaves.forEach(L => { L.hinge.rotation.z = L.s < 0 ? -a : a; });
+        D.crackM.opacity = warn ? 0.45 + 0.45 * Math.abs(Math.sin(t * 18)) : 0;
+        D.glowM.opacity = open ? 0.3 + Math.sin(t * 6) * 0.08 : warn ? 0.12 : 0;
+        const near = camDistTo(tmpV2.set(D.cx, 0, D.cz)) < 30;
+        if (warn && !D.prevWarn && near) SND.creak();
+        if (open && !D.prevOpen) { if (near) { SND.clank(); SND.creak(); } fx.burst(D.cx, 0.1, D.cz, 12, { color: '#5a4a3a', speed: 1.4, up: 0.8, life: 0.7, size: 0.25, grow: 0.5, alpha: 0.5, spread: 1.4 }); }
+        if (!open && D.prevOpen && near) SND.bonk();
+        D.prevWarn = warn; D.prevOpen = open;
+        if (open && Math.random() < dt * 10 * Q.fx) fxAdd.emit(D.cx + (Math.random() - 0.5) * 2, -0.8, D.cz + (Math.random() - 0.5) * 1.6, 0, 1.3, 0, 1.0, 0.12, new THREE.Color('#7dff9a'), { alpha: 0.6 });
+      }
+    };
+    return o;
+  },
+
+  // ---------- Krachtveld (Ruimte): energiewand tussen twee zenders ----------
+  // d.a, d.b = uiteinden. mode 'timer': aan/uit volgens d.times = [aan, uit] (+ d.phase); het veld flikkert
+  // d.warn seconden voor het aangaat. mode 'core': aan tot je de energiekern (d.core = [x, z]) raakt; dan valt
+  // het uit en blijft het uit tot de volgende beurt. Het veld gaat nooit aan terwijl de bal in de doorgang
+  // (d.sweep = [x0, z0, x1, z1]) ligt, dus de bal kan er nooit in vast komen te zitten.
+  spaceField(d) {
+    const o = { group: new THREE.Group(), s: 1, down: false, react: 0, flash: 0, prevOn: true };
+    const col = new THREE.Color(d.color || '#00e5ff');
+    const fp = prim(0.13, { e: 0.95, kick: 2.5, kind: 'metal', owner: o }); setSeg(fp, d.a[0], d.a[1], d.b[0], d.b[1]);
+    o.prims = [fp];
+    let cp = null;
+    if (d.mode === 'core') { cp = prim(0.36, { e: 0.8, kind: 'metal', owner: o }); setCirc(cp, d.core[0], d.core[1]); o.prims.push(cp); }
+    const sw = d.sweep, inSweep = b => b.x > sw[0] && b.x < sw[2] && b.z > sw[1] && b.z < sw[3];
+    const T = d.times ? d.times[0] + d.times[1] : 1, WARN = d.warn || 0.8;
+    const phase = t => (((t + (d.phase || 0)) % T) + T) % T;
+    const want = t => d.mode === 'core' ? (o.down ? 0 : 1) : (phase(t) < d.times[0] ? 1 : 0);
+    o.reset = () => { o.down = false; }; // nieuwe beurt: kern weer heel, veld weer aan
+    o.update = (t, h, b) => {
+      const w = want(t), busy = (b.state === 'rest' || b.state === 'moving') && inSweep(b);
+      if (w > o.s && !busy) o.s = Math.min(1, o.s + h / 0.25);
+      else if (w < o.s) o.s = Math.max(0, o.s - h / 0.25);
+      fp.on = o.s > 0.5;
+    };
+    // energieveld: scrollende scanlijnen
+    const L = Math.hypot(d.b[0] - d.a[0], d.b[1] - d.a[1]);
+    const ftex = toTex(drawCanvas(128, 64, (g) => {
+      const gr = g.createLinearGradient(0, 0, 0, 64); gr.addColorStop(0, 'rgba(255,255,255,0.25)'); gr.addColorStop(0.5, 'rgba(255,255,255,0.5)'); gr.addColorStop(1, 'rgba(255,255,255,1)');
+      g.fillStyle = gr; g.fillRect(0, 0, 128, 64);
+      g.strokeStyle = 'rgba(255,255,255,0.9)'; g.lineWidth = 2; for (let y = 4; y < 64; y += 10) { g.beginPath(); g.moveTo(0, y); g.lineTo(128, y); g.stroke(); }
+      g.lineWidth = 1; for (let x = 0; x < 128; x += 16) { g.beginPath(); g.moveTo(x, 0); g.lineTo(x + 16, 64); g.stroke(); }
+    }));
+    ftex.repeat.set(Math.max(1, L / 1.2), 1);
+    const fm = new THREE.MeshBasicMaterial({ map: ftex, color: col, transparent: true, opacity: 0.6, side: THREE.DoubleSide, depthWrite: false, blending: THREE.AdditiveBlending });
+    const plane = mesh(new THREE.PlaneGeometry(L, 0.95), fm, o.group, (d.a[0] + d.b[0]) / 2, 0.5, (d.a[1] + d.b[1]) / 2, false);
+    plane.rotation.y = -Math.atan2(d.b[1] - d.a[1], d.b[0] - d.a[0]); plane.renderOrder = 4;
+    const lineM = new THREE.MeshBasicMaterial({ color: col, transparent: true, opacity: 0.9 });
+    const line = mesh(BOX(L, 0.04, 0.06), lineM, o.group, (d.a[0] + d.b[0]) / 2, 0.03, (d.a[1] + d.b[1]) / 2, false); line.rotation.y = plane.rotation.y;
+    // zenders aan beide kanten
+    const emM = new THREE.MeshStandardMaterial({ color: '#202028', emissive: col, emissiveIntensity: 1.5 });
+    const pyl = M('#c8d0dc', { metalness: 0.8, roughness: 0.3 });
+    for (const p of [d.a, d.b]) {
+      mesh(CYL(0.15, 0.2, 1.05, 12), pyl, o.group, p[0], 0.52, p[1]);
+      mesh(SPH(0.13, 12, 8), emM, o.group, p[0], 1.1, p[1], false);
+      const rg = mesh(new THREE.TorusGeometry(0.2, 0.035, 6, 16), emM, o.group, p[0], 0.75, p[1], false); rg.rotation.x = Math.PI / 2;
+    }
+    // energiekern op een sokkel
+    let crystal = null, coreM = null, cage = null;
+    if (cp) {
+      const cg = new THREE.Group(); cg.position.set(d.core[0], 0, d.core[1]); o.group.add(cg);
+      mesh(CYL(0.36, 0.44, 0.32, 16), M('#3a4050', { metalness: 0.8, roughness: 0.35 }), cg, 0, 0.16, 0);
+      coreM = new THREE.MeshStandardMaterial({ color: '#ffffff', emissive: col, emissiveIntensity: 1.6, roughness: 0.2, metalness: 0.3 });
+      crystal = mesh(new THREE.OctahedronGeometry(0.3, 0), coreM, cg, 0, 0.78, 0); crystal.scale.y = 1.4;
+      cage = new THREE.Group(); cage.position.y = 0.78; cg.add(cage);
+      for (let k = 0; k < 2; k++) { const r = mesh(new THREE.TorusGeometry(0.42, 0.025, 6, 24), pyl, cage, 0, 0, 0, false); r.rotation.x = k ? Math.PI / 2 : 0; }
+    }
+    const offCol = new THREE.Color('#ff3030');
+    o.visual = (t, dt) => {
+      o.react = Math.max(0, o.react - dt); o.flash = Math.max(0, o.flash - dt * 4);
+      const w = want(t), warn = d.mode !== 'core' && !w && phase(t) > T - WARN;
+      const flick = warn ? (Math.sin(t * 45) > 0 ? 0.35 : 0.05) : 0;
+      ftex.offset.set(t * 0.4, -t * 0.8);
+      fm.opacity = Math.max(o.s * (0.85 + Math.sin(t * 9) * 0.08), flick) + o.flash * 0.4;
+      plane.visible = fm.opacity > 0.01; lineM.opacity = 0.25 + o.s * 0.7;
+      emM.emissiveIntensity = 0.3 + o.s * 1.3 + flick * 2;
+      if (crystal) {
+        crystal.rotation.y = t * (o.down ? 0.3 : 1.6); crystal.position.y = 0.78 + Math.sin(t * 2.5) * 0.06; cage.rotation.y = -t * 0.8; cage.rotation.z = Math.sin(t) * 0.3;
+        coreM.emissive.copy(o.down ? offCol : col); coreM.emissiveIntensity = o.down ? 0.25 + o.react * 2 : 1.4 + Math.sin(t * 5) * 0.3;
+      }
+      const on = o.s > 0.5;
+      if (on !== o.prevOn && camDistTo(plane.position) < 30) { if (on) SND.tone(220, 0.35, { type: 'sawtooth', slide: 660, vol: 0.05, filter: ['lowpass', 1800] }); else SND.tone(660, 0.4, { type: 'sawtooth', slide: 110, vol: 0.05, filter: ['lowpass', 1800] }); }
+      o.prevOn = on;
+      if (on && Math.random() < dt * 8 * Q.fx) { const u = Math.random(); fxAdd.emit(lerp(d.a[0], d.b[0], u), 0.1 + Math.random() * 0.8, lerp(d.a[1], d.b[1], u), 0, 0.3, 0, 0.6, 0.08, col, { alpha: 0.8 }); }
+    };
+    o.onHit = (p, imp) => {
+      if (p === fp) { if (o.flash < 0.5) { o.flash = 1; SND.tone(1400, 0.12, { type: 'square', slide: 500, vol: 0.05 }); fxAdd.burst(ball.x, 0.4, ball.z, 10, { color: col, speed: 2.5, up: 1, life: 0.35, size: 0.1 }); } return; }
+      if (p === cp && !o.down) {
+        o.down = true; o.react = 1; SND.ding(); SND.tone(900, 0.7, { type: 'sawtooth', slide: 80, vol: 0.06, filter: ['lowpass', 2000] });
+        fxAdd.burst(d.core[0], 0.8, d.core[1], 30, { color: col, speed: 3.5, up: 2.5, life: 0.8, size: 0.14 });
+      }
+    };
+    return o;
+  },
 };
 function lerpAngle(a, b, t) { let d = ((b - a + Math.PI) % TAU + TAU) % TAU - Math.PI; return a + d * t; }
 
@@ -2984,8 +3407,8 @@ const ENV = {
     tufts(ctx, edgePoints(300, 103, 0.3, 4), ['#3a4a2a', '#4a3a2a', '#2a3a2a'], 0.45);
     // maan
     const sd = new THREE.Vector3().fromArray(ctx.def.theme.sun.dir).normalize();
-    const moon = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex('glow'), color: '#dfe6ff', fog: false, depthWrite: false })); moon.scale.set(60, 60, 1); moon.position.copy(sd).multiplyScalar(380); H.sky.add(moon);
-    const moonBall = new THREE.Mesh(SPH(12, 24, 16), new THREE.MeshBasicMaterial({ color: '#f2f4ff', fog: false })); moonBall.position.copy(sd).multiplyScalar(390); H.sky.add(moonBall);
+    const moon = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex('glow'), color: S.moon ? S.moon[0] : '#dfe6ff', fog: false, depthWrite: false })); moon.scale.set(60, 60, 1); moon.position.copy(sd).multiplyScalar(380); H.sky.add(moon);
+    const moonBall = new THREE.Mesh(SPH(12, 24, 16), new THREE.MeshBasicMaterial({ color: S.moon ? S.moon[1] : '#f2f4ff', fog: false })); moonBall.position.copy(sd).multiplyScalar(390); H.sky.add(moonBall); // set.moon = [gloed, maan] (optioneel)
     // gevel van het spookhuis + landhuis op de achtergrond
     const wood = M('#4a3550', { map: tex('wood') }), roofM = M('#22182a'), win = new THREE.MeshBasicMaterial({ color: '#ffb84a' });
     if (S.facade) {
@@ -3080,6 +3503,18 @@ const ENV = {
     mesh(new THREE.PlaneGeometry(aw - 0.3, 0.9), new THREE.MeshBasicMaterial({ map: textTex('FINISH', { bg: '#7a1fa2', color: '#ffffff', size: 54, w: 512, h: 64 }) }), ctx.g, amx, 5.2, AR[2] + 0.21, false);
     // poorthuis waarin het hek wegschuift
     if (S.gatehouse) mesh(BOX(S.gatehouse[2], 1.6, 0.8), M('#ffffff', { map: tex('stone') }), ctx.g, S.gatehouse[0], 0.8, S.gatehouse[1], true, true);
+    // set.arches = stenen poortbogen [x, y, z, breedte] (bv. boven een ophaalbrug tussen twee torens)
+    for (const [x, y, z, w] of S.arches || []) mesh(BOX(w, 0.8, 0.6), M('#c9c0b4', { map: tex('stone') }), ctx.g, x, y, z, true);
+    // set.channels = [[x0, zTop, x1, zBottom], ...]: geulen met ijskoud water boven de lava (ijsschotsen)
+    for (const c of S.channels || []) {
+      const w = c[2] - c[0], d = c[1] - c[3];
+      const cw = new THREE.PlaneGeometry(w, d, Math.ceil(w * 2), Math.ceil(d * 2)); cw.rotateX(-Math.PI / 2); scaleUV(cw, 2);
+      mesh(cw, M('#4a7aa0', { map: tex('water'), roughness: 0.05, metalness: 0.3, transparent: true, opacity: 0.95 }), ctx.g, (c[0] + c[2]) / 2, -0.28, (c[1] + c[3]) / 2, false, true);
+      mesh(BOX(w + 0.6, 1.2, d + 0.6), M('#2a3a4a', { map: tex('rock') }), ctx.g, (c[0] + c[2]) / 2, -0.95, (c[1] + c[3]) / 2, false, true); // bedding onder het water
+      const cb = cw.attributes.position.array.slice();
+      ctx.upd((t) => { const pa = cw.attributes.position; for (let i = 0; i < pa.count; i++) pa.setY(i, Math.sin(cb[i * 3] * 1.3 + t * 1.8) * 0.03); pa.needsUpdate = true; });
+      foam(ctx, [[c[0], c[1] - 0.05], [c[2], c[1] - 0.05]], 0.4, -0.25, false); foam(ctx, [[c[0], c[3] + 0.05], [c[2], c[3] + 0.05]], -0.4, -0.25, false);
+    }
     // vlaggetjes langs de baan
     const flags = [];
     for (const [x, z] of S.flags || edgePoints(9, 113, 0.5, 0.9)) {
@@ -3220,7 +3655,7 @@ function ballStep(h) {
   }
   const accMag = Math.hypot(ax, az);
   if (b.state === 'rest') {
-    if (accMag > S.mu * 0.9) b.state = 'moving'; // statische wrijving houdt de bal vast als de kracht kleiner is
+    if (accMag > S.mu) b.state = 'moving'; // statische wrijving houdt de bal vast als de kracht kleiner is
     else { const px = b.x, pz = b.z; if (F.vel) { b.x += F.vel[0] * h; b.z += F.vel[1] * h; } collide(b); guardWalls(b, px, pz); return; }
   }
   b.vx += ax * h; b.vz += az * h;
@@ -3243,7 +3678,8 @@ function ballStep(h) {
     }
   } else if (hd > HOLE_R + 0.1) b.lipped = false;
   sp = Math.hypot(b.vx, b.vz);
-  if (sp < STOP_SPEED && accMag <= S.mu * 0.9) { b.vx = b.vz = 0; b.state = 'rest'; onBallRest(); }
+  // zelfde drempel als hierboven: anders kon de bal (planeet, helling) met snelheid 0 eeuwig 'moving' blijven
+  if (sp < STOP_SPEED && accMag <= S.mu) { b.vx = b.vz = 0; b.state = 'rest'; onBallRest(); }
 }
 // Vaste timestep, met adaptieve substeps zodat de bal nooit door een muur kan tunnelen
 function physicsStep(h) {
