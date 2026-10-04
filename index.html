@@ -2037,7 +2037,8 @@ function buildHole(idx) {
   applyTheme(def);
   const ctx = { g, def, H, mdl: mdlReady(th.env), upd: f => H.updaters.push(f), occ: m => H.occluders.push(m) };
   ENV[th.env](ctx); H.ctx = ctx;
-  if (th.stars && th.env !== 'space') shootingStars(ctx); // nachthemel
+  if (th.stars) { shootingStars(ctx); if (th.env === 'space') shootingStars(ctx); } // nachthemel (in de ruimte dubbel zoveel)
+  if (th.env === 'desert') dustDevils(ctx, 2);
   if (th.env === 'volcano' || th.env === 'finale') { lavaBubbles(ctx); if (mdlReady('chars')) { sailingShips(ctx, 'ship_lava', () => -0.55, 2); lavaSerpent(ctx); } }
   if (th.env === 'water' && mdlReady('chars')) { const lv = t => (H.tide ? H.tide.level(t) : -0.32); sailingShips(ctx, 'ship_water', lv, 2); whale(ctx, lv); }
   if (['meadow', 'water', 'castle', 'desert'].includes(th.env) && mdlReady('chars')) birdFlock(ctx, th.env === 'water' ? 7 : 5, th.env === 'desert' ? 14 : 10);
@@ -4625,6 +4626,18 @@ function snowGusts(ctx) {
     const cx = Cam.tx, cz = Cam.tz;
     if (Math.random() < dt * 25 * Q.fx) fx.emit(cx - 18 + Math.random() * 6, 0.1 + Math.random() * 0.5, cz + (Math.random() - 0.5) * 36, 3 + Math.random() * 2, 0.1, (Math.random() - 0.5) * 0.6, 8, 0.12, new THREE.Color('#ffffff'), { alpha: 0.55, drag: 0.1 });
     if (t > next) { next = t + 6 + Math.random() * 6; for (let i = 0; i < 90 * Q.fx; i++) fx.emit(cx - 20 + Math.random() * 8, 0.05 + Math.random() * 1.6, cz + (Math.random() - 0.5) * 30, 7 + Math.random() * 4, 0.3 + Math.random() * 0.6, (Math.random() - 0.5) * 1.2, 4.5, 0.15 + Math.random() * 0.15, new THREE.Color('#f4faff'), { alpha: 0.75, grow: 0.3, drag: 0.15 }); }
+  });
+}
+// ---------- stofhozen: kleine wervelende zandkolommen die over de vlakte zwerven ----------
+function dustDevils(ctx, n = 2) {
+  const D = []; for (let i = 0; i < n; i++) D.push({ ph: i * 2.7, r: 16 + i * 9, w: 0.05 + i * 0.02 });
+  const col = new THREE.Color('#d9b88a');
+  ctx.upd((t, dt) => {
+    for (const d of D) {
+      const x = H.center[0] + Math.cos(d.ph + t * d.w) * d.r * 1.3, z = H.center[1] + Math.sin(d.ph + t * d.w * 1.3) * d.r;
+      if (courseDist(x, z) < 3) continue;
+      for (let k = 0; k < 4; k++) if (Math.random() < dt * 30 * Q.fx) { const a = t * 6 + Math.random() * TAU, h = Math.random() * 4, rr = 0.3 + h * 0.35; fx.emit(x + Math.cos(a) * rr, h, z + Math.sin(a) * rr, -Math.sin(a) * 3, 1.2, Math.cos(a) * 3, 1.2, 0.25 + h * 0.08, col, { alpha: 0.35, grow: 0.5, drag: 0.5 }); }
+    }
   });
 }
 // ---------- vallende blaadjes ----------

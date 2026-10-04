@@ -200,14 +200,14 @@
   "file": "models/chars/guard.glb",
   "kind": "char",
   "footprint": 0.4,
-  "height": 2.42,
+  "height": 2.323,
   "size": [
-   0.976,
-   0.819
+   0.937,
+   0.786
   ],
-  "tris": 3742,
-  "bytes": 99276,
-  "notes": "De wachter. Parts/pivots (Blender coords, front -Y, left=+X; ~1.9 m incl. kettle hat): body (origin 0,0,0; chainmail barrel torso, tabard front+back panels in material \"tabard\" with white hem + tower emblem, belt, big friendly face with moustache, kettle hat); leg_l (pivot hip (0.12,0,0.76)), leg_r (pivot hip (-0.12,0,0.76)) boots on z=0; arm_r (pivot shoulder (-0.32,0,1.25); holds a tall halberd, shaft at x=-0.38 y=-0.20, z 0.06-2.42); arm_l (pivot shoulder (0.32,0,1.25); holds a small lantern, glass = material glow_lantern, centre (0.4,-0.26,0.77)). Materials: skin, tabard, steel, brown, white, glow_lantern."
+  "tris": 3338,
+  "bytes": 92564,
+  "notes": "De wachter. Parts/pivots (Blender coords, front -Y, left=+X; ~1.9 m incl. kettle hat): body (origin 0,0,0; chainmail barrel torso, tabard front+back panels in material \"tabard\" with white hem + tower emblem, belt, big friendly face with moustache, kettle hat); leg_l (pivot hip (0.115,0,0.73)), leg_r (pivot hip (-0.115,0,0.73)) boots on z=0; arm_r (pivot shoulder (-0.307,0,1.2); holds a tall halberd, shaft at x=-0.36 y=-0.19, z 0.06-2.33); arm_l (pivot shoulder (0.307,0,1.2); holds a small lantern, glass = material glow_lantern, centre (0.384,-0.25,0.739)). Materials: skin, tabard, steel, brown, white, glow_lantern."
  },
  {
   "name": "horse_rider",
@@ -388,6 +388,21 @@
   "tris": 3442,
   "bytes": 116328,
   "notes": "origin at waterline centre (0,0,0), bow -Y, keel to z=-0.55. parts: body (pivot 0,0,0); sail = mast+yards+sail+crow nest, pivot at mast base (0.00,-0.25,0.70); flag pivot at its pole attachment (0.00,-0.17,4.43) (top level, flies toward +Y)"
+ },
+ {
+  "name": "snowball",
+  "theme": "chars",
+  "file": "models/chars/snowball.glb",
+  "kind": "char",
+  "footprint": 1.0,
+  "height": 2.01,
+  "size": [
+   2.468,
+   2.801
+  ],
+  "tris": 2386,
+  "bytes": 55536,
+  "notes": "De reuzensneeuwbal. Parts/pivots (Blender coords, front -Y): ball (origin = centre (0,0,0); lumpy snow sphere, max radius exactly 1.0, with twigs, pebbles and stuck-on snow clumps; rotate it to roll); face (origin = ball centre (0,0,0); on the -Y side just outside r=1.0: big coal eyes with glints, raised coal brows, carrot nose, big surprised \"O\" mouth with snow lip and tongue, snow cheeks; keep it upright). Materials: snow, coal, carrot, twig, stone, mouth."
  },
  {
   "name": "torch",
