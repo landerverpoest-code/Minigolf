@@ -2669,9 +2669,9 @@ const SPECIALS = {
     const CG = charModel('ghost', ['ghost']); let gArms = [], gMouth = null;
     if (CG) { // Blender-model met eigen (doorzichtig, gloeiend) spookmateriaal
       g.add(CG.wrap); const gmat = CG.mats.ghost;
-      if (gmat) { gmat.transparent = true; gmat.depthWrite = false; gmat.side = THREE.DoubleSide; gmat.emissive.set('#9fd8ff'); }
+      if (gmat) { gmat.transparent = true; gmat.depthWrite = false; gmat.side = THREE.FrontSide; gmat.metalness = 0; gmat.roughness = 0.45; gmat.color.set('#f2f8ff'); gmat.emissive.set('#9fd8ff'); }
       CG.root.traverse(q => { if (q.isMesh && q.material === gmat) q.renderOrder = 3; });
-      gArms = ['arm_l', 'arm_r'].map(k => CG.n[k]).filter(Boolean).map(a => ({ a, y0: a.position.y })); gMouth = CG.n.mouth;
+      gArms = ['arm_l', 'arm_r'].map(k => CG.n[k]).filter(Boolean).map(a => ({ a, y0: a.position.y })); gMouth = CG.n.mouth; if (gMouth) gMouth.userData.s0 = gMouth.scale.clone();
       o.ghostMat = gmat;
     }
     const bodyM = mesh(lathe, gm, g, 0, 1.45, 0, true); bodyM.renderOrder = 3; bodyM.visible = !CG;
@@ -2707,9 +2707,9 @@ const SPECIALS = {
       mouth.scale.set(0.5, 0.8 + S.warn * 1.2 + (o.gustT < 0.4 ? 1 : 0), 1 + S.warn);
       arms.forEach((a, i) => a.position.y = 1.2 + Math.sin(t * 3 + i * 2) * 0.12 + S.warn * 0.3);
       if (CG) {
-        if (o.ghostMat) { o.ghostMat.opacity = gm.opacity; o.ghostMat.emissiveIntensity = gm.emissiveIntensity; }
+        if (o.ghostMat) { o.ghostMat.opacity = 0.55 + gm.opacity * 0.45; o.ghostMat.emissiveIntensity = 0.3 + gm.emissiveIntensity; }
         gArms.forEach((A, i) => { A.a.position.y = A.y0 + Math.sin(t * 3 + i * 2) * 0.12 + S.warn * 0.3; A.a.rotation.z = (i ? 1 : -1) * (0.2 + S.warn * 0.6); });
-        if (gMouth) gMouth.scale.set(1, 1 + S.warn * 1.5 + (o.gustT < 0.4 ? 1 : 0), 1 + S.warn * 0.5);
+        if (gMouth) { const s0 = gMouth.userData.s0; gMouth.scale.set(s0.x * (1 + S.warn * 0.3), s0.y * (1 + S.warn * 0.8 + (o.gustT < 0.4 ? 0.6 : 0)), s0.z); }
       }
       if (S.warn > 0 && !o.prevWarn && camDistTo(o.group.position) < 30) SND.whoosh(); o.prevWarn = S.warn > 0;
       if (o.gustT < 0.5) { const k = o.gustT / 0.5; ring.position.set(S.x, 0.15, S.z); ring.scale.setScalar(0.5 + k * d.radius); ringM.opacity = (1 - k) * 0.7; }

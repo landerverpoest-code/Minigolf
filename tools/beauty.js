@@ -14,7 +14,7 @@ const THREE_DIR = process.env.THREE_DIR || '/tmp/claude-0/-home-user-Minigolf/4c
   const list = (process.argv[2] || '0').split(',').map(Number), out = process.argv[3] || 'beauty'; fs.mkdirSync(out, { recursive: true });
   for (const i of list) {
     const env = await page.evaluate(i => window.__mg.HOLES[i].theme.env, i);
-    await page.evaluate(env => loadThemeModels(env), env);
+    await page.evaluate(env => Promise.all([loadThemeModels('chars'), loadThemeModels(env)]), env);
     await page.evaluate(i => { window.__mg.buildHole(i); applyEnvMaps(); window.__mg.G.state = 'menu'; }, i);
     await page.waitForTimeout(800);
     for (const [k, yaw] of [[0, 0.6], [1, 2.4], [2, 4.2]]) {

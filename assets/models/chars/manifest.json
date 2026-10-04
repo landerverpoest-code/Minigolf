@@ -1,0 +1,92 @@
+[
+ {
+  "name": "cow",
+  "theme": "chars",
+  "file": "models/chars/cow.glb",
+  "kind": "char",
+  "footprint": 0.6,
+  "height": 1.784,
+  "size": [
+   1.005,
+   2.297
+  ],
+  "tris": 3450,
+  "bytes": 89912,
+  "notes": "Parts/pivots (Blender coords, front -Y): body (origin 0,0,0; torso, spots, udder, collar+golden bell); head (pivot neck (0.0, -0.5799999833106995, 1.0600000619888306)); leg_fl (0.235,-0.4,0.68), leg_fr (-0.235,-0.4,0.68), leg_bl (0.235,0.42,0.68), leg_br (-0.235,0.42,0.68) - hip/shoulder, hooves at z=0; tail (pivot root (0.0, 0.6899999976158142, 1.0800000429153442), hangs down). Left = +X. Materials: cow_white, cow_black, cow_pink, horn, gold, collar."
+ },
+ {
+  "name": "crab",
+  "theme": "chars",
+  "file": "models/chars/crab.glb",
+  "kind": "char",
+  "footprint": 0.6,
+  "height": 0.79,
+  "size": [
+   1.636,
+   1.619
+  ],
+  "tris": 3414,
+  "bytes": 100040,
+  "notes": "Parts/pivots (Blender coords, front -Y, left=+X): body (origin 0,0,0; shell, eye stalks+eyes, smile); arm_l shoulder (0.36,-0.27,0.34), arm_r shoulder (-0.36,-0.27,0.34) (arm + big claw pointing -Y); jaw_l hinge (0.46,-0.92,0.495) / jaw_r hinge (-0.46,-0.92,0.495) = movable upper pincer, PARENTED to its arm, hinge axis = local X (negative X rotation opens: tip goes up); leg_l1 (0.45,-0.08,0.3), leg_l2 (0.45,0.1,0.3), leg_l3 (0.45,0.26,0.3), leg_r1 (-0.45,-0.08,0.3), leg_r2 (-0.45,0.1,0.3), leg_r3 (-0.45,0.26,0.3) (body side). Materials: crab_red, crab_light, crab_dark, eye_white, pupil, blush."
+ },
+ {
+  "name": "ghost",
+  "theme": "chars",
+  "file": "models/chars/ghost.glb",
+  "kind": "char",
+  "footprint": 0.55,
+  "height": 1.75,
+  "size": [
+   1.839,
+   1.391
+  ],
+  "tris": 2224,
+  "bytes": 48920,
+  "notes": "parts (pivot, Blender coords, front -Y, l = ghost own left = +X): body (sheet, origin 0,0,0 on the ground under its centre; hem tips at z=0.15, top z=1.9, material ghost, closed mesh with turned-in hem); arm_l / arm_r (round sheet mittens, shoulder x=+/-0.51 y=-0.02 z=1.12, reach out/forward and droop; material ghost); face (eyes + highlights + blush, origin on the body surface at the face centre (0.0, -0.563, 1.38), sits ~0.015 in front of the sheet); mouth (open dark O + tiny tongue, origin at its centre (0.0, -0.567, 1.21); scale it to open/close). Materials: ghost, eye, shine, blush, mouth."
+ },
+ {
+  "name": "penguin",
+  "theme": "chars",
+  "file": "models/chars/penguin.glb",
+  "kind": "char",
+  "footprint": 0.42,
+  "height": 1.512,
+  "size": [
+   0.945,
+   0.912
+  ],
+  "tris": 2738,
+  "bytes": 65700,
+  "notes": "Parts/pivots (Blender coords, front -Y, left=+X): body (origin 0,0,0; black egg body, white belly material \"belly\", orange feet, red scarf); head (pivot neck (0,0,0.94); white face patches, eyes, beak, blush, tuft); flipper_l shoulder (0.34,0.03,0.78), flipper_r shoulder (-0.34,0.03,0.78) (hanging down along the body). Materials: penguin_black, belly, white, orange, scarf, blush."
+ },
+ {
+  "name": "planet",
+  "theme": "chars",
+  "file": "models/chars/planet.glb",
+  "kind": "char",
+  "footprint": 1.0,
+  "height": 2.22,
+  "size": [
+   3.643,
+   3.398
+  ],
+  "tris": 3402,
+  "bytes": 97208,
+  "notes": "parts (pivot): planet (sphere radius exactly 1.0 centred on its origin 0,0,0; banded purple/pink/gold; face with big eyes, blush and an open smile on the -Y side, face features stick out up to ~0.09 beyond r=1); ring (origin 0,0,0 = planet centre, flat banded ring r 1.30-1.80 with a small gap at 1.60-1.635, tilted 20 deg around X (front edge low), tilt baked into the mesh, rotation zero); moon (radius 0.22, origin at its centre, placed at x=1.6 z=1.0; craters + sleepy smiling face toward -Y). Materials: purple, pink, gold, eye_white, pupil, moon."
+ },
+ {
+  "name": "scorpion",
+  "theme": "chars",
+  "file": "models/chars/scorpion.glb",
+  "kind": "char",
+  "footprint": 0.9,
+  "height": 1.828,
+  "size": [
+   1.894,
+   2.99
+  ],
+  "tris": 3481,
+  "bytes": 114332,
+  "notes": "parts (pivot, Blender coords, front -Y, l = animal own left = +X): body (origin 0,0,0 = body centre on ground; head front y=-0.86, tail root ends at y=+0.98 z=0.45); leg_l1..leg_l4 / leg_r1..leg_r4 (body side x=+/-0.30 z=0.30, y=-0.30,-0.06,0.18,0.42; feet on z=0); arm_l / arm_r (shoulder x=+/-0.25 y=-0.66 z=0.28, pincer forward -Y to y=-1.7); jaw_l / jaw_r (movable upper pincer finger, parented to its arm, hinge at x=+/-0.48 y=-1.37 z=0.37; three.js rotation.x<0 opens it upward); tail_seg (centred on its origin, 0.32 long along its local three.js Z with the narrow amber collar toward three.js +Z (Blender -Y) and a small crest on top (+Y), 0.31 thick; placed behind the tail root); sting (origin at its base, points down -Y in three.js, 0.42 long, hook curls forward; material sting; placed at the resting tail tip). Materials: shell, amber, sting, eye_white, pupil."
+ }
+]
