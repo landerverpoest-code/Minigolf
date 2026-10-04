@@ -195,6 +195,36 @@
   "notes": "single part body, origin at base centre (0,0,0); 13 V-folded tapered blades (3 segments), material grass; game sways tips in vertex shader"
  },
  {
+  "name": "guard",
+  "theme": "chars",
+  "file": "models/chars/guard.glb",
+  "kind": "char",
+  "footprint": 0.4,
+  "height": 2.42,
+  "size": [
+   0.976,
+   0.819
+  ],
+  "tris": 3742,
+  "bytes": 99276,
+  "notes": "De wachter. Parts/pivots (Blender coords, front -Y, left=+X; ~1.9 m incl. kettle hat): body (origin 0,0,0; chainmail barrel torso, tabard front+back panels in material \"tabard\" with white hem + tower emblem, belt, big friendly face with moustache, kettle hat); leg_l (pivot hip (0.12,0,0.76)), leg_r (pivot hip (-0.12,0,0.76)) boots on z=0; arm_r (pivot shoulder (-0.32,0,1.25); holds a tall halberd, shaft at x=-0.38 y=-0.20, z 0.06-2.42); arm_l (pivot shoulder (0.32,0,1.25); holds a small lantern, glass = material glow_lantern, centre (0.4,-0.26,0.77)). Materials: skin, tabard, steel, brown, white, glow_lantern."
+ },
+ {
+  "name": "horse_rider",
+  "theme": "chars",
+  "file": "models/chars/horse_rider.glb",
+  "kind": "char",
+  "footprint": 0.45,
+  "height": 2.327,
+  "size": [
+   1.025,
+   3.664
+  ],
+  "tris": 3452,
+  "bytes": 106024,
+  "notes": "De ruiters. Parts/pivots (Blender coords, front -Y, left=+X; ~2.2 m tall incl. plume, horse nose to tail ~2 m): body (origin 0,0,0; horse torso with caparison cloth in material \"coat\" (gold hem, white cross emblems), saddle, knight with armour + surcoat (coat), great helm with visor and coat plume, coat shield with white chevron on the left arm); neck (pivot neck base (0,-0.42,1.15); neck, head with big eyes, blaze, bridle, dark mane); leg_fl (0.155,-0.33,0.92), leg_fr (-0.155,-0.33,0.92), leg_bl (0.155,0.4,0.92), leg_br (-0.155,0.4,0.92) (pivot shoulder/hip, white socks, hooves on z=0); tail (pivot root (0,0.62,1.17)); lance (pivot at the right hand (-0.3,-0.1,1.44), ~3.0 m: 0.45 m behind the hand, tip 2.57 m in front along -Y; spiral stripes coat + white, steel vamplate). Materials: horse, horse_dark, coat, armor, white, gold."
+ },
+ {
   "name": "knight",
   "theme": "chars",
   "file": "models/chars/knight.glb",

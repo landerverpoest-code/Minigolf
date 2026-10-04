@@ -3,6 +3,7 @@ from mglib import *
 reset()
 import os; sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from gkit import *
+from gkit import _obj
 
 # ---------------------------------------------------------------- materials (6)
 WHITE = mat('goose_white', '#f6f3ea', rough=0.6)
