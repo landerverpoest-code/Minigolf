@@ -1490,6 +1490,295 @@ HOLES.push({
   },
 });
 
+// ===== NIEUWE HOLES (Eilanden, IJs, Woestijn) =====
+// ---------- Eilanden 2: De Draaibrug ----------
+// Lagune met een draaibrug in het midden: staat hij in lijn, dan rol je van het starteiland recht naar het noordeiland.
+// Anders wacht je, rijd je mee op de brug, of neem je de omweg over het oosteiland (krab). Daarna een smalle brug naar het gat.
+HOLES.push((() => {
+  const A = [0, -2], N = [0, -27], E = [12, -14], K = [0, -40], rA = 4.5, rN = 4.5, rE = 3.4, rK = 4.0;
+  const P = [0, -14], BL = 5.4, BW = 2.4; // draaipunt, halve lengte en breedte van de draaibrug
+  const dir = (p, q) => { const dx = q[0] - p[0], dz = q[1] - p[1], l = Math.hypot(dx, dz); return [dx / l, dz / l]; };
+  const ang = v => Math.atan2(v[1], v[0]), neg = v => [-v[0], -v[1]], edge = (C, v, r) => [C[0] + v[0] * r, C[1] + v[1] * r];
+  const gap = (r, w) => Math.asin((w / 2 + 0.25) / r);
+  const dAE = dir(A, E), dEN = dir(E, N), wD = 2.0, wK = 1.8;
+  const ae0 = edge(A, dAE, rA - 0.3), ae1 = edge(E, neg(dAE), rE - 0.3), en0 = edge(E, dEN, rE - 0.3), en1 = edge(N, neg(dEN), rN - 0.3);
+  const qA = [A[1] - rA + 0.3, P[1] + BL - 0.35], qN = [P[1] - BL + 0.35, N[1] + rN - 0.3]; // kades naar de draaibrug (z van/tot)
+  const nk0 = [0, N[1] - rN + 0.3], nk1 = [0, K[1] + rK - 0.3];
+  const rail = { style: 'rail', t: 0.16 };
+  const railsOf = (p, q, w) => [LINE(offsetLine(p, q, w / 2 + 0.1), rail), LINE(offsetLine(p, q, -w / 2 - 0.1), rail)];
+  const rq = Math.sqrt(5.65 * 5.65 - 1.3 * 1.3); // de reling van de kades stopt waar de draaiende brug langs zwaait
+  return {
+    name: 'De Draaibrug', themeName: 'Eilanden', icon: '🌉', par: 3, voidKind: 'water', surf: 'grass',
+    start: [0, 0.8], hole: [0, -42], aim: P,
+    floor: [
+      { poly: CIRC(A[0], A[1], rA, 26) }, { poly: CIRC(N[0], N[1], rN, 26) }, { poly: CIRC(E[0], E[1], rE, 22) }, { poly: CIRC(K[0], K[1], rK, 24) },
+      { poly: RECT(-BW / 2, qA[0], BW / 2, qA[1]), surf: 'wood', bridge: true }, { poly: RECT(-BW / 2, qN[0], BW / 2, qN[1]), surf: 'wood', bridge: true },
+      { poly: PLANK(ae0, ae1, wD), surf: 'wood', bridge: true }, { poly: PLANK(en0, en1, wD), surf: 'wood', bridge: true },
+      { poly: PLANK(nk0, nk1, wK), surf: 'wood', bridge: true },
+    ],
+    walls: [
+      ...islandWalls(A[0], A[1], rA, [[-Math.PI / 2, gap(rA, BW)], [ang(dAE), gap(rA, wD)]], { style: 'rockLow' }),
+      ...islandWalls(N[0], N[1], rN, [[Math.PI / 2, gap(rN, BW)], [ang(neg(dEN)), gap(rN, wD)], [-Math.PI / 2, gap(rN, wK)]], { style: 'rockLow' }),
+      ...islandWalls(E[0], E[1], rE, [[ang(neg(dAE)), gap(rE, wD)], [ang(dEN), gap(rE, wD)]], { style: 'rockLow' }),
+      ...islandWalls(K[0], K[1], rK, [[Math.PI / 2, gap(rK, wK)]], { style: 'rockLow' }),
+      LINE([[-1.3, qA[0] + 0.1], [-1.3, P[1] + rq]], rail), LINE([[1.3, qA[0] + 0.1], [1.3, P[1] + rq]], rail),
+      LINE([[-1.3, P[1] - rq], [-1.3, qN[1] - 0.1]], rail), LINE([[1.3, P[1] - rq], [1.3, qN[1] - 0.1]], rail),
+      ...railsOf(ae0, ae1, wD), ...railsOf(en0, en1, wD), ...railsOf(nk0, nk1, wK),
+    ],
+    zones: [{ type: 'sand', poly: CIRC(13.4, -12.6, 0.9, 16) }, { type: 'sand', poly: CIRC(-2.3, -26.2, 1.0, 16) }],
+    posts: [{ x: -3.1, z: -3.4, r: 0.3, kind: 'palm' }, { x: 2.6, z: 1.0, r: 0.3, kind: 'palm' }, { x: 14.3, z: -15.4, r: 0.3, kind: 'palm' },
+      { x: -3.3, z: -28.8, r: 0.3, kind: 'palm' }, { x: -3.0, z: -41.0, r: 0.3, kind: 'palm' }, { x: 3.0, z: -41.6, r: 0.3, kind: 'palm' }],
+    specials: [
+      { type: 'eilandDraaibrug', c: P, len: BL, w: BW, a0: -Math.PI / 2, hold: [6, 5], move: 2.5,
+        name: 'De draaibrug', desc: 'Midden in de lagune draait een brug telkens een kwartslag op zijn pijler. Groene lampjes: de brug ligt in lijn en je kunt recht oversteken. Knipperend oranje en de bel: hij gaat draaien. Een bal die stil op de brug ligt, draait gewoon mee.' },
+      { type: 'crab', mid: [10.2, -14], axis: [0, 1], face: [-1, 0], range: 1.3, period: 5.0, snap: 2.5, name: 'Strandkrab Knip', desc: 'Scharrelt over het oosteiland, precies tussen de twee bruggen van de omweg.' },
+      { type: 'crab', mid: [0, -38.6], axis: [1, 0], face: [0, 1], range: 1.4, period: 5.6, snap: 2.8, name: 'Strandkrab Knap', desc: 'Bewaakt het gat op het laatste eiland en knipt met zijn scharen.' },
+    ],
+    deco: { islands: [[A, rA], [N, rN], [E, rE], [K, rK]], wheel: [-11, -18], falls: [0, -53] },
+    theme: {
+      env: 'water', wall: 'rockLow', flag: '#ffd54f',
+      sky: ['#3d4f9a', '#ffb489', '#ffe6cc'], sun: { dir: [0.75, 0.32, -0.35], color: '#ffcf9e', int: 1.15 }, hemi: ['#ffdcc4', '#2f5f73', 0.62],
+      fog: ['#f2c6aa', 60, 280], exposure: 1.05,
+      music: { root: 294, scale: [0, 2, 4, 7, 9], chord: [0, 4, 9], tempo: 92, wave: 'triangle', density: 0.36, chirp: 'bird', noise: ['lowpass', 600, 0.045], seed: 41 },
+    },
+  };
+})());
+
+// ---------- Eilanden 3: De Veerpont ----------
+// Steigers bij avondrood. Rechtdoor neemt de veerpont je over de vaargeul (instappen als hij aanlegt, stil blijven liggen = meevaren).
+// De omweg loopt over twee eilandjes en een lage steiger die bij vloed onderloopt. Op het eiland van het gat scharrelt een krab.
+HOLES.push((() => {
+  const S = [0, 0], N = [0, -34.5], W1 = [-7.5, -9.5], W2 = [-7.5, -29.5], rS = 4.2, rN = 4.3, rW = 2.6;
+  const dir = (p, q) => { const dx = q[0] - p[0], dz = q[1] - p[1], l = Math.hypot(dx, dz); return [dx / l, dz / l]; };
+  const ang = v => Math.atan2(v[1], v[0]), neg = v => [-v[0], -v[1]], edge = (C, v, r) => [C[0] + v[0] * r, C[1] + v[1] * r];
+  const gap = (r, w) => Math.asin((w / 2 + 0.25) / r);
+  const d1 = dir(S, W1), d2 = dir(W2, N), wP = 2.4, wD = 2.0;
+  const p10 = edge(S, d1, rS - 0.3), p11 = edge(W1, neg(d1), rW - 0.3), p20 = edge(W2, d2, rW - 0.3), p21 = edge(N, neg(d2), rN - 0.3);
+  const sp = [S[1] - rS + 0.3, -13.7], np = [-27.0, N[1] + rN - 0.3]; // zuid- en noordsteiger (z van/tot)
+  const jt = [W1[1] - rW + 0.3, W2[1] + rW - 0.3]; // lage steiger tussen de eilandjes (loopt onder bij vloed)
+  const rail = { style: 'rail', t: 0.16 };
+  const railsOf = (p, q, w) => [LINE(offsetLine(p, q, w / 2 + 0.1), rail), LINE(offsetLine(p, q, -w / 2 - 0.1), rail)];
+  const jetty = { surf: 'wood', h: -0.12, over: true, id: 'jetty' };
+  return {
+    name: 'De Veerpont', themeName: 'Eilanden', icon: '⛴️', par: 4, voidKind: 'water', surf: 'grass',
+    start: [0, 1.8], hole: [1.2, -36.6], aim: [0, -14],
+    floor: [ // lage steiger eerst, zodat de eilandjes voorgaan waar ze overlappen
+      { poly: RECT(W1[0] - wD / 2, jt[0], W1[0] + wD / 2, jt[1]), ...jetty },
+      { poly: CIRC(S[0], S[1], rS, 26) }, { poly: CIRC(N[0], N[1], rN, 26) }, { poly: CIRC(W1[0], W1[1], rW, 18) }, { poly: CIRC(W2[0], W2[1], rW, 18) },
+      { poly: RECT(-wP / 2, sp[0], wP / 2, sp[1]), surf: 'wood', bridge: true }, { poly: RECT(-wP / 2, np[0], wP / 2, np[1]), surf: 'wood', bridge: true },
+      { poly: PLANK(p10, p11, wD), surf: 'wood', bridge: true }, { poly: PLANK(p20, p21, wD), surf: 'wood', bridge: true },
+    ],
+    walls: [
+      ...islandWalls(S[0], S[1], rS, [[-Math.PI / 2, gap(rS, wP)], [ang(d1), gap(rS, wD)]], { style: 'rockLow' }),
+      ...islandWalls(N[0], N[1], rN, [[Math.PI / 2, gap(rN, wP)], [ang(neg(d2)), gap(rN, wD)]], { style: 'rockLow' }),
+      ...islandWalls(W1[0], W1[1], rW, [[ang(neg(d1)), gap(rW, wD)], [-Math.PI / 2, gap(rW, wD)]], { style: 'rockLow' }),
+      ...islandWalls(W2[0], W2[1], rW, [[Math.PI / 2, gap(rW, wD)], [ang(d2), gap(rW, wD)]], { style: 'rockLow' }),
+      LINE([[-1.3, sp[0] + 0.1], [-1.3, sp[1]]], rail), LINE([[1.3, sp[0] + 0.1], [1.3, sp[1]]], rail),
+      LINE([[-1.3, np[0]], [-1.3, np[1] - 0.1]], rail), LINE([[1.3, np[0]], [1.3, np[1] - 0.1]], rail),
+      LINE([[W1[0] - wD / 2 - 0.1, jt[0]], [W1[0] - wD / 2 - 0.1, jt[1]]], rail), LINE([[W1[0] + wD / 2 + 0.1, jt[0]], [W1[0] + wD / 2 + 0.1, jt[1]]], rail),
+      ...railsOf(p10, p11, wD), ...railsOf(p20, p21, wD),
+    ],
+    zones: [{ type: 'sand', poly: CIRC(-2.2, -36.2, 0.95, 16) }, { type: 'sand', poly: CIRC(2.4, 1.6, 0.9, 16) }],
+    posts: [{ x: -2.9, z: 1.5, r: 0.3, kind: 'palm' }, { x: 3.0, z: -2.0, r: 0.3, kind: 'palm' }, { x: -8.7, z: -8.4, r: 0.3, kind: 'palm' },
+      { x: -8.9, z: -30.4, r: 0.3, kind: 'palm' }, { x: 3.4, z: -35.6, r: 0.3, kind: 'palm' }, { x: -2.6, z: -37.6, r: 0.3, kind: 'palm' }],
+    specials: [
+      { type: 'eilandVeerpont', x: 0, z0: -15.2, z1: -25.5, w: 2.8, l: 3.6, wait: [4, 4], move: 4.5,
+        name: 'De veerpont', desc: 'Een vlot aan een kabel vaart heen en weer over de vaargeul. Speel de bal erop als hij aanlegt: blijft hij stil liggen, dan vaart hij mee naar de overkant. Onderweg zijn de hekjes dicht. Belletje en knipperlamp = hij vertrekt.' },
+      { type: 'tide', T: 24, low: -0.46, high: -0.02, sandTop: -0.12, floors: 'jetty', sparkle: false,
+        name: 'Eb en vloed', desc: 'De lage steiger van de omweg loopt bij vloed onder water. Bij eb kun je er gewoon overheen.' },
+      { type: 'crab', mid: [0, -33.7], axis: [1, 0], face: [0, 1], range: 1.6, period: 5.4, snap: 2.7, name: 'Krab Klaas', desc: 'Scharrelt op het laatste eiland heen en weer, precies waar je van de steigers af komt.' },
+    ],
+    deco: { islands: [[S, rS], [N, rN], [W1, rW], [W2, rW]], wheel: [8.5, -18], falls: [0, -47] },
+    theme: {
+      env: 'water', wall: 'rockLow', flag: '#26c6da',
+      sky: ['#1b1840', '#e2607a', '#ffb070'], sun: { dir: [-0.8, 0.2, -0.35], color: '#ff9a6a', int: 0.95 }, hemi: ['#ffb4c4', '#1a2a4a', 0.6],
+      fog: ['#a85c74', 55, 240], exposure: 1.12, stars: true,
+      music: { root: 220, scale: [0, 2, 3, 7, 9], chord: [0, 3, 7], tempo: 80, wave: 'sine', density: 0.32, chirp: 'bubble', noise: ['lowpass', 500, 0.05], seed: 42 },
+    },
+  };
+})());
+
+// ---------- IJs 2: IJsbaan Noorderlicht ----------
+// Een ovale ijsbaan rond een besneeuwd middenveld. Op beide rechte stukken ligt dun ijs dat om beurten openbreekt:
+// kies links of rechts om het middenveld heen. Pinguïns glijden dwars over de baan; in de bochten remt sneeuw.
+HOLES.push((() => {
+  const R = 10, r = 4.2, zS = -14, zN = -34, cg = Math.acos(2.2 / R); // buitenrand, middenveld, middelpunten van de bochten
+  const oval = (rad, n) => [...ARC(0, zS, rad, 0, Math.PI, n), ...ARC(0, zN, rad, Math.PI, TAU, n)];
+  const RR = (x0, z0, x1, z1, c) => { // afgeronde rechthoek (z0 < z1)
+    const p = []; for (const [cx, cz, a] of [[x1 - c, z0 + c, -Math.PI / 2], [x1 - c, z1 - c, 0], [x0 + c, z1 - c, Math.PI / 2], [x0 + c, z0 + c, Math.PI]]) p.push(...ARC(cx, cz, c, a, a + Math.PI / 2, 4)); return p; };
+  const zc = Math.sqrt(R * R - 2.2 * 2.2); // waar de gang op de buitenrand aansluit
+  return {
+    name: 'IJsbaan Noorderlicht', themeName: 'IJs', icon: '⛸️', par: 3, voidKind: 'water', surf: 'ice',
+    start: [0, 0.8], hole: [0, -41.4], aim: [0, -8],
+    floor: [{ poly: RECT(-2.2, 2.5, 2.2, zS + zc - 0.6) }, { poly: oval(R, 24) }, { poly: oval(r, 14), surf: 'snow' }],
+    walls: [
+      LOOP([[-2.2, zS + zc], [-2.2, 2.5], [2.2, 2.5], [2.2, zS + zc], ...ARC(0, zS, R, cg, 0, 8).slice(1), ...ARC(0, zN, R, 0, -Math.PI, 26), ...ARC(0, zS, R, Math.PI, Math.PI - cg, 8)]),
+      LOOP(oval(r, 14)),
+    ],
+    zones: [
+      { type: 'snow', poly: RECT(-2.05, 2.35, 2.05, 1.1) },
+      { type: 'snow', poly: [...ARC(0, zS, R - 0.15, 0.25, Math.PI - 0.25, 16), ...ARC(0, zS, R - 1.6, Math.PI - 0.25, 0.25, 16)] },
+      { type: 'snow', poly: [...ARC(0, zN, R - 0.15, -0.12, -Math.PI + 0.12, 20), ...ARC(0, zN, 6.1, -Math.PI + 0.12, -0.12, 14)] },
+    ],
+    posts: [{ x: -8.2, z: -18.6, r: 0.32, kind: 'icicle' }, { x: 7.9, z: -29.6, r: 0.32, kind: 'icicle' }, { x: -5.6, z: -11.2, r: 0.32, kind: 'icicle' }, { x: 5.6, z: -36.8, r: 0.32, kind: 'icicle' },
+      { x: 0, z: -18.5, r: 0.8, kind: 'icicle' }, { x: -1.2, z: -24.5, r: 0.65, kind: 'icicle' }, { x: 1.1, z: -29.5, r: 0.9, kind: 'icicle' }],
+    set: { igloo: [-15, -6], lamps: [[-12.5, -8], [12.5, -40], [12.5, -8], [-12.5, -40]] },
+    specials: [
+      { type: 'ijsWak', T: 20, solid: 11, holes: [
+        { poly: RR(-R - 0.3, -26.2, -r + 0.3, -21.8, 1.1), phase: 0, sign: [-3.5, -20.6], signRot: Math.PI / 2 },
+        { poly: RR(r - 0.3, -26.2, R + 0.3, -21.8, 1.1), phase: 10, sign: [3.5, -27.4], signRot: -Math.PI / 2 },
+      ], name: 'Dun ijs', desc: 'Op beide rechte stukken ligt een wak. Het ijs kraakt, barst en breekt open tot water, en vriest daarna weer dicht. De wakken wisselen elkaar af: er is altijd één kant waar je over kunt.' },
+      { type: 'penguin', a: [-8.6, -30.5], b: [-5.6, -30.5], stand: 1.4, slide: 1.6, name: 'Pinguïn Pip', desc: 'Glijdt op zijn buik dwars over de linkerbaan.' },
+      { type: 'penguin', a: [8.6, -17.5], b: [5.6, -17.5], stand: 1.2, slide: 1.5, name: 'Pinguïn Pol', desc: 'Glijdt dwars over de rechterbaan. Flapperende vleugels = hij gaat zo glijden.' },
+    ],
+    theme: {
+      env: 'ice', wall: 'ice', flag: '#00e5ff',
+      sky: ['#01040c', '#0c2c4c', '#24476a'], sun: { dir: [-0.35, 0.65, 0.45], color: '#9fb8ff', int: 0.7 }, hemi: ['#5a78c0', '#2a3a60', 0.5],
+      fog: ['#0e2240', 45, 220], exposure: 0.88, stars: true,
+      music: { root: 440, scale: [0, 2, 4, 7, 9], chord: [0, 4, 7], tempo: 100, wave: 'triangle', density: 0.34, chirp: 'wind', noise: ['bandpass', 800, 0.025], seed: 51 },
+    },
+  };
+})());
+
+// ---------- IJs 3: De Gletsjer ----------
+// Van boven op de gletsjer over twee gladde hellingen met besneeuwde terrassen naar beneden, waar een reuzensneeuwbal
+// je achterna rolt. Onderaan ligt een gletsjerspleet: alleen de drijvende ijsschotsen brengen je naar de overkant.
+HOLES.push((() => {
+  const rampWall = (x, z0, z1, h0, h1, n) => { const out = []; for (let i = 0; i < n; i++) { const a = i / n, b = (i + 1) / n; out.push(LINE([[x, lerp(z0, z1, a)], [x, lerp(z0, z1, b)]], { h: Math.max(lerp(h0, h1, a), lerp(h0, h1, b)) + 0.5 })); } return out; };
+  const C = [-30.9, -38.3]; // gletsjerspleet (z van/tot)
+  return {
+    name: 'De Gletsjer', themeName: 'IJs', icon: '🏔️', par: 3, voidKind: 'water', surf: 'ice',
+    start: [0, 1.5], hole: [-2.2, -44.2], aim: [0, -12],
+    floor: [
+      { poly: RECT(-3, 2.5, 3, -3), h: 1.6 }, { poly: RECT(-2.85, 2.35, 2.85, 0.6), h: 1.6, surf: 'snow' },
+      { poly: RECT(-3, -3, 3, -13), ramp: { p0: [0, -3], p1: [0, -13], h0: 1.6, h1: 1.0 } },
+      { poly: RECT(-5, -13, 5, -19), h: 1.0 }, { poly: RECT(-4.85, -17.3, 4.85, -18.85), h: 1.0, surf: 'snow' }, { poly: RECT(-4.85, -13.15, -3.1, -14.6), h: 1.0, surf: 'snow' },
+      { poly: RECT(-3.5, -19, 3.5, -27), ramp: { p0: [0, -19], p1: [0, -27], h0: 1.0, h1: 0 } },
+      { poly: RECT(-6, -27, 6, C[0]) }, { poly: RECT(-6, C[1], 6, -48) },
+    ],
+    walls: [
+      LINE([[3, -3], [3, 2.5], [-3, 2.5], [-3, -3]], { h: 2.1 }),
+      ...rampWall(-3, -3, -13, 1.6, 1.0, 3), ...rampWall(3, -3, -13, 1.6, 1.0, 3),
+      LINE([[-3, -13], [-5, -13], [-5, -19], [-3.5, -19]], { h: 1.5 }), LINE([[3, -13], [5, -13], [5, -19], [3.5, -19]], { h: 1.5 }),
+      ...rampWall(-3.5, -19, -27, 1.0, 0, 4), ...rampWall(3.5, -19, -27, 1.0, 0, 4),
+      LINE([[-3.5, -27], [-6, -27], [-6, C[0]]]), LINE([[3.5, -27], [6, -27], [6, C[0]]]),
+      LINE([[-6, C[1]], [-6, -48], [6, -48], [6, C[1]]]),
+    ],
+    zones: [
+      { type: 'snow', poly: RECT(-5.85, -29.4, 5.85, -30.75) },
+      { type: 'snow', poly: CIRC(-2.2, -44.2, 1.9, 22) }, { type: 'snow', poly: RECT(-5.85, -46.4, 5.85, -47.85) },
+      { type: 'snow', poly: RECT(3.4, -38.45, 5.85, -40.2) }, { type: 'snow', poly: RECT(-5.85, -38.45, -4.6, -40.2) },
+    ],
+    posts: [{ x: 3.6, z: -43.2, r: 0.32, kind: 'icicle' }, { x: 1.2, z: -46.0, r: 0.32, kind: 'icicle' }, { x: -4.9, z: -28.2, r: 0.32, kind: 'icicle' }, { x: 4.8, z: -28.0, r: 0.32, kind: 'icicle' }],
+    set: { channels: [[-8, C[0], 8, C[1]]], igloo: [10.5, -44] },
+    specials: [
+      { type: 'floes', rows: [
+        { z0: C[0] + 0.1, z1: -33.3, cx: 0, w: 4.2, amp: 3, period: 9, phase: 0 },
+        { z0: -33.2, z1: -35.8, cx: 0, w: 4.2, amp: 3, period: 9, phase: Math.PI },
+        { z0: -35.7, z1: C[1] - 0.1, cx: 0, w: 4.2, amp: 3, period: 9, phase: 0 },
+      ], name: 'Gletsjerspleet', desc: 'Onderaan de gletsjer drijven drie ijsschotsen heen en weer. Twee keer per ronde liggen ze precies achter elkaar: dan vormen ze de enige brug naar de overkant.' },
+      { type: 'ijsSneeuwbal', path: [[-1.4, -3.6], [-1.4, -12.4], [1.6, -18.0], [1.6, -30.2], [1.6, -31.6]], r: 0.85, speed: 5, period: 11, warn: 1.8,
+        name: 'De reuzensneeuwbal', desc: 'Bovenaan de helling groeit een sneeuwhoop die telkens als reuzensneeuwbal naar beneden rolt en in de spleet plonst. Hij duwt je bal hard opzij. Stuifsneeuw en gerommel = hij komt eraan.' },
+      { type: 'penguin', a: [-4.6, -41.6], b: [-0.9, -41.6], stand: 1.5, slide: 1.7, name: 'Pinguïn Pingo', desc: 'Glijdt aan de overkant voor het gat heen en weer.' },
+    ],
+    theme: {
+      env: 'ice', wall: 'ice', flag: '#e53935',
+      sky: ['#1f6fd0', '#bfe4ff', '#f4fbff'], sun: { dir: [0.45, 0.8, 0.35], color: '#fffaf0', int: 1.4 }, hemi: ['#d8ecff', '#9ab4cc', 0.7],
+      fog: ['#d4e8f6', 80, 320], exposure: 0.95,
+      music: { root: 587, scale: [0, 2, 4, 5, 7, 9, 11], chord: [0, 4, 7], tempo: 108, wave: 'sine', density: 0.3, chirp: 'wind', noise: ['bandpass', 900, 0.02], seed: 52 },
+    },
+  };
+})());
+
+// ---------- Woestijn 2: De Oase ----------
+// Een plein met een oase (vijver, palmen, gras) en daarachter de piramide. De tunnel erdoor is de kortste weg naar het gat,
+// maar de stenen deur gaat pas open als je de gouden skarabee raakt. Anders om de piramide heen, langs kwikzand en schorpioenen.
+HOLES.push((() => {
+  const PY = [0, -37], TW = 1.15; // piramide (voet x ±6.2, z ±5.6) en halve tunnelbreedte
+  const pz0 = PY[1] + 5.6, pz1 = PY[1] - 5.6;
+  return {
+    name: 'De Oase', themeName: 'Woestijn', icon: '🌴', par: 4, voidKind: 'abyss', surf: 'stone',
+    start: [0, 0.5], hole: [0, -48.6], aim: [0, -12],
+    floor: [
+      { poly: RECT(-2.5, 2.5, 2.5, -7.5) },
+      { poly: [[-8, -7], [8, -7], [11, -10], [11, pz1], [-11, pz1], [-11, -10]] },
+      { poly: CIRC(0, -18, 6.6, 30), surf: 'grass' },
+      { poly: [[-11, pz1], [11, pz1], [11, -50], [8, -53], [-8, -53], [-11, -50]] },
+    ],
+    walls: [
+      LOOP([[-2.5, -7], [-2.5, 2.5], [2.5, 2.5], [2.5, -7], [8, -7], [11, -10], [11, -50], [8, -53], [-8, -53], [-11, -50], [-11, -10], [-8, -7]]),
+      LOOP(RECT(-6.2, pz0, -TW, pz1), { style: 'pyramid' }), LOOP(RECT(TW, pz0, 6.2, pz1), { style: 'pyramid' }),
+    ],
+    zones: [
+      { type: 'water', poly: CIRC(0, -18, 3.3, 28) },
+      { type: 'quicksand', poly: CIRC(6.6, -11.2, 1.25, 20) }, { type: 'quicksand', poly: CIRC(-8.9, -36.5, 1.1, 20) }, { type: 'quicksand', poly: CIRC(9.0, -39.8, 1.1, 20) },
+      { type: 'sand', poly: [[6.35, -32], [10.85, -32], [10.85, -35.5], [6.35, -34.5]] }, { type: 'sand', poly: [[-10.85, -42], [-6.35, -41], [-6.35, -44], [-10.85, -44]] },
+      { type: 'sand', poly: CIRC(-5.5, -50.2, 1.2, 18) },
+    ],
+    posts: [
+      { x: 3.6, z: -13.9, r: 0.3, kind: 'palm' }, { x: -4.6, z: -16.2, r: 0.3, kind: 'palm' }, { x: -2.9, z: -22.4, r: 0.3, kind: 'palm' }, { x: 4.4, z: -21.4, r: 0.3, kind: 'palm' },
+      { x: -9.6, z: -26.4, r: 0.3, kind: 'palm' }, { x: 9.7, z: -27.5, r: 0.3, kind: 'palm' },
+      { x: -9.6, z: -11.6, r: 0.34, kind: 'cactus' }, { x: 9.6, z: -51.0, r: 0.34, kind: 'cactus' }, { x: -9.7, z: -47.6, r: 0.34, kind: 'cactus' },
+    ],
+    set: { pyramid: PY, sphinx: [-19, -40] },
+    specials: [
+      { type: 'woestijnSkarabee', pos: [-9.4, -20.6], rot: 0.4, door: [[-TW, pz0 - 0.15], [TW, pz0 - 0.15]],
+        name: 'De gouden skarabee', desc: 'De tunnel door de piramide is de kortste weg naar het gat, maar een stenen deur houdt hem dicht. Raak de gouden skarabee bij de palmen: de deur zakt in de grond en blijft open tot de volgende beurt.' },
+      { type: 'scorpion', c: [0, -28.2], amp: 4.2, w: 0.5, reach: 2.4, name: 'Schorpioen Sahra', desc: 'Patrouilleert voor de piramide en steekt toe als je bal te dichtbij komt. Staart omhoog = pas op.' },
+      { type: 'scorpion', c: [5.6, -46.8], amp: 2.4, w: 0.65, reach: 2.2, name: 'Schorpioen Ramses', desc: 'Bewaakt de achterkant van de piramide, waar de omweg uitkomt.' },
+    ],
+    theme: {
+      env: 'desert', wall: 'sandstone', flag: '#7cb342',
+      sky: ['#2f7fd0', '#cfe6f5', '#f3dcae'], sun: { dir: [0.25, 0.92, 0.2], color: '#fff2d6', int: 1.45 }, hemi: ['#fff0d0', '#b08850', 0.7],
+      fog: ['#efd9ad', 80, 320], exposure: 1.0,
+      music: { root: 175, scale: [0, 1, 4, 5, 7, 8, 10], chord: [0, 4, 7], tempo: 96, wave: 'triangle', density: 0.34, chirp: 'bird', noise: ['bandpass', 600, 0.02], seed: 61 },
+    },
+  };
+})());
+
+// ---------- Woestijn 3: De Kloof ----------
+// 's Nachts aan een diepe kloof. Over de smalle stenen boog zonder reling rol je bijna recht naar het gat (riskant);
+// de brede brug brengt je in een grafkamer met draaiende messen, die je pas verlaat als de rolsteen de uitgang vrijgeeft.
+HOLES.push((() => {
+  const GZ = -21, g0 = -17.9, g1 = -24.1; // kloof (midden, zuid- en noordrand van de vloeren)
+  const tomb = { style: 'pyramid', h: 1.0 };
+  return {
+    name: 'De Kloof', themeName: 'Woestijn', icon: '🏺', par: 4, voidKind: 'abyss', surf: 'stone',
+    start: [0, 0.5], hole: [-2.2, -40.6], aim: [0, -14],
+    floor: [
+      { poly: RECT(-2, 2.5, 2, -6.2) }, { poly: RECT(-7, -6, 7, g0) },
+      { poly: RECT(-5.3, g0, -3.7, g1) }, { poly: RECT(2.6, g0, 6.4, g1) },
+      { poly: RECT(-5.4, g1, -3.6, -31.2) }, { poly: RECT(1.6, g1, 7.4, -38) }, { poly: RECT(-7, -31, 1.6, -44) },
+    ],
+    walls: [
+      LINE([[-5.45, g0], [-7, g0], [-7, -6], [-2, -6], [-2, 2.5], [2, 2.5], [2, -6], [7, -6], [7, g0], [6.5, g0]]),
+      LINE([[-3.55, g0], [2.5, g0]]),
+      LINE([[2.5, g0], [2.5, g1]]), LINE([[6.5, g0], [6.5, g1]]),
+      LINE([[2.5, g1], [1.6, g1], [1.6, -34.2]], tomb), LINE([[1.6, -36.8], [1.6, -38], [7.4, -38], [7.4, g1], [6.5, g1]], tomb),
+      LINE([[-5.4, g1], [-5.4, -31], [-7, -31], [-7, -44], [1.6, -44], [1.6, -38]], tomb), LINE([[-3.6, g1], [-3.6, -31], [1.6, -31]], tomb),
+    ],
+    zones: [
+      { type: 'quicksand', poly: CIRC(-4.4, -10.8, 1.15, 20) }, { type: 'sand', poly: [[3.2, -8], [6.85, -8.6], [6.85, -12.4], [3.8, -11.6]] },
+      { type: 'sand', poly: CIRC(-5.6, -42.4, 1.1, 18) }, { type: 'sand', poly: RECT(5.2, -35.6, 7.25, -37.85) },
+    ],
+    posts: [{ x: 5.8, z: -3.2, r: 0.34, kind: 'cactus' }, { x: -6.2, z: -7.0, r: 0.34, kind: 'cactus' }, { x: -0.4, z: -43.0, r: 0.34, kind: 'cactus' }],
+    movers: [{ type: 'rotbar', c: [4.5, -29.4], arms: 3, len: 2.35, w: 1.1, phase: 0.5, style: 'blade' }],
+    torches: [[1.3, -31.4], [-6.7, -31.4], [7.1, -24.5], [-6.7, -43.6]],
+    set: { gorge: GZ, gorgeArches: [[-4.5, 1.9], [4.5, 4.4]], sphinx: [16, -36] },
+    specials: [
+      { type: 'woestijnRolsteen', a: [1.6, -35.5], b: [1.6, -39.0], R: 1.5, times: [3.2, 1.4, 3.4, 1.4], phase: 0,
+        name: 'De rolsteen', desc: 'De uitgang van de grafkamer wordt afgesloten door een ronde stenen deur. Hij rolt telkens opzij en weer terug; gloeiende ogen betekenen dat hij gaat rollen. Of waag je de smalle boog over de kloof, zonder reling?' },
+      { type: 'scorpion', c: [0, -12.6], amp: 4.4, w: 0.55, reach: 2.3, name: 'Schorpioen Anubis', desc: 'Patrouilleert op het plateau voor de kloof en steekt toe als je bal te dichtbij komt.' },
+    ],
+    theme: {
+      env: 'desert', wall: 'sandstone', flag: '#ffca28',
+      sky: ['#04050c', '#161a3c', '#1c1428'], sun: { dir: [0.5, 0.55, -0.45], color: '#8a9cff', int: 0.45 }, hemi: ['#3c4680', '#1a120a', 0.42],
+      fog: ['#0e0f24', 25, 150], exposure: 0.95, stars: true,
+      music: { root: 196, scale: [0, 1, 4, 5, 7, 8, 10], chord: [0, 4, 7], tempo: 72, wave: 'sawtooth', density: 0.24, chirp: 'wind', noise: ['bandpass', 400, 0.03], seed: 62 },
+    },
+  };
+})());
+
 // =====================================================================
 //  RENDERER / SCENE
 // =====================================================================
@@ -3547,6 +3836,393 @@ const SPECIALS = {
     o.onHit = () => { if (o.react <= 0) { o.react = 1.2; SND.clank(); SND.hup(); } };
     return o;
   },
+
+  // ----- nieuw (Eilanden, IJs, Woestijn) -----
+  // ---------- Draaibrug (Eilanden): draait telkens een kwartslag op zijn pijler ----------
+  // d.c = draaipunt, d.len = halve lengte, d.w = breedte, d.a0 = richting in de beginstand (rad, xz-vlak),
+  // d.hold = [s in lijn, s dwars], d.move = draaitijd (s). Een bal die stil op het dek ligt, draait mee.
+  // Alles is een functie van de spelklok; de brug is nooit een terugkeerplek (active).
+  eilandDraaibrug(d) {
+    const L = d.len, W2 = d.w / 2, RO = W2 + 0.1, Q4 = Math.PI / 2, sg = d.dir || 1;
+    const o = { group: new THREE.Group(), ang: d.a0, warn: false, moving: false, aligned: true, prevMoving: false, prevWarn: false, prevAligned: true };
+    const rails = [prim(0.08, { e: 0.75, kind: 'wood' }), prim(0.08, { e: 0.75, kind: 'wood' })]; o.prims = rails;
+    const poly = [[0, 0], [0, 0], [0, 0], [0, 0]];
+    const F = { poly, bb: [0, 0, 0, 0], surf: 'wood', h: 0.03, hAt: () => 0.03, acc: null, active: () => true };
+    H.floors.push(F);
+    const T = d.hold[0] + d.move + d.hold[1] + d.move;
+    const stateAt = t => {
+      const n = Math.floor(t / T), ph = t - n * T, h0 = d.hold[0], h1 = d.hold[1];
+      let a = n * Math.PI, warn = false, moving = false, aligned = false;
+      if (ph < h0) { aligned = true; warn = ph > h0 - 1.5; }
+      else if (ph < h0 + d.move) { a += Q4 * smooth((ph - h0) / d.move); moving = true; }
+      else if (ph < h0 + d.move + h1) { a += Q4; warn = ph > h0 + d.move + h1 - 1.5; }
+      else { a += Q4 + Q4 * smooth((ph - h0 - d.move - h1) / d.move); moving = true; }
+      return { a: d.a0 + sg * a, warn, moving, aligned };
+    };
+    const place = a => {
+      const ux = Math.cos(a), uz = Math.sin(a), nx = -uz, nz = ux;
+      const pts = [[L, W2], [L, -W2], [-L, -W2], [-L, W2]];
+      pts.forEach((p, i) => { poly[i][0] = d.c[0] + ux * p[0] + nx * p[1]; poly[i][1] = d.c[1] + uz * p[0] + nz * p[1]; });
+      const b = polyBB(poly); F.bb[0] = b[0]; F.bb[1] = b[1]; F.bb[2] = b[2]; F.bb[3] = b[3];
+      const rl = L - 0.45;
+      rails.forEach((p, i) => { const s = i ? -RO : RO; setSeg(p, d.c[0] - ux * rl + nx * s, d.c[1] - uz * rl + nz * s, d.c[0] + ux * rl + nx * s, d.c[1] + uz * rl + nz * s); });
+    };
+    o.update = (t, h, b) => {
+      const s = stateAt(t), da = s.a - o.ang;
+      if (da !== 0 && b.state === 'rest' && !b.held && !(b.air > 0)) { // stilliggende bal op het dek draait mee
+        const rx = b.x - d.c[0], rz = b.z - d.c[1], ux = Math.cos(o.ang), uz = Math.sin(o.ang);
+        const along = rx * ux + rz * uz, across = -rx * uz + rz * ux;
+        if (Math.abs(along) <= L && Math.abs(across) <= W2 && floorAt(b.x, b.z) === F) {
+          const c = Math.cos(da), sn = Math.sin(da); b.x = d.c[0] + rx * c - rz * sn; b.z = d.c[1] + rx * sn + rz * c;
+        }
+      }
+      o.ang = s.a; o.warn = s.warn; o.moving = s.moving; o.aligned = s.aligned;
+      place(s.a);
+    };
+    // --- model: pijler, draaiend dek met reling en lampjes, landhoofden voor de dwarsstand ---
+    const g = new THREE.Group(); g.position.set(d.c[0], 0, d.c[1]); o.group.add(g);
+    const stoneM = M('#a39a8c', { map: tex('stone') }), wood = M('#ffffff', { map: tex('wood') }), paint = M('#f3eee4', { roughness: 0.7 }), red = M('#c62828', { roughness: 0.6 });
+    mesh(scaleUV(CYL(1.15, 1.4, 1.8, 18), 2, 1), stoneM, g, 0, -1.0, 0, false, true);
+    const rot = new THREE.Group(); g.add(rot);
+    mesh(scaleUV(BOX(2 * L, 0.24, d.w + 0.12), L * 0.5, 0.6), wood, rot, 0, 0.03 - 0.12, 0, true, true);
+    for (const s of [-1, 1]) mesh(BOX(2 * L, 0.3, 0.12), M('#5b3d24', { map: tex('wood') }), rot, 0, -0.14, s * (W2 + 0.06), true);
+    const ring = mesh(new THREE.RingGeometry(0.75, 0.9, 32), M('#c9a24a', { metalness: 0.8, roughness: 0.3 }), rot, 0, 0.045, 0, false); ring.rotation.x = -Math.PI / 2;
+    const rl = L - 0.45, nPost = Math.max(3, Math.round(2 * rl / 1.1));
+    for (const s of [-1, 1]) {
+      for (let k = 0; k <= nPost; k++) mesh(BOX(0.1, 0.44, 0.1), paint, rot, -rl + 2 * rl * k / nPost, 0.24, s * RO);
+      mesh(BOX(2 * rl + 0.1, 0.08, 0.1), paint, rot, 0, 0.45, s * RO); mesh(BOX(2 * rl, 0.05, 0.06), paint, rot, 0, 0.24, s * RO);
+    }
+    const lampM = [];
+    for (const a of [-1, 1]) for (const s of [-1, 1]) {
+      mesh(CYL(0.06, 0.07, 0.9, 8), red, rot, a * rl, 0.5, s * RO);
+      const lm = new THREE.MeshStandardMaterial({ color: '#222', emissive: '#30ff50', emissiveIntensity: 1.4 }); mesh(SPH(0.11, 10, 8), lm, rot, a * rl, 1.0, s * RO, false); lampM.push(lm);
+    }
+    // landhoofden waar de brugeinden in de dwarsstand op rusten
+    const nx0 = -Math.sin(d.a0), nz0 = Math.cos(d.a0);
+    for (const s of [-1, 1]) {
+      const hx = nx0 * s * (L + 0.35), hz = nz0 * s * (L + 0.35);
+      const hd = mesh(scaleUV(BOX(1.0, 1.6, d.w + 0.5), 1, 1), stoneM, g, hx, -0.86, hz, true, true); hd.rotation.y = -Math.atan2(nz0, nx0);
+      for (const q of [-1, 1]) mesh(CYL(0.12, 0.15, 0.35, 8), M('#2b2b30', { metalness: 0.5 }), g, hx - nz0 * q * (W2 - 0.1) + nx0 * s * 0.25, 0.1, hz + nx0 * q * (W2 - 0.1) + nz0 * s * 0.25);
+    }
+    o.visual = (t, dt) => {
+      rot.rotation.y = -o.ang;
+      const col = o.warn ? (Math.sin(t * 16) > 0 ? '#ffa000' : '#2a1400') : o.aligned ? '#30ff50' : '#ff2020';
+      lampM.forEach(m => m.emissive.set(col));
+      const near = camDistTo(tmpV2.set(d.c[0], 0, d.c[1])) < 34;
+      if (o.warn && !o.prevWarn && near) SND.ding();
+      if (o.moving && !o.prevMoving && near) { SND.creak(); SND.clank(); }
+      if (o.aligned && !o.prevAligned && near) SND.clank();
+      o.prevWarn = o.warn; o.prevMoving = o.moving; o.prevAligned = o.aligned;
+      if (o.moving && Math.random() < dt * 30 * Q.fx) { const a = Math.random() * TAU; fx.emit(d.c[0] + Math.cos(a) * 1.4, -0.25, d.c[1] + Math.sin(a) * 1.4, Math.cos(a) * 0.6, 0.6, Math.sin(a) * 0.6, 0.7, 0.14, new THREE.Color('#e8f7ff'), { grav: 3, alpha: 0.8 }); }
+    };
+    return o;
+  },
+
+  // ---------- Veerpont (Eilanden): vlot aan een kabel, vaart heen en weer tussen twee steigers ----------
+  // d.x = x van de vaarlijn, d.z0 / d.z1 = middelpunt van het vlot aan de eerste / tweede steiger, d.w x d.l = breedte x lengte,
+  // d.wait = [s aan z0, s aan z1], d.move = vaartijd (s). Een stilliggende bal vaart mee (F.vel). Onderweg zijn beide
+  // hekjes dicht; aan een steiger is alleen het hekje aan die kant open. Positie en snelheid volgen uit de spelklok.
+  eilandVeerpont(d) {
+    const W2 = d.w / 2, L2 = d.l / 2, sg = Math.sign(d.z0 - d.z1) || 1; // sg: kant van het vlot die naar steiger 0 wijst
+    const o = { group: new THREE.Group(), z: d.z0, vz: 0, dock: 1, warn: false, prevDock: 1, prevWarn: false, react: 0 };
+    const F = { poly: RECT(-W2, L2, W2, -L2), bb: null, surf: 'wood', h: 0.02, hAt: () => 0.02, acc: null, ox: d.x, oz: d.z0, vel: [0, 0] };
+    F.bb = polyBB(F.poly); H.floors.push(F);
+    const sides = [prim(0.08, { e: 0.75, kind: 'wood' }), prim(0.08, { e: 0.75, kind: 'wood' })];
+    const gates = [prim(0.08, { e: 0.7, kind: 'wood' }), prim(0.08, { e: 0.7, kind: 'wood' })]; // [kant steiger 0, kant steiger 1]
+    o.prims = [...sides, ...gates];
+    const T = d.wait[0] + d.move + d.wait[1] + d.move;
+    const stateAt = t => {
+      const ph = ((t + (d.phase || 0)) % T + T) % T, w0 = d.wait[0], w1 = d.wait[1], mv = d.move;
+      if (ph < w0) return { z: d.z0, vz: 0, dock: 1, warn: ph > w0 - 1.2 };
+      if (ph < w0 + mv) { const u = (ph - w0) / mv; return { z: lerp(d.z0, d.z1, smooth(u)), vz: (d.z1 - d.z0) * 6 * u * (1 - u) / mv, dock: 0, warn: false }; }
+      if (ph < w0 + mv + w1) return { z: d.z1, vz: 0, dock: 2, warn: ph > w0 + mv + w1 - 1.2 };
+      const u = (ph - w0 - mv - w1) / mv; return { z: lerp(d.z1, d.z0, smooth(u)), vz: (d.z0 - d.z1) * 6 * u * (1 - u) / mv, dock: 0, warn: false };
+    };
+    o.update = (t) => {
+      const s = stateAt(t); o.z = s.z; o.vz = s.vz; o.dock = s.dock; o.warn = s.warn;
+      F.oz = s.z; F.vel[1] = s.vz;
+      const x0 = d.x - W2, x1 = d.x + W2, za = s.z + sg * (L2 - 0.12), zb = s.z - sg * (L2 - 0.12);
+      setSeg(sides[0], x0, s.z - L2 + 0.1, x0, s.z + L2 - 0.1); setSeg(sides[1], x1, s.z - L2 + 0.1, x1, s.z + L2 - 0.1);
+      setSeg(gates[0], x0, za, x1, za); gates[0].on = s.dock !== 1;
+      setSeg(gates[1], x0, zb, x1, zb); gates[1].on = s.dock !== 2;
+    };
+    // --- model: vlot op tonnen, reling, klaphekjes, kabel met katrollen en een veerman op een uitlegger ---
+    const wood = M('#ffffff', { map: tex('wood') }), dark = M('#5b3d24', { map: tex('wood') }), rope = M('#d9c8a0', { roughness: 0.9 });
+    const raft = new THREE.Group(); o.group.add(raft);
+    mesh(scaleUV(BOX(d.w + 0.14, 0.24, d.l), 1.2, 1.4), wood, raft, 0, 0.02 - 0.12, 0, true, true);
+    for (const s of [-1, 1]) mesh(CYL(0.28, 0.28, d.l - 0.3, 12), M('#6a4a30', { roughness: 0.8 }), raft, s * (W2 - 0.45), -0.36, 0).rotation.x = Math.PI / 2;
+    const nP = 3;
+    for (const s of [-1, 1]) {
+      for (let k = 0; k <= nP; k++) mesh(BOX(0.1, 0.44, 0.1), dark, raft, s * W2, 0.24, -L2 + 0.1 + (d.l - 0.2) * k / nP);
+      mesh(BOX(0.09, 0.08, d.l - 0.1), dark, raft, s * W2, 0.45, 0);
+    }
+    const flaps = [sg, -sg].map(e => {
+      const hinge = new THREE.Group(); hinge.position.set(-W2, 0.3, e * (L2 - 0.12)); raft.add(hinge);
+      mesh(BOX(d.w, 0.09, 0.08), M('#e53935', { roughness: 0.6 }), hinge, W2, 0, 0); for (let k = 1; k < 4; k++) mesh(BOX(0.18, 0.091, 0.081), M('#fafafa'), hinge, k * d.w / 4, 0, 0, false);
+      return hinge;
+    });
+    // uitlegger met veerman en katrollen langs de kabel (oostkant)
+    const cx = W2 + 0.45;
+    mesh(BOX(0.7, 0.1, d.l * 0.7), dark, raft, cx, 0.0, 0, true, true);
+    for (const e of [-1, 1]) { mesh(CYL(0.05, 0.05, 1.1, 6), dark, raft, cx + 0.15, 0.55, e * d.l * 0.3); const wl = mesh(CYL(0.12, 0.12, 0.06, 12), M('#444', { metalness: 0.6 }), raft, cx + 0.15, 1.1, e * d.l * 0.3); wl.rotation.z = Math.PI / 2; }
+    const man = new THREE.Group(); man.position.set(cx - 0.05, 0.05, 0); raft.add(man);
+    mesh(CYL(0.16, 0.2, 0.6, 10), M('#1e5aa8'), man, 0, 0.4, 0); mesh(SPH(0.15, 12, 10), M('#f2c29a'), man, 0, 0.85, 0);
+    mesh(CONE(0.3, 0.18, 14), M('#e8cf7a', { roughness: 0.9 }), man, 0, 1.02, 0);
+    const manEyes = [makeEye(man, -0.12, 0.88, 0.06, 0.035), makeEye(man, -0.12, 0.88, -0.06, 0.035)];
+    const arms = [-1, 1].map(e => { const a = new THREE.Group(); a.position.set(0, 0.62, e * 0.17); man.add(a); mesh(CYL(0.045, 0.045, 0.45, 6), M('#1e5aa8'), a, 0.1, 0.12, 0).rotation.z = -0.9; return a; });
+    const lampM = new THREE.MeshStandardMaterial({ color: '#332', emissive: '#ffc04a', emissiveIntensity: 1.5 });
+    mesh(CYL(0.04, 0.04, 1.3, 6), dark, raft, -W2 - 0.02, 0.65, -sg * (L2 - 0.12)); mesh(SPH(0.11, 10, 8), lampM, raft, -W2 - 0.02, 1.32, -sg * (L2 - 0.12), false);
+    const flag = mesh(new THREE.PlaneGeometry(0.5, 0.32), M('#ffd54f', { side: THREE.DoubleSide }), raft, -W2 + 0.23, 1.15, sg * (L2 - 0.12), false);
+    mesh(CYL(0.025, 0.025, 1.3, 6), dark, raft, -W2 - 0.02, 0.65, sg * (L2 - 0.12));
+    // vaste kabel tussen twee palen voorbij de steigers
+    const kz0 = d.z0 + sg * (L2 + 0.6), kz1 = d.z1 - sg * (L2 + 0.6), kx = d.x + cx + 0.15;
+    for (const kz of [kz0, kz1]) mesh(CYL(0.1, 0.13, 1.8, 8), dark, o.group, kx, 0.5, kz, true);
+    // lantaarnpalen aan de westkant van beide steigers
+    for (const kz of [kz0, kz1]) {
+      const lx = d.x - W2 - 0.4; mesh(CYL(0.07, 0.09, 2.2, 8), M('#2b2b30', { metalness: 0.5 }), o.group, lx, 0.7, kz, true);
+      mesh(BOX(0.3, 0.36, 0.3), new THREE.MeshStandardMaterial({ color: '#332', emissive: '#ffb84a', emissiveIntensity: 1.6 }), o.group, lx, 1.95, kz, false);
+      mesh(CONE(0.26, 0.2, 4), M('#2b2b30', { metalness: 0.5 }), o.group, lx, 2.23, kz, false).rotation.y = Math.PI / 4;
+      const pl = new THREE.PointLight('#ffb060', 1.1, 9, 2); pl.position.set(lx, 1.9, kz); o.group.add(pl);
+    }
+    const cable = mesh(CYL(0.025, 0.025, 1, 6), rope, o.group, 0, 0, 0, false); orientCyl(cable, new THREE.Vector3(kx, 1.15, kz0), new THREE.Vector3(kx, 1.15, kz1));
+    o.visual = (t, dt) => {
+      o.react = Math.max(0, o.react - dt);
+      raft.position.set(d.x, Math.sin(t * 1.6) * 0.02, o.z); raft.rotation.x = clamp(o.vz * 0.01, -0.03, 0.03) + Math.sin(t * 1.1) * 0.008;
+      flaps[0].rotation.x = 0; flaps[0].rotation.z = lerp(flaps[0].rotation.z, o.dock === 1 ? 1.35 : 0, 1 - Math.exp(-dt * 6));
+      flaps[1].rotation.z = lerp(flaps[1].rotation.z, o.dock === 2 ? 1.35 : 0, 1 - Math.exp(-dt * 6));
+      const pull = o.dock === 0 ? Math.sin(t * 7) : 0;
+      arms.forEach((a, i) => { a.rotation.z = 0.4 + pull * 0.35 * (i ? 1 : -1); });
+      man.rotation.y = o.dock === 0 ? 0 : Math.sin(t * 0.8) * 0.5; man.position.y = 0.05 + Math.abs(pull) * 0.03;
+      manEyes.forEach(e => lookEye(e, tmpV2.set(ball.x, ball.y, ball.z)));
+      flag.rotation.y = Math.sin(t * 3) * 0.3;
+      lampM.emissiveIntensity = o.warn ? (Math.sin(t * 14) > 0 ? 2.4 : 0.3) : 1.4;
+      const near = camDistTo(raft.position) < 32;
+      if (o.warn && !o.prevWarn && near) SND.ding();
+      if (o.dock === 0 && o.prevDock !== 0 && near) SND.creak();
+      if (o.dock !== 0 && o.prevDock === 0) { if (near) SND.clank(); fx.burst(d.x, -0.2, o.z + sg * (o.dock === 1 ? L2 : -L2), 14, { color: '#e8f7ff', speed: 1.2, up: 1.5, grav: 6, life: 0.6, size: 0.12, spread: 2 }); }
+      o.prevWarn = o.warn; o.prevDock = o.dock;
+      if (o.dock === 0 && Math.random() < dt * 25 * Q.fx) fx.emit(d.x + (Math.random() - 0.5) * d.w, -0.25, o.z - Math.sign(o.vz) * L2, (Math.random() - 0.5) * 0.4, 0.4, -Math.sign(o.vz) * 0.5, 0.8, 0.14, new THREE.Color('#ffffff'), { grav: 2, alpha: 0.7 });
+    };
+    return o;
+  },
+
+  // ---------- Dun ijs (IJs): wakken die openbreken en weer dichtvriezen ----------
+  // d.holes = [{ poly, phase, sign: [x, z] }], d.T = periode (s), d.solid = s per periode dat het ijs draagt.
+  // Elke wak is een zone die van 'ice' naar 'water' wisselt; 1.6 s vooraf kraakt en barst het ijs (waarschuwing).
+  ijsWak(d) {
+    const o = { group: new THREE.Group(), prims: [], waks: [] };
+    const phOf = (t, W) => ((t + W.phase) % d.T + d.T) % d.T;
+    const crackTex = toTex(drawCanvas(256, 256, (c) => {
+      const r = mulberry(17); c.strokeStyle = 'rgba(20,50,80,0.9)'; c.lineCap = 'round';
+      for (let k = 0; k < 9; k++) { let x = 128, y = 128, a = k / 9 * TAU + r() * 0.4; c.lineWidth = 3; c.beginPath(); c.moveTo(x, y); for (let s = 0; s < 6; s++) { a += (r() - 0.5) * 0.9; x += Math.cos(a) * 22; y += Math.sin(a) * 22; c.lineTo(x, y); c.lineWidth = Math.max(1, 3 - s * 0.4); } c.stroke(); }
+      c.strokeStyle = 'rgba(255,255,255,0.8)'; c.lineWidth = 1.5; for (let k = 0; k < 14; k++) { c.beginPath(); const x = r() * 256, y = r() * 256; c.moveTo(x, y); c.lineTo(x + (r() - 0.5) * 40, y + (r() - 0.5) * 40); c.stroke(); }
+    }));
+    const shardM = M('#e8f7ff', { map: tex('ice'), roughness: 0.15, metalness: 0.1 });
+    for (const W of d.holes) {
+      const Z = { type: 'ice', poly: W.poly, bb: polyBB(W.poly) };
+      Z.typeAt = t => phOf(t, W) >= d.solid ? 'water' : 'ice';
+      H.zones.push(Z);
+      const bb = Z.bb, cx = (bb[0] + bb[2]) / 2, cz = (bb[1] + bb[3]) / 2, sx = bb[2] - bb[0], sz = bb[3] - bb[1];
+      const shapeGeo = (y) => { const g = new THREE.ShapeGeometry(shapeFromPoly(W.poly), 16); g.rotateX(-Math.PI / 2); g.translate(0, y, 0); return g; };
+      const water = mesh(scaleUV(shapeGeo(0.006), 0.3), M('#2f6f9a', { map: tex('water'), roughness: 0.05, metalness: 0.3 }), o.group, 0, 0, 0, false, true);
+      const capM = M('#d8f2ff', { map: tex('ice'), roughness: 0.08, metalness: 0.15, transparent: true, opacity: 0.95 });
+      const cap = mesh(scaleUV(shapeGeo(0.014), 0.2), capM, o.group, 0, 0, 0, false, true);
+      const crkGeo = shapeGeo(0.02), uv = crkGeo.attributes.uv, pa = crkGeo.attributes.position;
+      for (let i = 0; i < uv.count; i++) uv.setXY(i, (pa.getX(i) - bb[0]) / sx, (pa.getZ(i) - bb[1]) / sz);
+      const crkM = new THREE.MeshBasicMaterial({ map: crackTex, transparent: true, opacity: 0, depthWrite: false });
+      mesh(crkGeo, crkM, o.group, 0, 0, 0, false);
+      const shards = []; const r = mulberry(Math.round(cx * 13 + cz * 7) + 99);
+      for (let k = 0, tries = 0; k < 7 && tries < 60; tries++) {
+        const x = bb[0] + 0.4 + r() * (sx - 0.8), z = bb[1] + 0.4 + r() * (sz - 0.8); if (!pointInPoly(x, z, W.poly)) continue;
+        const s = mesh(BOX(0.5 + r() * 0.7, 0.12, 0.4 + r() * 0.6), shardM, o.group, x, -0.3, z, false, true); s.rotation.y = r() * 6; s.visible = false;
+        shards.push({ m: s, x, z, p: r() * 6 }); k++;
+      }
+      // waarschuwingsbordje naast de wak
+      if (W.sign) {
+        const sg = new THREE.Group(); sg.position.set(W.sign[0], 0, W.sign[1]); sg.rotation.y = W.signRot || 0; o.group.add(sg);
+        mesh(CYL(0.05, 0.05, 1.2, 6), M('#6d4c2f'), sg, 0, 0.6, 0);
+        mesh(BOX(0.9, 0.5, 0.05), M('#ffffff', { map: textTex('DUN IJS!', { bg: '#ffd600', color: '#b71c1c', size: 34, w: 256, h: 128 }) }), sg, 0, 1.25, 0.03, false);
+      }
+      o.waks.push({ W, Z, cap, capM, crkM, shards, cx, cz, prev: 'solid' });
+    }
+    o.update = () => {};
+    o.visual = (t, dt) => {
+      for (const K of o.waks) {
+        const ph = phOf(t, K.W), open = ph >= d.solid, warn = !open && ph > d.solid - 1.6, freeze = open && ph > d.T - 1.5;
+        const st = freeze ? 'freeze' : open ? 'open' : warn ? 'warn' : 'solid';
+        let cap = 0.95, crk = 0;
+        if (warn) { const u = (ph - (d.solid - 1.6)) / 1.6; crk = 0.3 + 0.7 * u; cap = 0.95 - 0.15 * u; }
+        else if (freeze) { const u = (ph - (d.T - 1.5)) / 1.5; cap = 0.95 * smooth(u); }
+        else if (open) cap = 0;
+        K.capM.opacity = cap; K.cap.visible = cap > 0.01; K.crkM.opacity = crk * (warn ? 0.75 + 0.25 * Math.sin(t * 30) : 1);
+        const sink = freeze ? smooth((ph - (d.T - 1.5)) / 1.5) : 0;
+        K.shards.forEach(s => { s.m.visible = open; if (open) { const u = Math.min(1, (ph - d.solid) / 0.4); s.m.position.set(s.x + Math.sin(t * 0.5 + s.p) * 0.15, -0.02 + Math.sin(t * 1.8 + s.p) * 0.025 - (1 - u) * 0.15 - sink * 0.2, s.z + Math.cos(t * 0.4 + s.p) * 0.15); s.m.rotation.z = Math.sin(t * 1.3 + s.p) * 0.08; } });
+        if (st !== K.prev) {
+          const near = camDistTo(tmpV2.set(K.cx, 0, K.cz)) < 36;
+          if (st === 'warn' && near) SND.crack();
+          if (st === 'open') { if (near) { SND.crack(); SND.splash(); } fx.burst(K.cx, 0.05, K.cz, 36, { color: '#e0f7ff', speed: 2.2, up: 3, grav: 8, life: 0.8, size: 0.14, spread: 3 }); }
+          if (st === 'solid' && K.prev === 'freeze' && near) SND.chime();
+          K.prev = st;
+        }
+        if (warn && Math.random() < dt * 8) { if (camDistTo(tmpV2.set(K.cx, 0, K.cz)) < 20) SND.tick(); fx.emit(K.cx + (Math.random() - 0.5) * 3, 0.05, K.cz + (Math.random() - 0.5) * 3, 0, 0.6, 0, 0.5, 0.08, new THREE.Color('#ffffff'), { grav: 2 }); }
+        if (freeze && Math.random() < dt * 20 * Q.fx) { const b = K.Z.bb; fxAdd.emit(b[0] + Math.random() * (b[2] - b[0]), 0.05, b[1] + Math.random() * (b[3] - b[1]), 0, 0.3, 0, 0.7, 0.09, new THREE.Color('#bff0ff'), { alpha: 0.8 }); }
+      }
+    };
+    return o;
+  },
+
+  // ---------- Sneeuwbal (IJs): een reuzensneeuwbal die telkens van de gletsjer rolt ----------
+  // d.path = [[x, z], ...] van boven naar beneden (laatste punt ligt in het water), d.r = straal, d.speed (m/s),
+  // d.period (s), d.warn (s): bovenaan groeit eerst een sneeuwhoop met stuifsneeuw. Duwt de bal weg (kick) en plonst
+  // aan het einde in de geul. Volgt de hoogte van de vloer.
+  ijsSneeuwbal(d) {
+    const o = { group: new THREE.Group(), react: 0, on: false, dist: 0, warn: 0, x: d.path[0][0], z: d.path[0][1], hx: 0, hz: -1, prevOn: false, prevWarn: false, splashed: false };
+    const p = prim(d.r, { kick: 4.5, e: 0.5, owner: o, kind: 'soft' }); o.prims = [p];
+    const segs = []; let total = 0;
+    for (let i = 0; i < d.path.length - 1; i++) { const a = d.path[i], b = d.path[i + 1], L = Math.hypot(b[0] - a[0], b[1] - a[1]); segs.push({ a, b, L, s0: total }); total += L; }
+    const travel = total / d.speed, drop = total - 1.0; // laatste meter = in het water vallen
+    const at = s => { let S = segs[segs.length - 1]; for (const q of segs) if (s <= q.s0 + q.L) { S = q; break; } const u = clamp((s - S.s0) / S.L, 0, 1); return [lerp(S.a[0], S.b[0], u), lerp(S.a[1], S.b[1], u), (S.b[0] - S.a[0]) / S.L, (S.b[1] - S.a[1]) / S.L]; };
+    o.update = (t) => {
+      const ph = ((t + (d.phase || 0)) % d.period + d.period) % d.period;
+      o.warn = ph < d.warn ? ph / d.warn : 0; o.on = ph >= d.warn && ph < d.warn + travel;
+      o.dist = ph < d.warn ? 0 : Math.min(total, (ph - d.warn) * d.speed);
+      const q = at(o.dist); o.x = q[0]; o.z = q[1]; o.hx = q[2]; o.hz = q[3];
+      p.on = o.on && o.dist < drop; setCirc(p, o.x, o.z);
+    };
+    const snowM = M('#ffffff', { map: tex('snow'), roughness: 0.85 });
+    const head = new THREE.Group(); o.group.add(head);
+    const roll = new THREE.Group(); head.add(roll);
+    const geo = new THREE.IcosahedronGeometry(d.r, 2), pa = geo.attributes.position;
+    for (let i = 0; i < pa.count; i++) { tmpV.fromBufferAttribute(pa, i); const n = 1 + Math.sin(tmpV.x * 9) * Math.cos(tmpV.y * 7) * Math.sin(tmpV.z * 8) * 0.06; pa.setXYZ(i, tmpV.x * n, tmpV.y * n, tmpV.z * n); }
+    geo.computeVertexNormals(); mesh(geo, snowM, roll, 0, 0, 0);
+    for (let k = 0; k < 5; k++) { const a = k * 1.3; mesh(SPH(0.07, 6, 4), M('#6d4c2f'), roll, Math.cos(a) * d.r * 0.97, Math.sin(a * 1.7) * d.r * 0.5, Math.sin(a) * d.r * 0.85, false); } // takjes en steentjes in de sneeuw
+    const face = new THREE.Group(); head.add(face);
+    const eyes = [makeEye(face, d.r * 0.86, d.r * 0.25, 0.24, 0.13), makeEye(face, d.r * 0.86, d.r * 0.25, -0.24, 0.13)];
+    mesh(CONE(0.09, 0.4, 8), M('#ff7a1a'), face, d.r * 0.98, -0.02, 0, false).rotation.z = -Math.PI / 2;
+    const heap = mesh(new THREE.SphereGeometry(1, 16, 8, 0, TAU, 0, Math.PI / 2), snowM, o.group, d.path[0][0], 0, d.path[0][1], false, true);
+    const hy = (x, z) => { const F = floorAt(x, z); return F ? F.hAt(x, z) : 0; };
+    o.visual = (t, dt) => {
+      o.react = Math.max(0, o.react - dt);
+      const h0 = hy(d.path[0][0], d.path[0][1]);
+      heap.position.y = h0; heap.visible = o.warn > 0; if (o.warn > 0) { const s = 0.2 + o.warn * 0.8; heap.scale.set(d.r * s, d.r * s * 0.8, d.r * s); }
+      head.visible = o.on;
+      if (o.on) {
+        let y = hy(o.x, o.z) + d.r;
+        if (o.dist > drop) y = d.r - (o.dist - drop) * 1.4; // valt in de geul
+        head.position.set(o.x, y, o.z); head.rotation.y = -Math.atan2(o.hz, o.hx); roll.rotation.z = -o.dist / d.r;
+        eyes.forEach(e => { e.w.scale.setScalar(o.react > 0 ? 1.6 : 1); lookEye(e, tmpV2.set(ball.x, ball.y, ball.z)); });
+        if (Math.random() < dt * 30 * Q.fx) fx.emit(o.x - o.hx * d.r, y - d.r + 0.1, o.z - o.hz * d.r, (Math.random() - 0.5) * 0.8, 0.8 + Math.random(), (Math.random() - 0.5) * 0.8, 0.8, 0.18, new THREE.Color('#ffffff'), { grav: 3, alpha: 0.8 });
+      }
+      const near = camDistTo(tmpV2.set(o.x, 0, o.z)) < 34;
+      if (o.warn > 0 && !o.prevWarn && camDistTo(heap.position) < 34) SND.rumble();
+      if (o.warn > 0 && Math.random() < dt * 25 * Q.fx) fx.emit(d.path[0][0] + (Math.random() - 0.5) * 1.6, h0 + 2 + Math.random() * 2, d.path[0][1] + (Math.random() - 0.5) * 1.6, 0, -1.5, 0, 1.2, 0.2, new THREE.Color('#ffffff'), { grav: 1, alpha: 0.9 });
+      if (o.on && o.dist > drop && !o.splashed) { o.splashed = true; if (near) SND.splash(); fx.burst(o.x, -0.1, o.z, 40, { color: '#e0f7ff', speed: 2.5, up: 4, grav: 9, life: 0.9, size: 0.16, spread: 1.5 }); }
+      if (!o.on) o.splashed = false;
+      o.prevWarn = o.warn > 0;
+    };
+    o.onHit = () => { if (o.react <= 0) { o.react = 1; SND.bonk(); } };
+    return o;
+  },
+
+  // ---------- Gouden skarabee (Woestijn): opent de stenen deur van de piramidetunnel ----------
+  // d.pos = plek van de skarabee (knop), d.door = [[x0, z], [x1, z]] = de deur in de tunnelingang.
+  // Raak de skarabee: de deur zakt in de grond en blijft open tot de volgende beurt (reset).
+  woestijnSkarabee(d) {
+    const o = { group: new THREE.Group(), react: 0, open: false, s: 0, prevS: 0 };
+    o.reset = () => { o.open = false; o.s = 0; };
+    const btn = prim(0.42, { e: 0.7, owner: o, kind: 'metal' }); setCirc(btn, d.pos[0], d.pos[1]);
+    const door = prim(0.16, { e: 0.6, kind: 'stone' }); setSeg(door, d.door[0][0], d.door[0][1], d.door[1][0], d.door[1][1]);
+    o.prims = [btn, door];
+    o.update = (t, h) => { if (o.open) o.s = Math.min(1, o.s + h / 1.4); door.on = o.s < 0.85; };
+    // skarabee op een sokkel
+    const g = new THREE.Group(); g.position.set(d.pos[0], 0, d.pos[1]); g.rotation.y = d.rot || 0; o.group.add(g);
+    mesh(CYL(0.5, 0.58, 0.28, 18), M('#d8b77c', { map: tex('sandstone') }), g, 0, 0.14, 0, true, true);
+    const gold = M('#e8b830', { metalness: 0.85, roughness: 0.28, emissive: '#5a3a00', emissiveIntensity: 0.3 }), teal = M('#1f8a8a', { metalness: 0.7, roughness: 0.3 });
+    const bug = new THREE.Group(); bug.position.y = 0.3; g.add(bug);
+    mesh(SPH(0.3, 16, 10), teal, bug, -0.02, 0.1, 0).scale.set(1.15, 0.55, 0.95);
+    const wings = [-1, 1].map(s => { const w = new THREE.Group(); w.position.set(0.12, 0.16, s * 0.02); bug.add(w); const m = mesh(new THREE.SphereGeometry(0.3, 14, 8, 0, Math.PI), gold, w, -0.15, 0, 0); m.scale.set(1.15, 0.5, 0.95); m.rotation.y = s > 0 ? 0 : Math.PI; m.rotation.x = -Math.PI / 2 * 0; return w; });
+    mesh(SPH(0.14, 12, 8), gold, bug, 0.33, 0.08, 0).scale.set(1, 0.7, 1.1);
+    mesh(CONE(0.05, 0.22, 6), gold, bug, 0.48, 0.14, 0).rotation.z = -1.1;
+    for (const s of [-1, 1]) for (let k = 0; k < 3; k++) { const l = mesh(CYL(0.025, 0.02, 0.32, 5), gold, bug, 0.15 - k * 0.15, -0.02, s * 0.27); l.rotation.x = s * 1.0; }
+    const eyes = [makeEye(bug, 0.42, 0.13, 0.07, 0.04, '#ffffff', '#b71c1c'), makeEye(bug, 0.42, 0.13, -0.07, 0.04, '#ffffff', '#b71c1c')];
+    const disc = mesh(new THREE.TorusGeometry(0.22, 0.04, 6, 20), M('#ff7a1a', { emissive: '#ff5a00', emissiveIntensity: 0.6 }), bug, 0.15, 0.55, 0, false); disc.rotation.y = Math.PI / 2;
+    // de tunneldeur: zandstenen plaat met hiërogliefen die in de grond zakt
+    const dx = d.door[1][0] - d.door[0][0], dz = d.door[1][1] - d.door[0][1], L = Math.hypot(dx, dz);
+    const glyph = toTex(drawCanvas(256, 192, (c) => {
+      c.fillStyle = '#c9a46a'; c.fillRect(0, 0, 256, 192); c.strokeStyle = '#6a4420'; c.lineWidth = 6; c.strokeRect(8, 8, 240, 176);
+      c.strokeStyle = '#6a4420'; c.fillStyle = '#6a4420'; c.lineWidth = 7; c.lineCap = 'round';
+      c.beginPath(); c.moveTo(70, 70); c.quadraticCurveTo(128, 25, 186, 70); c.quadraticCurveTo(128, 105, 70, 70); c.stroke(); // oog van Horus
+      c.beginPath(); c.arc(128, 68, 14, 0, TAU); c.fill(); c.beginPath(); c.moveTo(112, 92); c.lineTo(104, 125); c.quadraticCurveTo(96, 140, 84, 128); c.stroke();
+      c.beginPath(); c.moveTo(150, 90); c.lineTo(176, 118); c.stroke(); c.beginPath(); c.moveTo(70, 46); c.quadraticCurveTo(128, 18, 186, 44); c.stroke();
+      for (const ax of [46, 210]) { c.beginPath(); c.ellipse(ax, 112, 11, 15, 0, 0, TAU); c.stroke(); c.beginPath(); c.moveTo(ax, 127); c.lineTo(ax, 168); c.moveTo(ax - 18, 134); c.lineTo(ax + 18, 134); c.stroke(); } // ankhs
+    }));
+    const doorG = new THREE.Group(); doorG.position.set((d.door[0][0] + d.door[1][0]) / 2, 0, (d.door[0][1] + d.door[1][1]) / 2); doorG.rotation.y = -Math.atan2(dz, dx); o.group.add(doorG);
+    const glowM = new THREE.MeshStandardMaterial({ color: '#c9a46a', map: glyph, emissive: '#ffb030', emissiveMap: glyph, emissiveIntensity: 0, roughness: 0.9 });
+    const slab = mesh(BOX(L + 0.3, 1.7, 0.32), [M('#c9a46a', { map: tex('sandstone') }), M('#c9a46a', { map: tex('sandstone') }), M('#c9a46a', { map: tex('sandstone') }), M('#c9a46a', { map: tex('sandstone') }), glowM, glowM], doorG, 0, 0.85, 0, true, true);
+    o.visual = (t, dt) => {
+      o.react = Math.max(0, o.react - dt);
+      bug.position.y = 0.3 + (o.react > 0 ? Math.abs(Math.sin(o.react * 18)) * 0.12 : 0);
+      bug.rotation.y = o.open ? t * 2.2 : Math.sin(t * 0.9) * 0.25;
+      wings.forEach((w, i) => { w.rotation.x = (i ? 1 : -1) * (o.open ? 0.7 + Math.sin(t * 25) * 0.15 : 0); });
+      gold.emissiveIntensity = o.open ? 0.8 + Math.sin(t * 4) * 0.2 : 0.25 + Math.max(0, Math.sin(t * 2.5)) * 0.35; // knipoogt: 'raak mij'
+      disc.material.emissiveIntensity = o.open ? 2 : 0.6;
+      eyes.forEach(e => lookEye(e, tmpV2.set(ball.x, ball.y, ball.z)));
+      slab.position.y = 0.85 - smooth(o.s) * 1.8; slab.visible = o.s < 0.999;
+      slab.position.x = o.s > 0 && o.s < 1 ? Math.sin(t * 50) * 0.02 : 0;
+      glowM.emissiveIntensity = o.open ? 1.2 : 0;
+      if (o.s > 0 && o.s < 1 && Math.random() < dt * 40 * Q.fx) fx.emit(doorG.position.x + (Math.random() - 0.5) * L, 0.2, doorG.position.z + (Math.random() - 0.5) * 0.6, (Math.random() - 0.5), 0.8, (Math.random() - 0.5), 1, 0.35, new THREE.Color('#d9b88a'), { grow: 0.6, alpha: 0.5 });
+      if (o.s > 0 && o.prevS === 0 && camDistTo(doorG.position) < 40) SND.rumble();
+      o.prevS = o.s;
+    };
+    o.onHit = (p) => {
+      if (p !== btn) return;
+      o.react = 0.8;
+      if (!o.open) { o.open = true; SND.gong(); fxAdd.burst(d.pos[0], 0.7, d.pos[1], 26, { color: '#ffd54f', speed: 2.5, up: 2.5, life: 0.8, size: 0.13 }); }
+    };
+    return o;
+  },
+
+  // ---------- Rolsteen (Woestijn): een ronde stenen deur die voor de uitgang van de grafkamer rolt ----------
+  // d.a = middelpunt dicht (voor de deuropening), d.b = middelpunt open (in de muurnis), d.R = straal van de schijf,
+  // d.times = [dicht, rollen, open, rollen] (s). Een volle beurt is een functie van de spelklok; 1 s vooraf gloeit het oog.
+  woestijnRolsteen(d) {
+    const o = { group: new THREE.Group(), s: 0, moving: false, warn: false, prevMoving: false, prevWarn: false };
+    const p = prim(0.32, { e: 0.6, kind: 'stone' }); o.prims = [p];
+    const dx = d.b[0] - d.a[0], dz = d.b[1] - d.a[1], L = Math.hypot(dx, dz), ux = dx / L, uz = dz / L, hl = d.R * 0.88;
+    const T = d.times.reduce((a, b) => a + b, 0);
+    o.update = (t) => {
+      const ph = ((t + (d.phase || 0)) % T + T) % T, [tc, tm, to, tb] = d.times; let s, mv = false, warn = false;
+      if (ph < tc) { s = 0; warn = ph > tc - 1; } else if (ph < tc + tm) { s = smooth((ph - tc) / tm); mv = true; }
+      else if (ph < tc + tm + to) { s = 1; warn = ph > tc + tm + to - 1; } else { s = 1 - smooth((ph - tc - tm - to) / tb); mv = true; }
+      o.s = s; o.moving = mv; o.warn = warn;
+      const cx = d.a[0] + dx * s, cz = d.a[1] + dz * s; setSeg(p, cx - ux * hl, cz - uz * hl, cx + ux * hl, cz + uz * hl);
+    };
+    const face = toTex(drawCanvas(256, 256, (c) => {
+      c.fillStyle = '#b8935c'; c.beginPath(); c.arc(128, 128, 128, 0, TAU); c.fill();
+      c.strokeStyle = '#5a3a1a'; c.lineWidth = 8; c.beginPath(); c.arc(128, 128, 116, 0, TAU); c.stroke(); c.lineWidth = 5; c.beginPath(); c.arc(128, 128, 40, 0, TAU); c.stroke();
+      for (let k = 0; k < 16; k++) { const a = k / 16 * TAU; c.beginPath(); c.moveTo(128 + Math.cos(a) * 52, 128 + Math.sin(a) * 52); c.lineTo(128 + Math.cos(a) * (k % 2 ? 92 : 106), 128 + Math.sin(a) * (k % 2 ? 92 : 106)); c.stroke(); }
+    }));
+    const stoneM = M('#b8935c', { map: tex('sandstone') }), faceM = new THREE.MeshStandardMaterial({ color: '#ffffff', map: face, roughness: 0.9 });
+    const head = new THREE.Group(); head.rotation.y = -Math.atan2(uz, ux); o.group.add(head);
+    const wheel = new THREE.Group(); head.add(wheel);
+    const disc = mesh(new THREE.CylinderGeometry(d.R, d.R, 0.55, 28), [stoneM, faceM, faceM], wheel, 0, 0, 0, true, true); disc.rotation.x = Math.PI / 2;
+    const eyeM = new THREE.MeshStandardMaterial({ color: '#2a1a0a', emissive: '#ff3010', emissiveIntensity: 0 });
+    for (const s of [-1, 1]) mesh(SPH(0.24, 12, 8), eyeM, wheel, 0, 0, s * 0.27, false).scale.set(1, 1, 0.3);
+    // sleuf in de vloer waarin de steen loopt
+    mesh(BOX(L + 2 * d.R, 0.02, 0.5), M('#3a2a1a', { roughness: 1 }), o.group, (d.a[0] + d.b[0]) / 2, 0.012, (d.a[1] + d.b[1]) / 2, false, true).rotation.y = -Math.atan2(uz, ux);
+    o.visual = (t, dt) => {
+      const cx = d.a[0] + dx * o.s, cz = d.a[1] + dz * o.s;
+      head.position.set(cx, d.R - 0.05, cz); wheel.rotation.z = -o.s * L / d.R;
+      eyeM.emissiveIntensity = o.warn ? 1.2 + Math.sin(t * 26) * 0.8 : o.moving ? 1.5 : 0.15;
+      const near = camDistTo(head.position) < 30;
+      if (o.moving && !o.prevMoving && near) SND.rumble();
+      if (o.warn && !o.prevWarn && near) SND.hiss();
+      o.prevMoving = o.moving; o.prevWarn = o.warn;
+      if (o.moving && Math.random() < dt * 30 * Q.fx) fx.emit(cx + (Math.random() - 0.5), 0.1, cz + (Math.random() - 0.5) * 0.6, (Math.random() - 0.5) * 0.6, 0.6, (Math.random() - 0.5) * 0.6, 1, 0.3, new THREE.Color('#c8a070'), { grow: 0.5, alpha: 0.5 });
+      if (o.moving && near) Cam.shake = Math.max(Cam.shake, 0.015);
+    };
+    return o;
+  },
 };
 // ----- nieuw (Weide, Vulkaan, Kasteel): hulpfuncties voor de nieuwe elementen -----
 // Patrouille heen en weer (a -> b, pauze en omdraaien, b -> a, pauze), puur als functie van de spelklok.
@@ -4280,6 +4956,14 @@ const ENV = {
     mesh(new THREE.SphereGeometry(2.2, 20, 12, 0, TAU, 0, Math.PI / 2), M('#f4f9ff', { map: tex('snow') }), ctx.g, ig[0], -0.05, ig[1], true, true);
     mesh(new THREE.CylinderGeometry(0.8, 0.8, 1.6, 12, 1, false, 0, Math.PI), M('#eef6ff'), ctx.g, ig[0], 0.2, ig[1] + 2.1, true).rotation.set(Math.PI / 2, 0, Math.PI / 2);
     }
+    // set.lamps = [[x, z], ...]: lichtmasten met lampen (optioneel, bv. rond een ijsbaan); de eerste twee geven echt licht
+    (S.lamps || []).forEach(([x, z], i) => {
+      const pm = M('#3a4250', { metalness: 0.6, roughness: 0.4 }), dx = H.center[0] - x, dz = H.center[1] - z, a = Math.atan2(dz, dx);
+      mesh(CYL(0.1, 0.14, 6, 8), pm, ctx.g, x, 3, z, true);
+      const head = new THREE.Group(); head.position.set(x, 6, z); head.rotation.y = -a; ctx.g.add(head);
+      mesh(BOX(0.9, 0.12, 0.12), pm, head, 0.3, 0, 0); for (const s of [-1, 1]) mesh(BOX(0.3, 0.22, 0.34), new THREE.MeshStandardMaterial({ color: '#223', emissive: '#e8f4ff', emissiveIntensity: 1.6 }), head, 0.6, -0.12, s * 0.2, false);
+      if (i < 2) { const pl = new THREE.PointLight('#dfeeff', 1.4, 34, 1.6); pl.position.set(x + Math.cos(a) * 2, 5.4, z + Math.sin(a) * 2); ctx.g.add(pl); }
+    });
     for (const [x, z] of ctx.mdl ? [] : [[-6, 4], [5, -20], [-21, -42]].map(([x, z]) => placeFree(x, z, 1.3))) { const s = new THREE.Group(); s.position.set(x, 0, z); ctx.g.add(s); const sn = M('#ffffff', { roughness: 0.9 }); mesh(SPH(0.7, 14, 10), sn, s, 0, 0.6, 0); mesh(SPH(0.5, 14, 10), sn, s, 0, 1.55, 0); mesh(SPH(0.35, 14, 10), sn, s, 0, 2.25, 0); mesh(CONE(0.07, 0.4, 8), M('#ff7a1a'), s, 0, 2.25, 0.45, false).rotation.x = Math.PI / 2; for (const e of [-1, 1]) mesh(SPH(0.05, 6, 4), M('#111'), s, e * 0.12, 2.35, 0.3, false); mesh(CYL(0.3, 0.3, 0.4, 12), M('#222'), s, 0, 2.65, 0); }
     // noorderlicht
     const aur = [];
@@ -4304,7 +4988,10 @@ const ENV = {
     const cliffM = M('#b98a58', { map: tex('sandstone') });
     if (GZ !== undefined) {
       for (const s of [-1, 1]) mesh(scaleUV(BOX(600, 16, 0.6), 80, 2), cliffM, ctx.g, 0, -8, GZ + s * 3.2, false, true);
-      for (const ax of S.gorgeArches || []) { mesh(BOX(5.6, 0.8, 6.4), cliffM, ctx.g, ax, -0.65, GZ, true, true); for (const z of [GZ + 2.4, GZ - 2.4]) mesh(BOX(4.6, 8, 0.8), cliffM, ctx.g, ax, -5, z, false, true); }
+      for (const ga of S.gorgeArches || []) { // een boog is een x-positie, of [x, breedte] voor een smallere/bredere boog
+        const [ax, aw] = Array.isArray(ga) ? ga : [ga, 5.6];
+        mesh(BOX(aw, 0.8, 6.4), cliffM, ctx.g, ax, -0.65, GZ, true, true); for (const z of [GZ + 2.4, GZ - 2.4]) mesh(BOX(Math.max(0.8, aw - 1.0), 8, 0.8), cliffM, ctx.g, ax, -5, z, false, true);
+      }
     }
     // stappenpiramide met tunnel
     const geos = [], tunnelH = 1.6, px0 = PY ? PY[0] : 0;
