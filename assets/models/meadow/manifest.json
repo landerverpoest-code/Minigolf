@@ -15,6 +15,21 @@
   "notes": "rode schuur met wit lijstwerk, gambreldak met pannenrijen, schuifdeuren met X, open hooizolder, koepeltje met windhaan, silo met ladder"
  },
  {
+  "name": "beehive_box",
+  "theme": "meadow",
+  "file": "models/meadow/beehive_box.glb",
+  "kind": "scatter",
+  "footprint": 0.4,
+  "height": 1.25,
+  "size": [
+   0.739,
+   0.875
+  ],
+  "tris": 699,
+  "bytes": 43092,
+  "notes": "Bijenkast: houten onderstel, drie gestapelde bakken (geel/wit) met handgrepen, vliegopening met landingsplankje, rood puntdak, honingdruppel, vier zoemende bijtjes"
+ },
+ {
   "name": "birch_tree",
   "theme": "meadow",
   "file": "models/meadow/birch_tree.glb",
@@ -43,6 +58,21 @@
   "tris": 814,
   "bytes": 35996,
   "notes": "ronde bloeiende struik met roze/witte bloemetjes"
+ },
+ {
+  "name": "duck_family",
+  "theme": "meadow",
+  "file": "models/meadow/duck_family.glb",
+  "kind": "scatter",
+  "footprint": 0.7,
+  "height": 0.45,
+  "size": [
+   0.757,
+   1.381
+  ],
+  "tris": 853,
+  "bytes": 37316,
+  "notes": "Witte moedereend met oranje snavel en zwemvliezen, gevolgd door drie gele eendjes met donskuifje op een rijtje, graspolletjes; lopen richting -Y"
  },
  {
   "name": "fence_gate",
@@ -150,6 +180,21 @@
   "notes": "vogelverschrikker: jute hoofd met gestikt gezicht, strohoed, rood hemd met lapje, spijkerbroek, stro"
  },
  {
+  "name": "sheep",
+  "theme": "meadow",
+  "file": "models/meadow/sheep.glb",
+  "kind": "scatter",
+  "footprint": 0.55,
+  "height": 0.848,
+  "size": [
+   0.757,
+   1.177
+  ],
+  "tris": 868,
+  "bytes": 32268,
+  "notes": "Pluizig schaap: wolkig lijf (unie van bollen), donkere kop met wolkuif, flaporen, witte oogjes, poten met hoefjes, graspolletje; kijkt naar -Y"
+ },
+ {
   "name": "tree_stump",
   "theme": "meadow",
   "file": "models/meadow/tree_stump.glb",
@@ -163,6 +208,21 @@
   "tris": 542,
   "bytes": 22336,
   "notes": "boomstronk met jaarringen, wortels, scheutje en paddenstoeltjes; binnen r=0.32"
+ },
+ {
+  "name": "wildflower_bush",
+  "theme": "meadow",
+  "file": "models/meadow/wildflower_bush.glb",
+  "kind": "scatter",
+  "footprint": 0.45,
+  "height": 1.186,
+  "size": [
+   0.805,
+   0.669
+  ],
+  "tris": 764,
+  "bytes": 44624,
+  "notes": "Wilde-bloemenstruik: rozet van bladeren met zes hoge lupine-aren (paars, roze, geel), rode klaprozen en gele/roze bloemetjes op dunne steeltjes"
  },
  {
   "name": "windmill",

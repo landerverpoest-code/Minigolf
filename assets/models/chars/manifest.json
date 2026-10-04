@@ -1,5 +1,50 @@
 [
  {
+  "name": "bird",
+  "theme": "chars",
+  "file": "models/chars/bird.glb",
+  "kind": "char",
+  "footprint": 0.3,
+  "height": 0.211,
+  "size": [
+   0.647,
+   0.482
+  ],
+  "tris": 1866,
+  "bytes": 54976,
+  "notes": "origin at body centre (0,0,0). parts: body (pivot 0,0,0); wing_l pivot (0.055,-0.02,0.035), wing_r pivot (-0.055,-0.02,0.035) at the shoulders, wings extended (glide pose), flap = rotate around forward axis (Blender Y / three.js z)"
+ },
+ {
+  "name": "bumper",
+  "theme": "chars",
+  "file": "models/chars/bumper.glb",
+  "kind": "char",
+  "footprint": 0.55,
+  "height": 0.562,
+  "size": [
+   1.1,
+   1.1
+  ],
+  "tris": 3070,
+  "bytes": 98748,
+  "notes": "Parts/pivots (Blender coords, front -Y): base (origin 0,0,0; dark metal foot plate r=0.55 with bolts and small magenta lamps, chrome kicker skirt, column with the magenta neon ring of material \"bumper_glow\" at z=0.29, chrome lip); cap (origin = its base centre (0,0,0.43); white domed cap with a gold star, top at z~0.56; squash/scale it). Materials: bumper_metal, chrome, bumper_glow, bumper_cap, cap_top, bumper_star."
+ },
+ {
+  "name": "button",
+  "theme": "chars",
+  "file": "models/chars/button.glb",
+  "kind": "char",
+  "footprint": 0.45,
+  "height": 0.457,
+  "size": [
+   0.9,
+   0.9
+  ],
+  "tris": 3058,
+  "bytes": 87836,
+  "notes": "Parts/pivots (Blender coords, front -Y): base (origin 0,0,0; steel housing r=0.45 with bolts, yellow/black hazard collar, dark well); cap (origin = its base centre (0,0,0.2); red dome with eyes, brows, blush and smile, top at z~0.45, dome material \"cap\" (turn it green when pressed); press it down along Z). Materials: cap, button_metal, button_yellow, eye_white, eye_dark, blush."
+ },
+ {
   "name": "cow",
   "theme": "chars",
   "file": "models/chars/cow.glb",
@@ -30,6 +75,21 @@
   "notes": "Parts/pivots (Blender coords, front -Y, left=+X): body (origin 0,0,0; shell, eye stalks+eyes, smile); arm_l shoulder (0.36,-0.27,0.34), arm_r shoulder (-0.36,-0.27,0.34) (arm + big claw pointing -Y); jaw_l hinge (0.46,-0.92,0.495) / jaw_r hinge (-0.46,-0.92,0.495) = movable upper pincer, PARENTED to its arm, hinge axis = local X (negative X rotation opens: tip goes up); leg_l1 (0.45,-0.08,0.3), leg_l2 (0.45,0.1,0.3), leg_l3 (0.45,0.26,0.3), leg_r1 (-0.45,-0.08,0.3), leg_r2 (-0.45,0.1,0.3), leg_r3 (-0.45,0.26,0.3) (body side). Materials: crab_red, crab_light, crab_dark, eye_white, pupil, blush."
  },
  {
+  "name": "flower_clump",
+  "theme": "chars",
+  "file": "models/chars/flower_clump.glb",
+  "kind": "char",
+  "footprint": 0.15,
+  "height": 0.392,
+  "size": [
+   0.426,
+   0.342
+  ],
+  "tris": 178,
+  "bytes": 10544,
+  "notes": "single part body, origin at base centre (0,0,0); 4 flowers on curved stems + 4 leaves; materials stem, petal_pink, petal_violet, center"
+ },
+ {
   "name": "ghost",
   "theme": "chars",
   "file": "models/chars/ghost.glb",
@@ -43,6 +103,81 @@
   "tris": 2224,
   "bytes": 48920,
   "notes": "parts (pivot, Blender coords, front -Y, l = ghost own left = +X): body (sheet, origin 0,0,0 on the ground under its centre; hem tips at z=0.15, top z=1.9, material ghost, closed mesh with turned-in hem); arm_l / arm_r (round sheet mittens, shoulder x=+/-0.51 y=-0.02 z=1.12, reach out/forward and droop; material ghost); face (eyes + highlights + blush, origin on the body surface at the face centre (0.0, -0.563, 1.38), sits ~0.015 in front of the sheet); mouth (open dark O + tiny tongue, origin at its centre (0.0, -0.567, 1.21); scale it to open/close). Materials: ghost, eye, shine, blush, mouth."
+ },
+ {
+  "name": "golf_flag",
+  "theme": "chars",
+  "file": "models/chars/golf_flag.glb",
+  "kind": "char",
+  "footprint": 0.09,
+  "height": 2.4,
+  "size": [
+   0.176,
+   0.176
+  ],
+  "tris": 570,
+  "bytes": 17660,
+  "notes": "Parts: body only (origin 0,0,0 = bottom centre of the pole). White pole r=0.025 up to z=2.3, gold collar + gold ball (centre z=2.352, r=0.048, top at 2.4), steel ferrule at the foot and a small white cup-rim ring (R=0.075) at z~0.013. Cloth is added by the game (attach along the pole, e.g. z 1.75-2.28). Materials: flag_pole, gold, flag_steel."
+ },
+ {
+  "name": "grass_clump",
+  "theme": "chars",
+  "file": "models/chars/grass_clump.glb",
+  "kind": "char",
+  "footprint": 0.15,
+  "height": 0.496,
+  "size": [
+   0.5,
+   0.477
+  ],
+  "tris": 130,
+  "bytes": 4988,
+  "notes": "single part body, origin at base centre (0,0,0); 13 V-folded tapered blades (3 segments), material grass; game sways tips in vertex shader"
+ },
+ {
+  "name": "knight",
+  "theme": "chars",
+  "file": "models/chars/knight.glb",
+  "kind": "char",
+  "footprint": 0.5,
+  "height": 1.928,
+  "size": [
+   2.33,
+   1.228
+  ],
+  "tris": 3492,
+  "bytes": 91176,
+  "notes": "Parts/pivots (Blender coords, front -Y, left=+X; whole knight ~1.93 m incl. plume): body (origin 0,0,0: boots, greaves, fauld, breastplate, purple tabard with gold crown, pauldrons, left arm with blue heater shield + gold cross); head (pivot neck (0,0,1.17); bucket helm with dark T-visor, golden eyes, red plume); arm_r (pivot shoulder (-0.333,0,1.017), reaches out to -X, gauntlet fist at (-0.846,-0.049,0.909) gripping a gold flail handle; chain ring (attach the chain here) at (-0.963,-0.049,0.747)); star (spiked ball r=0.30, 12 spikes to r~0.49, origin at its centre, placed on the ground at (-1.175,-0.18,0.395); small eyelet on top). Materials: armor, tabard, shield, gold, plume, star (the dark T-visor and the chain ring also use material star, so with charModel(.., ['star']) the visor glows red together with the ball before a swing)."
+ },
+ {
+  "name": "lantern",
+  "theme": "chars",
+  "file": "models/chars/lantern.glb",
+  "kind": "char",
+  "footprint": 0.3,
+  "height": 2.12,
+  "size": [
+   0.974,
+   0.46
+  ],
+  "tris": 1638,
+  "bytes": 51736,
+  "notes": "Parts/pivots (Blender coords, front -Y): body (origin 0,0,0; stone foot, iron post ~2.1 m with collars and finial, crook arm to +X with a scroll, hook at x=0.52); cage (pivot = hanging point (0.52,0.00,1.83); square iron lantern with roof, 4 glass panes of material \"lantern_glass\", candle; swing it about its local axes); flame (origin at its base (0.52,0.00,1.425) world, PARENTED to cage (local offset (0.00,0,-0.405)); material \"glow_flame\", ghostly green). Materials: lantern_iron, lantern_glass, glow_flame, wax, lantern_stone."
+ },
+ {
+  "name": "lava_serpent",
+  "theme": "chars",
+  "file": "models/chars/lava_serpent.glb",
+  "kind": "char",
+  "footprint": 0.6,
+  "height": 2.894,
+  "size": [
+   1.342,
+   2.304
+  ],
+  "tris": 3314,
+  "bytes": 92084,
+  "notes": "origin at the lava surface (0,0,0), neck continues to z=-0.6 below. parts: body (pivot 0,0,0); jaw pivot at hinge (0.00,-0.21,1.48) parented to body, open = rotate around Blender X (positive = down)"
  },
  {
   "name": "penguin",
@@ -75,6 +210,21 @@
   "notes": "parts (pivot): planet (sphere radius exactly 1.0 centred on its origin 0,0,0; banded purple/pink/gold; face with big eyes, blush and an open smile on the -Y side, face features stick out up to ~0.09 beyond r=1); ring (origin 0,0,0 = planet centre, flat banded ring r 1.30-1.80 with a small gap at 1.60-1.635, tilted 20 deg around X (front edge low), tilt baked into the mesh, rotation zero); moon (radius 0.22, origin at its centre, placed at x=1.6 z=1.0; craters + sleepy smiling face toward -Y). Materials: purple, pink, gold, eye_white, pupil, moon."
  },
  {
+  "name": "reed_clump",
+  "theme": "chars",
+  "file": "models/chars/reed_clump.glb",
+  "kind": "char",
+  "footprint": 0.2,
+  "height": 1.141,
+  "size": [
+   0.513,
+   0.564
+  ],
+  "tris": 173,
+  "bytes": 7344,
+  "notes": "single part body, origin at base centre (0,0,0); 3 cattails (brown heads) + 5 strap leaves; materials stem, head"
+ },
+ {
   "name": "scorpion",
   "theme": "chars",
   "file": "models/chars/scorpion.glb",
@@ -88,5 +238,65 @@
   "tris": 3481,
   "bytes": 114332,
   "notes": "parts (pivot, Blender coords, front -Y, l = animal own left = +X): body (origin 0,0,0 = body centre on ground; head front y=-0.86, tail root ends at y=+0.98 z=0.45); leg_l1..leg_l4 / leg_r1..leg_r4 (body side x=+/-0.30 z=0.30, y=-0.30,-0.06,0.18,0.42; feet on z=0); arm_l / arm_r (shoulder x=+/-0.25 y=-0.66 z=0.28, pincer forward -Y to y=-1.7); jaw_l / jaw_r (movable upper pincer finger, parented to its arm, hinge at x=+/-0.48 y=-1.37 z=0.37; three.js rotation.x<0 opens it upward); tail_seg (centred on its origin, 0.32 long along its local three.js Z with the narrow amber collar toward three.js +Z (Blender -Y) and a small crest on top (+Y), 0.31 thick; placed behind the tail root); sting (origin at its base, points down -Y in three.js, 0.42 long, hook curls forward; material sting; placed at the resting tail tip). Materials: shell, amber, sting, eye_white, pupil."
+ },
+ {
+  "name": "shield_sign",
+  "theme": "chars",
+  "file": "models/chars/shield_sign.glb",
+  "kind": "char",
+  "footprint": 0.46,
+  "height": 1.242,
+  "size": [
+   0.924,
+   0.481
+  ],
+  "tris": 2616,
+  "bytes": 72660,
+  "notes": "Parts/pivots (Blender coords, front -Y): body (origin 0,0,0; wooden post 1.2 m behind the shield at y=0.13 with iron bands, axle and stones); shield (pivot at its centre (0.00,-0.02,0.78); round heraldic shield r=0.46 facing -Y: gold boss, red/white/red rings, gold ring, raised blue rim with gold rivets; spin/wobble it about Blender Y (three.js z)). Materials: shield_wood, shield_red, shield_white, gold, shield_blue, shield_iron."
+ },
+ {
+  "name": "ship_water",
+  "theme": "chars",
+  "file": "models/chars/ship_water.glb",
+  "kind": "char",
+  "footprint": 1.6,
+  "height": 5.23,
+  "size": [
+   3.344,
+   6.015
+  ],
+  "tris": 6236,
+  "bytes": 185764,
+  "notes": "origin at waterline centre (0,0,0), bow -Y, keel to z=-0.55. parts: body (pivot 0,0,0); sail = mast+yards+sail+crow nest, pivot at mast base (0.00,-0.25,0.70); flag pivot at its pole attachment (0.00,-0.17,4.43) (top level, flies toward +Y)"
+ },
+ {
+  "name": "torch",
+  "theme": "chars",
+  "file": "models/chars/torch.glb",
+  "kind": "char",
+  "footprint": 0.3,
+  "height": 2.384,
+  "size": [
+   0.454,
+   0.443
+  ],
+  "tris": 2802,
+  "bytes": 84332,
+  "notes": "Parts/pivots (Blender coords, front -Y): body (origin 0,0,0; stone footing, tapered wooden pole with iron bands and rope grip, iron bracket straps, brazier bowl with spikes and coals, rim at z~1.87); flame (origin at its base (0.00,0.00,1.86); layered stylised flame, top at z~2.4, outer material \"glow_flame\" (orange), inner core \"glow_flame_core\" (yellow); flicker its scale). Materials: torch_wood, torch_iron, torch_stone, glow_flame, glow_flame_core."
+ },
+ {
+  "name": "whale",
+  "theme": "chars",
+  "file": "models/chars/whale.glb",
+  "kind": "char",
+  "footprint": 2.2,
+  "height": 1.936,
+  "size": [
+   2.82,
+   4.596
+  ],
+  "tris": 3092,
+  "bytes": 73572,
+  "notes": "origin at water surface centre (0,0,0); body centred below/above z=0, nose at -Y. parts: body (pivot 0,0,0); tail pivot (0.00,1.35,0.12) at the tail base, swing up/down = rotate around Blender X (three.js x)"
  }
 ]

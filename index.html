@@ -1909,8 +1909,8 @@ function surfMat(type) {
     case 'snow': return { m: M('#ffffff', { map: tex('snow'), roughness: 0.9 }), s: 0.25 };
     case 'mud': return { m: M('#ffffff', { map: tex('mud'), roughness: 0.45 }), s: 0.35 };
     case 'quicksand': return { m: M('#ffffff', { map: tex('quicksand'), roughness: 1 }), s: 0.3, centered: true };
-    case 'lava': return { m: M('#7a2a08', { map: tex('lava'), emissive: '#ff5a10', emissiveMap: tex('lava'), emissiveIntensity: 1.1, roughness: 0.6 }), s: 0.25 };
-    case 'water': return { m: M('#ffffff', { map: tex('water'), roughness: 0.08, metalness: 0.1, transparent: true, opacity: 0.88 }), s: 0.15 };
+    case 'lava': return { m: liquidFX(M('#7a2a08', { map: tex('lava'), emissive: '#ff5a10', emissiveMap: tex('lava'), emissiveIntensity: 1.1, roughness: 0.6 }), { lava: true, ripple: 1.2 }), s: 0.25 };
+    case 'water': return { m: liquidFX(M('#ffffff', { map: tex('water'), roughness: 0.08, metalness: 0.1, transparent: true, opacity: 0.88 })), s: 0.15 };
     case 'lowg': return { m: M('#ffffff', { map: tex('lowg'), emissive: '#7a3cff', emissiveIntensity: 0.55, emissiveMap: tex('lowg') }), s: 0.5 };
     case 'slope': return { m: M('#ffffff', { map: tex('arrow') }), s: 0.6 };
   }
@@ -2162,9 +2162,10 @@ function buildCup(hole, flagColor, num) {
   const cap = mesh(new THREE.CircleGeometry(HOLE_R + 0.01, 24), new THREE.MeshBasicMaterial({ colorWrite: false }), g, hole.x, y + 0.002, hole.z, false); cap.rotation.x = -Math.PI / 2; cap.renderOrder = -10; // na cup en bal, vóór water/lava
   const rim = mesh(new THREE.RingGeometry(HOLE_R, HOLE_R + 0.04, 32), M('#ffffff', { roughness: 0.5 }), g, hole.x, y + 0.004, hole.z, false); rim.rotation.x = -Math.PI / 2;
   const fg = new THREE.Group(); fg.position.set(hole.x, y, hole.z); g.add(fg);
-  mesh(CYL(0.025, 0.025, 2.4, 8), M('#f5f5f5', { metalness: 0.3, roughness: 0.4 }), fg, 0, 1.2, 0);
+  const CF = charModel('golf_flag');
+  if (CF) fg.add(CF.wrap); else mesh(CYL(0.025, 0.025, 2.4, 8), M('#f5f5f5', { metalness: 0.3, roughness: 0.4 }), fg, 0, 1.2, 0);
   const ft = textTex(String(num), { bg: flagColor, color: '#ffffff', size: 70, w: 128, h: 96 });
-  const cloth = mesh(new THREE.PlaneGeometry(0.9, 0.6, 12, 4), M('#ffffff', { map: ft, side: THREE.DoubleSide, roughness: 0.8 }), fg, 0.47, 2.05, 0);
+  const cloth = mesh(new THREE.PlaneGeometry(0.9, 0.6, 12, 4), M('#ffffff', { map: ft, side: THREE.DoubleSide, roughness: 0.8 }), fg, 0.47, 1.98, 0);
   const base = cloth.geometry.attributes.position.array.slice();
   H.flag = { group: fg, lift: 0 };
   H.updaters.push((t, dt) => {
@@ -2176,9 +2177,13 @@ function buildCup(hole, flagColor, num) {
   });
 }
 function buildTorch(x, z) {
-  const g = holeGroup;
+  const g = holeGroup, CT = charModel('torch');
+  let flame;
+  if (CT) { CT.wrap.position.set(x, 0, z); CT.wrap.rotation.y = hashStr(x.toFixed(1) + z) % 6; g.add(CT.wrap); flame = CT.n.flame || new THREE.Group(); } // Blender-fakkel
+  else {
   mesh(CYL(0.05, 0.07, 1.0, 6), M('#4a3020'), g, x, 1.3, z); mesh(CYL(0.12, 0.08, 0.18, 8), M('#333', { metalness: 0.7 }), g, x, 1.85, z);
-  const flame = mesh(CONE(0.1, 0.3, 8), new THREE.MeshBasicMaterial({ color: '#ffb030' }), g, x, 2.05, z, false);
+  flame = mesh(CONE(0.1, 0.3, 8), new THREE.MeshBasicMaterial({ color: '#ffb030' }), g, x, 2.05, z, false);
+  }
   let light = null;
   if (H.torchLights.length < 3) { light = new THREE.PointLight('#ff9a40', 1.2, 9, 2); light.position.set(x, 2.2, z); g.add(light); H.torchLights.push(light); }
   const seed = x * 7 + z;
@@ -2200,9 +2205,14 @@ function makeBumper(b) {
   const ringMat = new THREE.MeshStandardMaterial({ color: '#ff2fd0', emissive: '#ff2fd0', emissiveIntensity: 1 });
   const ring = mesh(new THREE.TorusGeometry(b.r * 1.02, 0.06, 8, 32), ringMat, o.group, 0, 0.32, 0, false); ring.rotation.x = Math.PI / 2;
   const cap = mesh(CYL(b.r * 0.7, b.r * 0.8, 0.12, 20), M('#ffffff', { emissive: '#ff8af0', emissiveIntensity: 0.6 }), o.group, 0, 0.45, 0);
+  const CB = charModel('bumper', ['bumper_glow']); let ringM = ringMat, capN = null;
+  if (CB) { // Blender-bumper (straal 0.55), geschaald naar de botsstraal
+    base.visible = ring.visible = cap.visible = false; CB.wrap.scale.setScalar(b.r / 0.55); o.group.add(CB.wrap);
+    if (CB.mats.bumper_glow) { ringM = CB.mats.bumper_glow; ringM.emissive.set('#ff2fd0'); } capN = CB.n.cap;
+  }
   let flash = 0, pulse = 0;
   o.update = (t) => { pulse = Math.pow(Math.max(0, Math.sin(t * TAU / 1.6 + b.x)), 4); p.kick = 5 + pulse * 4; };
-  o.visual = (t, dt) => { flash = Math.max(0, flash - dt * 3); const s = 1 + pulse * 0.12 + flash * 0.25; o.group.scale.set(s, 1, s); ringMat.emissiveIntensity = 0.6 + pulse * 2 + flash * 3; };
+  o.visual = (t, dt) => { flash = Math.max(0, flash - dt * 3); const s = 1 + pulse * 0.12 + flash * 0.25; o.group.scale.set(s, 1, s); ringM.emissiveIntensity = 0.6 + pulse * 2 + flash * 3; if (capN) capN.scale.set(1, 1 - flash * 0.35, 1); };
   o.onHit = () => { flash = 1; SND.boing(); fxAdd.burst(b.x, 0.4, b.z, 14, { color: '#ff6af0', speed: 3, up: 1, life: 0.4, size: 0.12 }); };
   return o;
 }
@@ -2886,10 +2896,12 @@ const SPECIALS = {
     const sw = d.sweep, inSweep = b => b.x > sw[0] && b.x < sw[2] && b.z > sw[1] && b.z < sw[3];
     const g = o.group;
     const bt = new THREE.Group(); bt.position.set(d.sw[0], 0, d.sw[1]); g.add(bt);
-    mesh(CYL(0.42, 0.48, 0.2, 20), M('#5f6670', { metalness: 0.6, roughness: 0.4 }), bt, 0, 0.1, 0);
-    const capMat = M('#e53935', { emissive: '#ff1a1a', emissiveIntensity: 0.5, roughness: 0.35 });
-    const cap = mesh(new THREE.SphereGeometry(0.34, 18, 10, 0, TAU, 0, Math.PI / 2), capMat, bt, 0, 0.18, 0); cap.scale.y = 0.7;
-    const eyes = [makeEye(bt, 0.12, 0.34, 0.11, 0.06), makeEye(bt, 0.12, 0.34, -0.11, 0.06)];
+    const CBt = charModel('button', ['cap']), oldB = new THREE.Group(); bt.add(oldB); oldB.visible = !CBt;
+    mesh(CYL(0.42, 0.48, 0.2, 20), M('#5f6670', { metalness: 0.6, roughness: 0.4 }), oldB, 0, 0.1, 0);
+    const capMat = CBt && CBt.mats.cap ? CBt.mats.cap : M('#e53935', { emissive: '#ff1a1a', emissiveIntensity: 0.5, roughness: 0.35 });
+    const cap = CBt && CBt.n.cap ? CBt.n.cap : mesh(new THREE.SphereGeometry(0.34, 18, 10, 0, TAU, 0, Math.PI / 2), capMat, oldB, 0, 0.18, 0); if (!CBt) cap.scale.y = 0.7;
+    if (CBt) { bt.add(CBt.wrap); cap.userData.y0 = cap.position.y; } // Blender-knop met ogen
+    const eyes = CBt ? [] : [makeEye(bt, 0.12, 0.34, 0.11, 0.06), makeEye(bt, 0.12, 0.34, -0.11, 0.06)];
     const dx = d.b[0] - d.a[0], dz = d.b[1] - d.a[1], L = Math.hypot(dx, dz);
     const gate = new THREE.Group(); g.add(gate);
     const panel = new THREE.Group(); panel.rotation.y = -Math.atan2(dz, dx); gate.add(panel);
@@ -2915,7 +2927,8 @@ const SPECIALS = {
     o.visual = (t, dt) => {
       o.react = Math.max(0, o.react - dt);
       gate.position.set((gp.ax + gp.bx) / 2, 0, (gp.az + gp.bz) / 2);
-      cap.position.y = 0.18 - o.react * 0.1 + Math.sin(t * 3) * 0.01; cap.scale.y = 0.7 - o.react * 0.35 + Math.sin(t * 3) * 0.03;
+      if (CBt) { cap.position.y = cap.userData.y0 - o.react * 0.1; cap.scale.y = 1 - o.react * 0.4 + Math.sin(t * 3) * 0.03; if (CBt.wrap) CBt.wrap.rotation.y = Math.PI / 2 - Math.atan2(ball.z - d.sw[1], ball.x - d.sw[0]) + Math.PI / 2; } // knop kijkt naar de bal
+      else { cap.position.y = 0.18 - o.react * 0.1 + Math.sin(t * 3) * 0.01; cap.scale.y = 0.7 - o.react * 0.35 + Math.sin(t * 3) * 0.03; }
       if (o.timer <= 0) capMat.emissiveIntensity = 0.35 + Math.sin(t * 4) * 0.25; // knop pulseert zacht: 'raak mij'
       const open = o.timer > 0, ending = open && o.timer < 2.5;
       const col = !open ? '#ff2020' : ending ? (Math.sin(t * 14) > 0 ? '#ffaa00' : '#301000') : '#20ff40';
@@ -2944,9 +2957,12 @@ const SPECIALS = {
     const disc = mesh(new THREE.CylinderGeometry(0.46, 0.46, 0.08, 28), [M('#1565c0', { metalness: 0.5, roughness: 0.4 }), new THREE.MeshStandardMaterial({ map: toTex(tc), metalness: 0.3, roughness: 0.4 }), M('#1565c0', { metalness: 0.5 })], sh, 0, 0, 0);
     disc.rotation.z = -Math.PI / 2;
     const rim = mesh(new THREE.TorusGeometry(0.46, 0.04, 6, 28), M('#ffca28', { metalness: 0.9, roughness: 0.3 }), sh, 0.02, 0, 0, false); rim.rotation.y = Math.PI / 2;
+    const CSh = charModel('shield_sign');
+    if (CSh) { g.children.forEach(c => c.visible = false); g.add(CSh.wrap); }
     o.update = () => {};
     o.visual = (t, dt) => {
       o.react = Math.max(0, o.react - dt);
+      if (CSh && CSh.n.shield) { CSh.n.shield.rotation.z = o.react > 0 ? (1 - o.react) * TAU * 2 : Math.sin(t * 1.5) * 0.04; CSh.n.shield.position.y = 0.78 + Math.sin(o.react * 30) * o.react * 0.06; }
       sh.rotation.x = o.react > 0 ? (1 - o.react) * TAU * 2 : Math.sin(t * 1.5) * 0.04; // vrolijk rondtollen bij een raak
       sh.position.x = -0.1 + Math.sin(o.react * 30) * o.react * 0.06;
     };
@@ -3158,7 +3174,13 @@ const SPECIALS = {
       const eyes = [makeEye(cage, 0.22, 0.05, 0.08, 0.05), makeEye(cage, 0.22, 0.05, -0.08, 0.05)];
       const light = new THREE.PointLight('#7dff9a', 0, 10, 2); light.position.y = 1.8; g.add(light);
       if (F && F.mesh) { F.mesh.material.transparent = true; F.mesh.material.opacity = 0; F.mesh.material.emissive = new THREE.Color('#2aff6a'); F.mesh.material.emissiveIntensity = 0; F.mesh.castShadow = false; }
-      const I = { it, p, F, until: -1, glassM, flame, light, cage, eyes, vis: 0 };
+      let I = { it, p, F, until: -1, glassM, flame, light, cage, eyes, vis: 0 };
+      const CL = charModel('lantern', ['lantern_glass']);
+      if (CL) { // Blender-lantaarn: kooi zwaait, glas en vlam lichten op
+        g.children.forEach(c => { if (!c.isLight) c.visible = false; }); g.add(CL.wrap); CL.wrap.rotation.y = Math.PI / 2 + Math.atan2(it.pos[0], 1);
+        const gm = CL.mats.lantern_glass; if (gm) { gm.emissive = new THREE.Color('#7dff9a'); gm.emissiveIntensity = 0; }
+        I = { it, p, F, until: -1, glassM: gm || glassM, flame: CL.n.flame || flame, light, cage: CL.n.cage || cage, eyes: [], vis: 0 };
+      }
       if (F) F.active = () => H.t < I.until;
       o.items.push(I);
     }
@@ -4391,6 +4413,84 @@ function applyEnvMaps() {
   ball.mesh.material.envMap = envRT.texture; ball.mesh.material.needsUpdate = true;
 }
 
+// =====================================================================
+//  SHADER-EFFECTEN: golvend water en lava, gras in de wind (spelklok in GFX.time)
+// =====================================================================
+const GFX = { time: { value: 0 }, gust: { value: 0 } };
+// Water of lava: deining in de vertex shader (wereldruimte, zodat aangrenzende vlakken samen golven),
+// kleine rimpels als normaalverstoring in de fragment shader, schuim (water) of extra gloed (lava) op de toppen.
+function liquidFX(mat, o = {}) {
+  const amp = o.amp || 0, lava = !!o.lava, rip = o.ripple === undefined ? 1 : o.ripple;
+  mat.onBeforeCompile = (sh) => {
+    sh.uniforms.uTime = GFX.time;
+    sh.vertexShader = sh.vertexShader.replace('#include <common>', `#include <common>
+      uniform float uTime; varying vec3 vWP; varying float vCrest;
+      float wv(vec2 p, float t) { return sin(dot(p, vec2(0.21, 0.13)) + t * 1.1) * 0.55 + sin(dot(p, vec2(-0.17, 0.29)) + t * 1.45) * 0.35 + sin(dot(p, vec2(0.41, -0.33)) + t * 2.1) * 0.18; }`)
+      .replace('#include <begin_vertex>', `#include <begin_vertex>
+      vec3 wp0 = (modelMatrix * vec4(transformed, 1.0)).xyz;
+      float hW = wv(wp0.xz, uTime);
+      transformed.y += hW * ${amp.toFixed(3)};
+      vCrest = hW; vWP = (modelMatrix * vec4(transformed, 1.0)).xyz;`)
+      .replace('#include <beginnormal_vertex>', `#include <beginnormal_vertex>
+      { vec3 q = (modelMatrix * vec4(position, 1.0)).xyz; float e = 0.6;
+        float dx = (wv(q.xz + vec2(e, 0.0), uTime) - wv(q.xz - vec2(e, 0.0), uTime)) / (2.0 * e) * ${amp.toFixed(3)};
+        float dz = (wv(q.xz + vec2(0.0, e), uTime) - wv(q.xz - vec2(0.0, e), uTime)) / (2.0 * e) * ${amp.toFixed(3)};
+        objectNormal = normalize(vec3(-dx, 1.0, -dz)); }`);
+    sh.fragmentShader = sh.fragmentShader.replace('#include <common>', `#include <common>
+      uniform float uTime; varying vec3 vWP; varying float vCrest;`)
+      .replace('#include <normal_fragment_maps>', `#include <normal_fragment_maps>
+      { vec2 p = vWP.xz; float t = uTime;
+        float gx = cos(p.x * 2.3 + t * 2.2) * 0.5 + cos((p.x + p.y) * 3.1 - t * 2.9) * 0.35 + cos(p.x * 5.7 + p.y * 1.3 + t * 4.0) * 0.2;
+        float gz = cos(p.y * 2.7 - t * 1.9) * 0.5 + cos((p.y - p.x) * 3.4 + t * 2.4) * 0.35 + cos(p.y * 6.1 - p.x * 1.7 + t * 3.6) * 0.2;
+        normal = normalize(normal + (viewMatrix * vec4(-gx, 0.0, -gz, 0.0)).xyz * ${(0.09 * rip).toFixed(3)}); }`)
+      .replace('#include <emissivemap_fragment>', `#include <emissivemap_fragment>
+      ${lava ? `totalEmissiveRadiance *= 0.8 + smoothstep(0.2, 1.0, vCrest) * 0.9 + sin(vWP.x * 0.7 + vWP.z * 0.5 + uTime * 1.7) * 0.08;` : ''}`)
+      .replace('#include <color_fragment>', `#include <color_fragment>
+      ${lava ? '' : `diffuseColor.rgb = mix(diffuseColor.rgb, vec3(1.0), smoothstep(0.62, 1.0, vCrest) * ${amp > 0 ? '0.45' : '0.0'});`}`);
+  };
+  mat.customProgramCacheKey = () => 'liquid' + amp + lava + rip;
+  return mat;
+}
+// Gras/riet dat met de wind meebuigt: verplaatsing na de instantie-matrix (één windrichting voor alles),
+// sterker naar de top toe, met windstoten over het veld.
+function windFX(mat, height = 0.5, amp = 0.18) {
+  mat.onBeforeCompile = (sh) => {
+    sh.uniforms.uTime = GFX.time; sh.uniforms.uGust = GFX.gust;
+    sh.vertexShader = sh.vertexShader.replace('#include <common>', `#include <common>
+      uniform float uTime; uniform float uGust;`)
+      .replace('#include <project_vertex>', `vec4 mvPosition = vec4(transformed, 1.0);
+      #ifdef USE_INSTANCING
+      mvPosition = instanceMatrix * mvPosition;
+      #endif
+      { float hh = clamp(position.y / ${height.toFixed(3)}, 0.0, 1.0); vec3 wp = (modelMatrix * mvPosition).xyz;
+        float w = sin(uTime * 1.7 + wp.x * 0.35 + wp.z * 0.22) * 0.55 + sin(uTime * 3.3 + wp.x * 1.1 - wp.z * 0.7) * 0.2
+                + uGust * (0.6 + 0.4 * sin(wp.x * 0.15 + wp.z * 0.1 - uTime * 2.0));
+        mvPosition.x += w * hh * hh * ${amp.toFixed(3)}; mvPosition.z += w * 0.55 * hh * hh * ${amp.toFixed(3)}; mvPosition.y -= abs(w) * hh * hh * ${(amp * 0.25).toFixed(3)}; }
+      mvPosition = modelViewMatrix * mvPosition;
+      gl_Position = projectionMatrix * mvPosition;`);
+  };
+  mat.customProgramCacheKey = () => 'wind' + height + amp;
+  return mat;
+}
+// Een pol grassprieten: gebogen, taps toelopende sprieten met kleurverloop van donker (voet) naar licht (top)
+function grassGeo(h, blades = 7) {
+  const pos = [], col = [], idx = [], r = mulberry(17);
+  for (let b = 0; b < blades; b++) {
+    const a = r() * TAU, lean = 0.15 + r() * 0.35, bh = h * (0.6 + r() * 0.55), w = 0.035 + r() * 0.025, ox = (r() - 0.5) * 0.12, oz = (r() - 0.5) * 0.12;
+    const dx = Math.cos(a), dz = Math.sin(a), px = -dz, pz = dx, k0 = pos.length / 3, S = 4;
+    for (let s = 0; s <= S; s++) {
+      const f = s / S, y = f * bh, off = lean * f * f * bh, ww = w * (1 - f * 0.92);
+      const cx = ox + dx * off, cz = oz + dz * off;
+      pos.push(cx - px * ww, y, cz - pz * ww, cx + px * ww, y, cz + pz * ww);
+      const c = 0.55 + f * 0.5; col.push(c, c, c, c, c, c);
+      if (s < S) { const i = k0 + s * 2; idx.push(i, i + 1, i + 2, i + 1, i + 3, i + 2, i, i + 2, i + 1, i + 1, i + 2, i + 3); }
+    }
+  }
+  const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); g.setAttribute('color', new THREE.Float32BufferAttribute(col, 3)); g.setIndex(idx); g.computeVertexNormals();
+  for (let i = 0; i < g.attributes.normal.count; i++) { const n = g.attributes.normal; n.setXYZ(i, n.getX(i) * 0.3, 1, n.getZ(i) * 0.3); } // licht van boven: zachter gras
+  return g;
+}
+
 // --- gedeelde omgevings-helpers ---
 // Omgeving in drie lagen: voorgrond (details langs de muren), middengrond (bomen, rotsen, gebouwen
 // op glooiend terrein) en verre achtergrond (bergen, skyline, planeten) + hemel, wolken en mist.
@@ -4475,8 +4575,21 @@ function edgePoints(n, seed, dmin = 0.5, dmax = 3) {
   }
   return out;
 }
-function tufts(ctx, pts, colors, h = 0.35) { // grasplukjes / kristallen / struikjes
+// veld met wuivend gras rond de baan (niet op de baan, niet onder water of lava)
+function grassField(ctx, n, colors, h = 0.4, dMax = 30, minY = -0.2) {
+  const th = ctx.th || (() => 0), r = mulberry(4242), pts = [], bb = H.bounds; n = Math.round(n * (Q.high ? 1 : 0.4));
+  for (let k = 0; k < n * 4 && pts.length < n; k++) {
+    const x = lerp(bb[0] - dMax, bb[2] + dMax, r()), z = lerp(bb[1] - dMax, bb[3] + dMax, r());
+    if (th(x, z) < minY || (H.wet || []).some(W => pointInPoly(x, z, W))) continue;
+    const cd = courseDist(x, z); if (cd < 0.45 || cd > dMax) continue;
+    if (cd > 8 && r() > 8 / cd) continue; // dichter bij de baan, ijler verderop
+    pts.push([x, z, r()]);
+  }
+  tufts(ctx, pts, colors, h);
+}
+function tufts(ctx, pts, colors, h = 0.35, stiff = false) { // grasplukjes (wuiven in de wind) / kristallen
   const th = ctx.th || (() => 0), gs = [];
+  if (!stiff) { inst(ctx, grassGeo(h * 1.25, 8), windFX(M('#ffffff', { roughness: 0.85, vertexColors: true, side: THREE.DoubleSide }), h * 1.4, 0.22), pts.map(([x, z, r]) => ({ x, y: th(x, z) - 0.02, z, s: 0.75 + r * 0.8, ry: r * 6, c: colors[Math.floor(r * colors.length)] }))); return; }
   for (let k = 0; k < 4; k++) { const g = CONE(0.05, h, 3); g.translate(0, h / 2, 0); g.rotateZ((k - 1.5) * 0.25); g.rotateY(k * 1.6); gs.push(g); }
   inst(ctx, mergeGeos(gs), M('#ffffff', { roughness: 0.9 }), pts.map(([x, z, r]) => ({ x, y: th(x, z) - 0.02, z, s: 0.7 + r * 0.8, ry: r * 6, c: colors[Math.floor(r * colors.length)] })));
 }
@@ -4532,8 +4645,8 @@ function clouds(ctx, n, color = '#ffffff', opacity = 0.85, yMin = 35, yMax = 70)
 }
 function weather(ctx, fn) { ctx.upd((t, dt) => fn(t, dt * Q.fx, Cam.tx, Cam.tz)); }
 function lavaSea(ctx, y = -0.55) {
-  const geo = new THREE.PlaneGeometry(700, 700); geo.rotateX(-Math.PI / 2); scaleUV(geo, 700 * 0.3 / 4);
-  const m = mesh(geo, M('#5a1a08', { map: tex('lava'), emissive: '#ff5a10', emissiveMap: tex('lava'), emissiveIntensity: 0.95, roughness: 1 }), ctx.g, H.center[0], y, H.center[1], false, true);
+  const sg = Q.high ? 150 : 90, geo = new THREE.PlaneGeometry(700, 700, sg, sg); geo.rotateX(-Math.PI / 2); scaleUV(geo, 700 * 0.3 / 4);
+  const m = mesh(geo, liquidFX(M('#5a1a08', { map: tex('lava'), emissive: '#ff5a10', emissiveMap: tex('lava'), emissiveIntensity: 0.95, roughness: 0.7 }), { amp: 0.16, lava: true, ripple: 1.4 }), ctx.g, H.center[0], y, H.center[1], false, true);
   const glow = [];
   for (let i = 0; i < (Q.high ? 2 : 1); i++) { const l = new THREE.PointLight('#ff5a1a', 1.2, 30, 2); ctx.g.add(l); glow.push(l); }
   ctx.upd((t) => {
@@ -4818,6 +4931,7 @@ const ENV = {
     const fl = edgePoints(520, 31, 0.3, 5).filter(dry);
     inst(ctx, SPH(0.09, 6, 4), M('#ffffff', { roughness: 0.7 }), fl.map(([x, z, q]) => ({ x, y: 0.12, z, s: 0.7 + q * 0.6, c: cols[Math.floor(q * 5)] })));
     tufts(ctx, edgePoints(700, 32, 0.2, 6).filter(dry), ['#2e7d32', '#388e3c', '#33691e', '#558b2f']);
+    grassField(ctx, 2600, ['#3f8f2f', '#4c9a35', '#2f7d2a', '#6aa83a', '#8fbf45'], 0.42);
     pebbles(ctx, edgePoints(70, 33, 0.6, 5).filter(dry), '#6d6d6d', 0.22);
     // schuur en hooibalen
     const S = ctx.def.set || {};
@@ -4946,7 +5060,7 @@ const ENV = {
       fn: (x, z, y) => { if (MZ === undefined) return y; const m = Math.abs(z - MZ); return m < 2.2 ? Math.min(y, -1.3) : m < 3.2 ? Math.min(y, lerp(-1.3, y, (m - 2.2))) : y; } });
     if (MZ !== undefined) {
       const wg = new THREE.PlaneGeometry(600, 3.8, 120, 2); wg.rotateX(-Math.PI / 2); scaleUV(wg, 60, 0.6);
-      mesh(wg, M('#ffffff', { map: tex('water'), roughness: 0.08, metalness: 0.2, transparent: true, opacity: 0.92 }), ctx.g, 0, -0.35, MZ, false, true);
+      mesh(wg, liquidFX(M('#ffffff', { map: tex('water'), roughness: 0.08, metalness: 0.2, transparent: true, opacity: 0.92 })), ctx.g, 0, -0.35, MZ, false, true);
       const wb = wg.attributes.position.array.slice();
       ctx.upd((t) => { tex('water').offset.set(t * 0.02, Math.sin(t * 0.5) * 0.02); const pa = wg.attributes.position; for (let i = 0; i < pa.count; i++) pa.setY(i, Math.sin(wb[i * 3] * 0.5 + t * 1.5) * 0.04); pa.needsUpdate = true; });
       for (const z of [MZ + 1.75, MZ - 1.75]) mesh(BOX(600, 0.6, 0.15), M('#8a8278', { map: tex('stone') }), ctx.g, 0, -0.35, z, false, true);
@@ -4968,6 +5082,7 @@ const ENV = {
     mountains(ctx, { n: 16, rMin: 210, rMax: 270, hMin: 50, hMax: 100, color: '#5a5a7a', snow: '#f0e8ff', snowLine: 0.75, seed: 4 });
     forest(ctx, scatter(ctx.mdl ? 45 : 110, ctx.mdl ? 60 : 18, 110, 51, 7), 'pine', { color: '#2e6b3a' }); // met Blender-decor alleen ver weg
     tufts(ctx, edgePoints(400, 53, 0.3, 4), ['#2e7d32', '#33691e', '#558b2f']);
+    grassField(ctx, 1800, ['#3f8a35', '#4a8f32', '#2f7a2c', '#7a9a3a'], 0.4, 26, -0.25);
     pebbles(ctx, edgePoints(60, 54, 0.4, 3), '#6a6a6a', 0.2);
     // ----- nieuw (Kasteel): set.tents = [[x, z, kleur], ...] gestreepte toernooitenten met wimpel -----
     const pennants = [];
@@ -4993,14 +5108,13 @@ const ENV = {
     const islands = D.islands || (D.A ? [[D.A, D.rA], [D.B, D.rB], [D.C, D.rC], [D.D, D.rD]] : []);
     terrain(ctx, { base: -3.2, amp: 30, flat: 24, ramp: 90, c0: '#d8c08a', c1: '#4f8a4a', c2: '#6a7a6a', tex: 'sand', texScale: 6 });
     const wg = new THREE.PlaneGeometry(160, 160, Q.high ? 80 : 40, Q.high ? 80 : 40); wg.rotateX(-Math.PI / 2); scaleUV(wg, 160 * 0.06);
-    const wm = M('#ffffff', { map: tex('water'), roughness: 0.06, metalness: 0.2, transparent: true, opacity: 0.9 });
+    const wm = liquidFX(M('#ffffff', { map: tex('water'), roughness: 0.06, metalness: 0.2, transparent: true, opacity: 0.9 }), { amp: 0.07 });
     const water = mesh(wg, wm, ctx.g, H.center[0], -0.32, H.center[1], false, true);
     const deep = new THREE.PlaneGeometry(900, 900); deep.rotateX(-Math.PI / 2); scaleUV(deep, 900 * 0.06 / 4);
-    const deepM = mesh(deep, M('#bfe4ff', { map: tex('water'), roughness: 0.1, metalness: 0.15 }), ctx.g, H.center[0], -0.36, H.center[1], false, true);
+    const deepM = mesh(deep, liquidFX(M('#bfe4ff', { map: tex('water'), roughness: 0.1, metalness: 0.15 })), ctx.g, H.center[0], -0.36, H.center[1], false, true);
     const base = wg.attributes.position.array.slice();
     ctx.upd((t) => {
-      const pa = wg.attributes.position; for (let i = 0; i < pa.count; i++) { const x = base[i * 3], z = base[i * 3 + 2]; pa.setY(i, Math.sin(x * 0.6 + t * 1.6) * 0.035 + Math.cos(z * 0.5 + t * 1.2) * 0.035); }
-      pa.needsUpdate = true; tex('water').offset.set(t * 0.015, t * 0.01);
+      tex('water').offset.set(t * 0.015, t * 0.01); // golven: zie liquidFX
       water.position.y = lvl(t); deepM.position.y = lvl(t) - 0.04; // het water stijgt en daalt met het getij
     });
     // zandranden + schuim rond de eilanden
@@ -5060,14 +5174,14 @@ const ENV = {
     for (const c of CH) {
       const w = c[2] - c[0], d = c[1] - c[3];
       const cw = new THREE.PlaneGeometry(w, d, Math.ceil(w * 2), Math.ceil(d * 2)); cw.rotateX(-Math.PI / 2); scaleUV(cw, 2);
-      mesh(cw, M('#4a7aa0', { map: tex('water'), roughness: 0.05, metalness: 0.3, transparent: true, opacity: 0.92 }), ctx.g, (c[0] + c[2]) / 2, -0.28, (c[1] + c[3]) / 2, false, true);
+      mesh(cw, liquidFX(M('#4a7aa0', { map: tex('water'), roughness: 0.05, metalness: 0.3, transparent: true, opacity: 0.92 })), ctx.g, (c[0] + c[2]) / 2, -0.28, (c[1] + c[3]) / 2, false, true);
       const cb = cw.attributes.position.array.slice();
       ctx.upd((t) => { const pa = cw.attributes.position; for (let i = 0; i < pa.count; i++) pa.setY(i, Math.sin(cb[i * 3] * 1.3 + t * 1.8) * 0.03); pa.needsUpdate = true; });
       foam(ctx, [[c[0], c[1] - 0.05], [c[2], c[1] - 0.05]], 0.4, -0.25, false); foam(ctx, [[c[0], c[3] + 0.05], [c[2], c[3] + 0.05]], -0.4, -0.25, false);
     }
     mountains(ctx, { n: 20, rMin: 170, rMax: 260, hMin: 50, hMax: 110, color: '#8fb4d8', snow: '#ffffff', snowLine: 0.5, seed: 9, wide: 0.8 });
     if (!ctx.mdl) forest(ctx, scatter(90, 16, 100, 81, 6), 'pine', { color: '#2f5d50', snow: true });
-    tufts(ctx, edgePoints(250, 82, 0.3, 4), ['#e3f2fd', '#bbdefb', '#ffffff'], 0.5); // ijskristallen
+    tufts(ctx, edgePoints(250, 82, 0.3, 4), ['#e3f2fd', '#bbdefb', '#ffffff'], 0.5, true); // ijskristallen
     pebbles(ctx, edgePoints(70, 83, 0.4, 4), '#f4f9ff', 0.3); // sneeuwhoopjes
     // iglo + sneeuwpoppen
     if (!ctx.mdl) {
@@ -5139,6 +5253,7 @@ const ENV = {
     for (const [x, z] of scatter(16, 9, 45, 91, 4)) { if (gorge(z) > 6) buildPost({ x, z, r: 0.3, kind: 'cactus' }); }
     pebbles(ctx, edgePoints(120, 93, 0.4, 4), '#c9a070', 0.22);
     tufts(ctx, edgePoints(200, 94, 0.4, 5), ['#a1887f', '#8d6e63', '#c0ca33'], 0.3); // droog gras
+    grassField(ctx, 500, ['#b8a060', '#a89058', '#c8b070', '#9a8a4a'], 0.35, 24, -0.3);
     clouds(ctx, 8, '#ffcaa0', 0.6, 30, 60);
     weather(ctx, (t, dt, cx, cz) => {
       if (Math.random() < dt * 25) fx.emit(cx - 25, 0.3 + Math.random() * 2, cz + (Math.random() - 0.5) * 40, 6 + Math.random() * 3, 0, (Math.random() - 0.5), 8, 0.15, new THREE.Color('#e8c890'), { alpha: 0.5 });
@@ -5162,6 +5277,7 @@ const ENV = {
     const gp = ctx.mdl ? [] : scatter(60, 6, 40, 102, 2);
     inst(ctx, BOX(0.8, 1.1, 0.2), M('#ffffff', { map: tex('stone') }), gp.map(([x, z, q]) => ({ x, y: ctx.th(x, z) + 0.45, z, ry: q * 1.5, rz: (q - 0.5) * 0.3, s: 0.8 + q * 0.5, c: new THREE.Color('#5c6066').offsetHSL(0, 0, (q - 0.5) * 0.15).getHex() })), true, true);
     tufts(ctx, edgePoints(300, 103, 0.3, 4), ['#3a4a2a', '#4a3a2a', '#2a3a2a'], 0.45);
+    grassField(ctx, 1200, ['#3a4a2a', '#45502e', '#2c3a26', '#4a4430'], 0.5, 22, -0.3);
     // maan
     const sd = new THREE.Vector3().fromArray(ctx.def.theme.sun.dir).normalize();
     const moon = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex('glow'), color: S.moon ? S.moon[0] : '#dfe6ff', fog: false, depthWrite: false })); moon.scale.set(60, 60, 1); moon.position.copy(sd).multiplyScalar(380); H.sky.add(moon);
@@ -5967,6 +6083,7 @@ function frame(now) {
     const sp = Math.hypot(ball.vx, ball.vz);
     if (ball.state === 'moving' && sp > 3 && Math.random() < dt * 40) fx.emit(ball.x, ball.y, ball.z, 0, 0.05, 0, 0.35, 0.14, ball.mesh.material.color, { alpha: 0.35, grow: -0.2 });
     for (const k of H.kins) if (k.visual) safe(() => k.visual(H.t, dt));
+    GFX.time.value = H.t; GFX.gust.value = Math.max(0, Math.sin(H.t * 0.31) * Math.sin(H.t * 0.83 + 1.3)) * 1.4; // windstoten
     for (const u of H.updaters) safe(() => u(H.t, dt));
     fx.update(dt); fxAdd.update(dt);
     if (G.state === 'menu') Cam.orbit += dt * 0.08;

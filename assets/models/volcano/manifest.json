@@ -45,6 +45,66 @@
   "notes": "verkoolde kronkelige kale boom met gloeiende sintels op takpunten en gloeiende scheuren in de stam (glow_ember)"
  },
  {
+  "name": "ember_crystal",
+  "theme": "volcano",
+  "file": "models/volcano/ember_crystal.glb",
+  "kind": "scatter",
+  "footprint": 0.7,
+  "height": 1.306,
+  "size": [
+   1.317,
+   1.131
+  ],
+  "tris": 722,
+  "bytes": 42460,
+  "notes": "Gloeiende ambercristallen: cluster van oranje/heetgele zeskantige kristallen (glow_ember, glow_ember_hot) met donkerrode voet op een basaltrots, losse gloeiende scherfjes"
+ },
+ {
+  "name": "fire_flowers",
+  "theme": "volcano",
+  "file": "models/volcano/fire_flowers.glb",
+  "kind": "edge",
+  "footprint": 0.22,
+  "height": 0.522,
+  "size": [
+   0.525,
+   0.46
+  ],
+  "tris": 228,
+  "bytes": 16876,
+  "notes": "Vuurbloemen: vier gloeiende lavabloesems (glow_lava/glow_lava_hot) met dubbele kelk op donkere stengels, puntige asbladeren, basaltvoetje"
+ },
+ {
+  "name": "fossil_skeleton",
+  "theme": "volcano",
+  "file": "models/volcano/fossil_skeleton.glb",
+  "kind": "scatter",
+  "footprint": 1.35,
+  "height": 0.743,
+  "size": [
+   2.614,
+   1.463
+  ],
+  "tris": 882,
+  "bytes": 43996,
+  "notes": "Dinosaurusfossiel half in de grond: T-rex-schedel met oogkassen, tanden en open onderkaak, boogvormige wervelkolom met doornuitsteeksels, ribbenkast die uit de aarde steekt, dijbeen en losse botjes"
+ },
+ {
+  "name": "lava_geyser_cone",
+  "theme": "volcano",
+  "file": "models/volcano/lava_geyser_cone.glb",
+  "kind": "scatter",
+  "footprint": 1.05,
+  "height": 1.558,
+  "size": [
+   2.07,
+   1.945
+  ],
+  "tris": 725,
+  "bytes": 42544,
+  "notes": "Kleine lavagaiser: ruwe kegel met askraag en heetgele lavapoel, drie gloeiende lavastroompjes langs de flank, spuitende straal met spetterkroon en druppels (glow_lava, glow_lava_hot)"
+ },
+ {
   "name": "lava_pool_rim",
   "theme": "volcano",
   "file": "models/volcano/lava_pool_rim.glb",
