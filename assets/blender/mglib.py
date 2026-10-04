@@ -203,12 +203,13 @@ def export_glb(path):
                               export_lights=False, export_animations=False, export_extras=False)
 
 
-def finish(theme, name, kind='scatter', footprint=0.5, notes='', preview=True, **extra):
+def finish(theme, name, kind='scatter', footprint=0.5, notes='', preview=True, grounded=True, **extra):
     """Model op de grond zetten, exporteren, preview renderen en manifest bijwerken.
     kind: 'scatter' (veel kopieën in de omgeving), 'hero' (groot opvallend stuk, 1-3 keer),
           'edge' (klein detail vlak naast de baan), 'post' (vervangt een paal-obstakel op de baan, footprint = botsstraal!)
     footprint: straal in meter van de voet (voor plaatsing zonder overlap met de baan)."""
-    ground()
+    if grounded:
+        ground()
     objs = [o for o in bpy.context.scene.objects if o.type == 'MESH']
     lo, hi = bounds(objs)
     n = tris(objs)

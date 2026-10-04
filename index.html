@@ -2324,18 +2324,24 @@ const SPECIALS = {
     const st = { x: d.a[0], z: d.a[1], hd: dirAB, walk: 0, warn: false };
     // model (kijkt naar +x)
     const g = new THREE.Group(); o.group.add(g);
+    const CM = charModel('cow'); let legs = [], headG, tail, eyes = [], cowPitch = 1;
+    if (CM) { // Blender-model: poten, staart en hoofd bewegen rond hun scharnier
+      g.add(CM.wrap); legs = ['leg_fl', 'leg_fr', 'leg_bl', 'leg_br'].map(k => CM.n[k]).filter(Boolean);
+      headG = CM.n.head || new THREE.Group(); tail = CM.n.tail || new THREE.Group(); cowPitch = -1;
+    } else {
     const spot = M('#ffffff', { map: tex('cowSpots'), roughness: 0.8 }), pink = M('#f4a6b6'), dark = M('#222');
     mesh(BOX(1.5, 0.75, 0.8), spot, g, 0, 0.95, 0);
-    const legs = [];
     for (const [lx, lz] of [[0.55, 0.28], [0.55, -0.28], [-0.55, 0.28], [-0.55, -0.28]]) { const lg = new THREE.Group(); lg.position.set(lx, 0.62, lz); g.add(lg); mesh(BOX(0.18, 0.6, 0.18), spot, lg, 0, -0.3, 0); mesh(BOX(0.2, 0.1, 0.2), dark, lg, 0, -0.58, 0); legs.push(lg); }
     mesh(SPH(0.16, 10, 8), pink, g, -0.25, 0.55, 0, false).scale.set(1, 0.6, 1);
-    const headG = new THREE.Group(); headG.position.set(0.85, 1.15, 0); g.add(headG);
+    headG = new THREE.Group(); headG.position.set(0.85, 1.15, 0); g.add(headG);
     mesh(BOX(0.55, 0.5, 0.5), spot, headG, 0.15, 0, 0);
     mesh(BOX(0.25, 0.3, 0.46), pink, headG, 0.5, -0.1, 0);
     for (const s of [-1, 1]) { mesh(SPH(0.04, 6, 4), dark, headG, 0.63, -0.05, s * 0.1, false); mesh(CONE(0.06, 0.25, 6), M('#f5ecd0'), headG, 0.05, 0.33, s * 0.18).rotation.x = s * -0.4; mesh(BOX(0.08, 0.12, 0.25), spot, headG, -0.02, 0.15, s * 0.36).rotation.x = s * 0.6; }
-    const eyes = [makeEye(headG, 0.36, 0.1, 0.16, 0.07), makeEye(headG, 0.36, 0.1, -0.16, 0.07)];
+    eyes = [makeEye(headG, 0.36, 0.1, 0.16, 0.07), makeEye(headG, 0.36, 0.1, -0.16, 0.07)];
     mesh(SPH(0.09, 10, 8), M('#d4af37', { metalness: 0.9, roughness: 0.3 }), headG, 0.1, -0.33, 0, false);
-    const tail = new THREE.Group(); tail.position.set(-0.75, 1.2, 0); g.add(tail); mesh(BOX(0.05, 0.6, 0.05), spot, tail, 0, -0.3, 0); mesh(SPH(0.08, 6, 4), dark, tail, 0, -0.62, 0);
+    tail = new THREE.Group(); tail.position.set(-0.75, 1.2, 0); g.add(tail); mesh(BOX(0.05, 0.6, 0.05), spot, tail, 0, -0.3, 0); mesh(SPH(0.08, 6, 4), dark, tail, 0, -0.62, 0);
+    for (let i = 0; i < 4; i++) legs[i].userData.old = true;
+    }
     function pose(t) {
       const ph = ((t % T) + T) % T; let x, z, hd, walk = 0, warn = false;
       if (ph < Tw) { const u = easeMove(ph / Tw); x = lerp(d.a[0], d.b[0], u); z = lerp(d.a[1], d.b[1], u); hd = dirAB; walk = 1; }
@@ -2351,9 +2357,9 @@ const SPECIALS = {
     o.visual = (t, dt) => {
       o.react = Math.max(0, o.react - dt);
       o.group.position.set(st.x, Math.max(0, Math.sin(o.react * 12)) * o.react * 0.4, st.z); g.rotation.y = -st.hd;
-      legs.forEach((l, i) => l.rotation.z = st.walk * Math.sin(t * 7 + (i % 2 ? Math.PI : 0) + (i > 1 ? Math.PI : 0)) * 0.5);
-      tail.rotation.x = Math.sin(t * (o.react > 0 ? 18 : 3)) * 0.5;
-      headG.rotation.z = st.warn ? -0.35 + Math.sin(t * 10) * 0.05 : Math.sin(t * 2) * 0.05;
+      legs.forEach((l, i) => { const a = st.walk * Math.sin(t * 7 + (i % 2 ? Math.PI : 0) + (i > 1 ? Math.PI : 0)) * 0.5; if (CM) l.rotation.x = a; else l.rotation.z = a; });
+      const tw = Math.sin(t * (o.react > 0 ? 18 : 3)) * 0.5; if (CM) tail.rotation.z = tw; else tail.rotation.x = tw;
+      const nod = st.warn ? -0.35 + Math.sin(t * 10) * 0.05 : Math.sin(t * 2) * 0.05; if (CM) headG.rotation.x = -nod; else headG.rotation.z = nod;
       eyes.forEach(e => lookEye(e, tmpV2.set(ball.x, ball.y, ball.z)));
       if (st.warn && !o.prevWarn && camDistTo(o.group.position) < 30) SND.moo(); o.prevWarn = st.warn;
     };
@@ -2461,14 +2467,29 @@ const SPECIALS = {
     o.prims = [body, ...cl];
     const st = { x: d.mid[0], z: d.mid[1], ext: 0, warn: false, vel: 0 };
     const g = new THREE.Group(); o.group.add(g); g.rotation.y = -Math.atan2(d.face[1], d.face[0]);
-    const red = M('#e8432f', { roughness: 0.5 }), redD = M('#b8301f', { roughness: 0.5 });
-    const shell = mesh(SPH(0.6, 18, 12), red, g, 0, 0.42, 0); shell.scale.set(0.75, 0.5, 1.05);
+    const CK = charModel('crab');
+    if (CK) { // Blender-model
+      g.add(CK.wrap);
+      const legsK = ['leg_l1', 'leg_l2', 'leg_l3', 'leg_r1', 'leg_r2', 'leg_r3'].map(k => CK.n[k]).filter(Boolean);
+      const arms = ['arm_l', 'arm_r'].map((k, i) => { const a = CK.n[k] || new THREE.Group(); return { a, jaw: CK.n[['jaw_l', 'jaw_r'][i]], z0: a.position.z, sx: Math.sign(a.position.x) || (i ? 1 : -1) }; });
+      o.crabVisual = (t) => {
+        legsK.forEach((l, i) => l.rotation.y = Math.sin(t * 12 + i) * 0.3 * Math.abs(st.vel));
+        for (const A of arms) {
+          const open = st.warn ? 0.6 : st.ext > 0 ? 0.05 : 0.2;
+          if (A.jaw) A.jaw.rotation.x = -open;
+          A.a.position.z = A.z0 + st.ext * 0.55; A.a.rotation.y = A.sx * (0.15 + st.ext * 0.25);
+          A.a.rotation.x = -(st.warn ? 0.5 + Math.sin(t * 18) * 0.1 : o.react > 0 ? 0.9 + Math.sin(t * 15) * 0.4 : 0.1);
+        }
+      };
+    }
+    const red = M('#e8432f', { roughness: 0.5 }), redD = M('#b8301f', { roughness: 0.5 }), oldK = new THREE.Group(); oldK.visible = !CK; g.add(oldK);
+    const shell = mesh(SPH(0.6, 18, 12), red, oldK, 0, 0.42, 0); shell.scale.set(0.75, 0.5, 1.05);
     const eyes = [];
-    for (const s of [-1, 1]) { mesh(CYL(0.04, 0.04, 0.35, 6), redD, g, 0.35, 0.75, s * 0.18); eyes.push(makeEye(g, 0.36, 0.95, s * 0.18, 0.09)); }
+    for (const s of [-1, 1]) { mesh(CYL(0.04, 0.04, 0.35, 6), redD, oldK, 0.35, 0.75, s * 0.18); eyes.push(makeEye(oldK, 0.36, 0.95, s * 0.18, 0.09)); }
     const legs = [];
-    for (const s of [-1, 1]) for (let k = 0; k < 3; k++) { const lg = new THREE.Group(); lg.position.set(-0.2 + k * 0.2, 0.35, s * 0.5); g.add(lg); const m = mesh(CYL(0.05, 0.04, 0.6, 6), redD, lg, 0, -0.1, s * 0.25); m.rotation.x = s * 1.0; legs.push(lg); }
+    for (const s of [-1, 1]) for (let k = 0; k < 3; k++) { const lg = new THREE.Group(); lg.position.set(-0.2 + k * 0.2, 0.35, s * 0.5); oldK.add(lg); const m = mesh(CYL(0.05, 0.04, 0.6, 6), redD, lg, 0, -0.1, s * 0.25); m.rotation.x = s * 1.0; legs.push(lg); }
     const claws = [-1, 1].map(s => {
-      const arm = new THREE.Group(); arm.position.set(0.3, 0.45, s * 0.45); g.add(arm);
+      const arm = new THREE.Group(); arm.position.set(0.3, 0.45, s * 0.45); oldK.add(arm);
       const up = mesh(CYL(0.08, 0.08, 0.5, 8), red, arm, 0.25, 0, 0); up.rotation.z = Math.PI / 2;
       const hand = new THREE.Group(); hand.position.set(0.55, 0, 0); arm.add(hand);
       const top = mesh(SPH(0.2, 10, 8), red, hand, 0.1, 0.06, 0); top.scale.set(1.4, 0.55, 0.8);
@@ -2490,6 +2511,7 @@ const SPECIALS = {
     o.visual = (t, dt) => {
       o.react = Math.max(0, o.react - dt);
       o.group.position.set(st.x, 0.05 + Math.abs(Math.sin(t * 6)) * 0.03, st.z);
+      if (o.crabVisual) o.crabVisual(t);
       legs.forEach((l, i) => l.rotation.y = Math.sin(t * 12 + i) * 0.3 * Math.abs(st.vel));
       claws.forEach(c => {
         const open = st.warn ? 0.6 : st.ext > 0 ? 0.05 : 0.2;
@@ -2515,14 +2537,17 @@ const SPECIALS = {
     const st = { x: d.a[0], z: d.a[1], hd: dirAB, sliding: false, warn: false, flap: 0 };
     const g = new THREE.Group(); o.group.add(g); const tilt = new THREE.Group(); g.add(tilt);
     const blk = M('#1d2330', { roughness: 0.4 }), wht = M('#ffffff', { roughness: 0.5 }), org = M('#ff9800');
-    const bod = mesh(SPH(0.42, 16, 12), blk, tilt, 0, 0.55, 0); bod.scale.set(1, 1.35, 1);
-    const belly = mesh(SPH(0.36, 16, 12), wht, tilt, 0.1, 0.52, 0); belly.scale.set(1, 1.25, 0.9);
-    const head = new THREE.Group(); head.position.set(0, 1.15, 0); tilt.add(head);
+    const CP = charModel('penguin', ['belly']), oldP = new THREE.Group(); tilt.add(oldP); oldP.visible = !CP;
+    let pFlips = [], pHead = null, pBelly = null;
+    if (CP) { tilt.add(CP.wrap); pHead = CP.n.head; pFlips = ['flipper_l', 'flipper_r'].map(k => CP.n[k]).filter(Boolean); pBelly = CP.mats.belly; }
+    const bod = mesh(SPH(0.42, 16, 12), blk, oldP, 0, 0.55, 0); bod.scale.set(1, 1.35, 1);
+    const belly = mesh(SPH(0.36, 16, 12), wht, oldP, 0.1, 0.52, 0); belly.scale.set(1, 1.25, 0.9);
+    const head = new THREE.Group(); head.position.set(0, 1.15, 0); oldP.add(head);
     mesh(SPH(0.28, 14, 10), blk, head, 0, 0, 0); mesh(SPH(0.2, 12, 8), wht, head, 0.12, -0.03, 0).scale.set(0.9, 0.9, 1.2);
     mesh(CONE(0.07, 0.25, 8), org, head, 0.32, -0.04, 0).rotation.z = -Math.PI / 2;
     const eyes = [makeEye(head, 0.2, 0.08, 0.12, 0.07), makeEye(head, 0.2, 0.08, -0.12, 0.07)];
-    const flips = [-1, 1].map(s => { const f = new THREE.Group(); f.position.set(0, 0.8, s * 0.38); tilt.add(f); const m = mesh(BOX(0.12, 0.5, 0.06), blk, f, 0, -0.22, 0); return f; });
-    for (const s of [-1, 1]) mesh(BOX(0.22, 0.06, 0.14), org, tilt, 0.08, 0.03, s * 0.14);
+    const flips = [-1, 1].map(s => { const f = new THREE.Group(); f.position.set(0, 0.8, s * 0.38); oldP.add(f); const m = mesh(BOX(0.12, 0.5, 0.06), blk, f, 0, -0.22, 0); return f; });
+    for (const s of [-1, 1]) mesh(BOX(0.22, 0.06, 0.14), org, oldP, 0.08, 0.03, s * 0.14);
     o.update = (t) => {
       const ph = ((t % T) + T) % T; st.warn = false; st.sliding = false;
       if (ph < d.stand) { st.x = d.a[0]; st.z = d.a[1]; st.hd = dirAB; st.warn = ph > d.stand - 0.75; }
@@ -2542,6 +2567,11 @@ const SPECIALS = {
       belly.material.emissive.set(st.warn ? '#5ab4ff' : '#000000'); belly.material.emissiveIntensity = st.warn ? 0.4 + Math.sin(t * 20) * 0.3 : 0;
       flips.forEach((f, i) => f.rotation.x = (i ? 1 : -1) * flap);
       head.rotation.y = o.react > 0 ? Math.sin(t * 3) * 0.6 : 0;
+      if (CP) {
+        pFlips.forEach(f => f.rotation.z = (Math.sign(f.position.x) || 1) * flap * 0.8);
+        if (pHead) pHead.rotation.y = head.rotation.y;
+        if (pBelly) { pBelly.emissive.set(st.warn ? '#5ab4ff' : '#000000'); pBelly.emissiveIntensity = belly.material.emissiveIntensity; }
+      }
       eyes.forEach(e => { e.w.scale.setScalar(o.react > 0 ? 1.5 : 1); lookEye(e, tmpV2.set(ball.x, ball.y, ball.z)); });
       if (st.warn && !o.prevWarn && camDistTo(o.group.position) < 30) SND.squawk(); o.prevWarn = st.warn;
       if (st.sliding && Math.random() < dt * 30) fx.emit(st.x, 0.1, st.z, (Math.random() - 0.5) * 0.6, 0.5, (Math.random() - 0.5) * 0.6, 0.6, 0.15, new THREE.Color('#ffffff'), { grav: 1, alpha: 0.8 });
@@ -2556,7 +2586,14 @@ const SPECIALS = {
     const body = prim(0.5, { kick: 3, e: 0.6, owner: o, kind: 'soft' }), sting = prim(0.42, { kick: 7, e: 0.9, owner: o, kind: 'soft' });
     sting.on = false; o.prims = [body, sting];
     const S = { x: d.c[0], z: d.c[1], hd: Math.PI / 2, tx: 0, tz: 0, sx: 0, sy: 1.6, sz: 0 };
-    const g = new THREE.Group(); o.group.add(g);
+    const g0 = new THREE.Group(); o.group.add(g0); const g = new THREE.Group(); g0.add(g);
+    const CS = charModel('scorpion', ['sting']); let sLegs = [], sArms = [], segPart = null, stingPart = null;
+    if (CS) { // Blender-model; staartsegment en angel worden losgemaakt en langs de staartcurve gezet
+      g0.add(CS.wrap); g.visible = false;
+      sLegs = ['leg_l1', 'leg_l2', 'leg_l3', 'leg_l4', 'leg_r1', 'leg_r2', 'leg_r3', 'leg_r4'].map(k => CS.n[k]).filter(Boolean);
+      sArms = ['arm_l', 'arm_r'].map((k, i) => ({ a: CS.n[k], jaw: CS.n[['jaw_l', 'jaw_r'][i]] })).filter(q => q.a);
+      segPart = detachPart(CS, 'tail_seg'); stingPart = detachPart(CS, 'sting');
+    }
     const shell = M('#2b1d14', { roughness: 0.35, metalness: 0.2 }), shellL = M('#4a3020', { roughness: 0.4 });
     for (let k = 0; k < 4; k++) mesh(SPH(0.42 - k * 0.05, 14, 10), k % 2 ? shellL : shell, g, 0.3 - k * 0.32, 0.35, 0).scale.set(0.8, 0.55, 1);
     const head = mesh(SPH(0.32, 14, 10), shell, g, 0.65, 0.35, 0); head.scale.set(1, 0.6, 1);
@@ -2564,9 +2601,10 @@ const SPECIALS = {
     const legs = [];
     for (const s of [-1, 1]) for (let k = 0; k < 4; k++) { const lg = new THREE.Group(); lg.position.set(0.3 - k * 0.25, 0.3, s * 0.32); g.add(lg); const m = mesh(CYL(0.035, 0.03, 0.6, 5), shellL, lg, 0, -0.08, s * 0.26); m.rotation.x = s * 1.15; legs.push(lg); }
     const pincers = [-1, 1].map(s => { const a = new THREE.Group(); a.position.set(0.7, 0.35, s * 0.3); g.add(a); mesh(CYL(0.06, 0.06, 0.5, 6), shellL, a, 0.25, 0, s * 0.1).rotation.z = Math.PI / 2; const c1 = mesh(SPH(0.15, 10, 8), shell, a, 0.6, 0.04, s * 0.12); c1.scale.set(1.5, 0.5, 0.8); const c2 = mesh(SPH(0.12, 10, 8), shellL, a, 0.6, -0.04, s * 0.12); c2.scale.set(1.4, 0.45, 0.7); return { a, c1, c2, s }; });
-    const tailSegs = []; for (let k = 0; k < 7; k++) tailSegs.push(mesh(SPH(0.17 - k * 0.012, 10, 8), k % 2 ? shellL : shell, o.group, 0, 0, 0));
-    const stingMat = M('#ffcc00', { emissive: '#ff2200', emissiveIntensity: 0 });
-    const stinger = mesh(CONE(0.13, 0.4, 8), stingMat, o.group, 0, 0, 0);
+    const tailSegs = []; for (let k = 0; k < 7; k++) { if (segPart) { const sg = segPart.clone(); sg.scale.multiplyScalar(1 - k * 0.06); o.group.add(sg); tailSegs.push(sg); } else tailSegs.push(mesh(SPH(0.17 - k * 0.012, 10, 8), k % 2 ? shellL : shell, o.group, 0, 0, 0)); }
+    const stingMat = CS && CS.mats.sting ? CS.mats.sting : M('#ffcc00', { emissive: '#ff2200', emissiveIntensity: 0 });
+    if (CS && CS.mats.sting) stingMat.emissive.set('#ff2200');
+    const stinger = stingPart ? (o.group.add(stingPart), stingPart) : mesh(CONE(0.13, 0.4, 8), stingMat, o.group, 0, 0, 0);
     o.update = (t, h, b) => {
       o.st += h; if (o.cool > 0) o.cool -= h;
       // patrouille = functie van de spelklok: loopt altijd door, ook tijdens een aanval
@@ -2597,7 +2635,9 @@ const SPECIALS = {
     };
     o.visual = (t, dt) => {
       o.react = Math.max(0, o.react - dt);
-      g.position.set(S.x, 0, S.z); g.rotation.y = -S.hd;
+      g0.position.set(S.x, 0, S.z); g0.rotation.y = -S.hd;
+      sLegs.forEach((l, i) => l.rotation.y = Math.sin(t * 14 + i * 1.3) * 0.35);
+      sArms.forEach(A => { const open = o.react > 0 ? Math.abs(Math.sin(t * 16)) * 0.6 : 0.15 + Math.sin(t * 3) * 0.05; if (A.jaw) A.jaw.rotation.x = -open; A.a.rotation.x = o.react > 0 ? -0.5 : 0; });
       legs.forEach((l, i) => l.rotation.y = Math.sin(t * 14 + i * 1.3) * 0.35);
       pincers.forEach(pc => { const open = o.react > 0 ? Math.abs(Math.sin(t * 16)) * 0.6 : 0.15 + Math.sin(t * 3) * 0.05; pc.c1.rotation.z = open; pc.c2.rotation.z = -open; pc.a.rotation.z = o.react > 0 ? 0.5 : 0; });
       eyes.forEach(e => lookEye(e, tmpV2.set(ball.x, ball.y, ball.z)));
@@ -2605,7 +2645,7 @@ const SPECIALS = {
       const c = Math.cos(S.hd), s = Math.sin(S.hd);
       const b0 = new THREE.Vector3(S.x - c * 0.95, 0.45, S.z - s * 0.95), b2 = new THREE.Vector3(S.sx, S.sy + 0.2, S.sz);
       const b1 = new THREE.Vector3((b0.x + b2.x) / 2 - c * 0.6, Math.max(b0.y, b2.y) + 1.0, (b0.z + b2.z) / 2 - s * 0.6);
-      tailSegs.forEach((m, i) => { const u = (i + 1) / (tailSegs.length + 1); m.position.set((1 - u) * (1 - u) * b0.x + 2 * (1 - u) * u * b1.x + u * u * b2.x, (1 - u) * (1 - u) * b0.y + 2 * (1 - u) * u * b1.y + u * u * b2.y, (1 - u) * (1 - u) * b0.z + 2 * (1 - u) * u * b1.z + u * u * b2.z); });
+      tailSegs.forEach((m, i) => { const u = (i + 1) / (tailSegs.length + 1); m.position.set((1 - u) * (1 - u) * b0.x + 2 * (1 - u) * u * b1.x + u * u * b2.x, (1 - u) * (1 - u) * b0.y + 2 * (1 - u) * u * b1.y + u * u * b2.y, (1 - u) * (1 - u) * b0.z + 2 * (1 - u) * u * b1.z + u * u * b2.z); if (segPart) m.rotation.y = -S.hd + Math.PI / 2; });
       stinger.position.copy(b2); stinger.quaternion.setFromUnitVectors(new THREE.Vector3(0, -1, 0), tmpV.set(b2.x - b1.x, b2.y - b1.y - 0.6, b2.z - b1.z).normalize());
       stingMat.emissiveIntensity = o.state === 'windup' ? 0.8 + Math.sin(t * 30) * 0.5 : 0;
       if (o.state === 'hold' && o.st < 0.02) { fx.burst(S.sx, 0.1, S.sz, 12, { color: '#d9b77a', speed: 2.5, up: 1, life: 0.6, size: 0.2, grow: 0.4, alpha: 0.7 }); Cam.shake = Math.max(Cam.shake, 0.05); }
@@ -2626,11 +2666,19 @@ const SPECIALS = {
     for (let i = 0; i < la.count; i++) { if (la.getY(i) < -1.2) { const a = Math.atan2(la.getZ(i), la.getX(i)); la.setY(i, -1.3 + Math.sin(a * 6) * 0.1); } }
     lathe.computeVertexNormals();
     const gm = new THREE.MeshStandardMaterial({ color: '#eef6ff', emissive: '#9fd8ff', emissiveIntensity: 0.35, transparent: true, opacity: 0.8, roughness: 0.4, side: THREE.DoubleSide, depthWrite: false });
-    const bodyM = mesh(lathe, gm, g, 0, 1.45, 0, true); bodyM.renderOrder = 3;
-    const face = new THREE.Group(); face.position.set(0, 1.55, 0); g.add(face);
+    const CG = charModel('ghost', ['ghost']); let gArms = [], gMouth = null;
+    if (CG) { // Blender-model met eigen (doorzichtig, gloeiend) spookmateriaal
+      g.add(CG.wrap); const gmat = CG.mats.ghost;
+      if (gmat) { gmat.transparent = true; gmat.depthWrite = false; gmat.side = THREE.DoubleSide; gmat.emissive.set('#9fd8ff'); }
+      CG.root.traverse(q => { if (q.isMesh && q.material === gmat) q.renderOrder = 3; });
+      gArms = ['arm_l', 'arm_r'].map(k => CG.n[k]).filter(Boolean).map(a => ({ a, y0: a.position.y })); gMouth = CG.n.mouth;
+      o.ghostMat = gmat;
+    }
+    const bodyM = mesh(lathe, gm, g, 0, 1.45, 0, true); bodyM.renderOrder = 3; bodyM.visible = !CG;
+    const face = new THREE.Group(); face.position.set(0, 1.55, 0); g.add(face); face.visible = !CG;
     const eyeM = M('#111'); for (const s of [-1, 1]) mesh(SPH(0.09, 10, 8), eyeM, face, 0.48, 0.1, s * 0.17, false).scale.set(0.6, 1.4, 1);
     const mouth = mesh(SPH(0.1, 10, 8), eyeM, face, 0.5, -0.15, 0, false); mouth.scale.set(0.5, 0.8, 1);
-    const arms = [-1, 1].map(s => mesh(SPH(0.14, 10, 8), gm, g, 0.15, 1.2, s * 0.6));
+    const arms = [-1, 1].map(s => mesh(SPH(0.14, 10, 8), gm, g, 0.15, 1.2, s * 0.6)); arms.forEach(a => a.visible = !CG);
     const ringM = new THREE.MeshBasicMaterial({ color: '#bfefff', transparent: true, opacity: 0, side: THREE.DoubleSide, depthWrite: false });
     const ring = mesh(new THREE.RingGeometry(0.8, 1.0, 40), ringM, o.group, 0, 0.15, 0, false); ring.rotation.x = -Math.PI / 2;
     const light = new THREE.PointLight('#9fe0ff', 0, 7, 2); light.position.y = 1.5; g.add(light);
@@ -2658,6 +2706,11 @@ const SPECIALS = {
       gm.opacity = 0.8 - S.warn * 0.55; gm.emissiveIntensity = 0.35 + S.warn * 2.2; light.intensity = S.warn * 2.5;
       mouth.scale.set(0.5, 0.8 + S.warn * 1.2 + (o.gustT < 0.4 ? 1 : 0), 1 + S.warn);
       arms.forEach((a, i) => a.position.y = 1.2 + Math.sin(t * 3 + i * 2) * 0.12 + S.warn * 0.3);
+      if (CG) {
+        if (o.ghostMat) { o.ghostMat.opacity = gm.opacity; o.ghostMat.emissiveIntensity = gm.emissiveIntensity; }
+        gArms.forEach((A, i) => { A.a.position.y = A.y0 + Math.sin(t * 3 + i * 2) * 0.12 + S.warn * 0.3; A.a.rotation.z = (i ? 1 : -1) * (0.2 + S.warn * 0.6); });
+        if (gMouth) gMouth.scale.set(1, 1 + S.warn * 1.5 + (o.gustT < 0.4 ? 1 : 0), 1 + S.warn * 0.5);
+      }
       if (S.warn > 0 && !o.prevWarn && camDistTo(o.group.position) < 30) SND.whoosh(); o.prevWarn = S.warn > 0;
       if (o.gustT < 0.5) { const k = o.gustT / 0.5; ring.position.set(S.x, 0.15, S.z); ring.scale.setScalar(0.5 + k * d.radius); ringM.opacity = (1 - k) * 0.7; }
       else ringM.opacity = 0;
@@ -3118,11 +3171,13 @@ const SPECIALS = {
     const g = new THREE.Group(); g.position.set(d.c[0], 0, d.c[1]); o.group.add(g);
     const pc = drawCanvas(256, 128, (c) => { for (let y = 0; y < 128; y++) { const v = Math.sin(y * 0.3) * 0.5 + Math.sin(y * 0.11) * 0.5; c.fillStyle = `hsl(${280 + v * 30},65%,${50 + v * 12}%)`; c.fillRect(0, y, 256, 1); } });
     const body = new THREE.Group(); body.position.y = d.r * 0.95; g.add(body);
-    const ball3 = mesh(SPH(d.r * 0.98, 32, 20), new THREE.MeshStandardMaterial({ map: toTex(pc), roughness: 0.6, emissive: '#3a1060', emissiveIntensity: 0.4 }), body, 0, 0, 0);
+    const CPl = charModel('planet'); let plMoon = null;
+    if (CPl) { CPl.wrap.scale.setScalar(d.r * 0.98); body.add(CPl.wrap); plMoon = detachPart(CPl, 'moon'); if (plMoon) { plMoon.scale.multiplyScalar(1.1); g.add(plMoon); } } // Blender-planeet (straal 1) met ring en maantje
+    const ball3 = mesh(SPH(d.r * 0.98, 32, 20), new THREE.MeshStandardMaterial({ map: toTex(pc), roughness: 0.6, emissive: '#3a1060', emissiveIntensity: 0.4 }), body, 0, 0, 0); ball3.visible = !CPl;
     const ring = mesh(new THREE.RingGeometry(d.r * 1.3, d.r * 1.7, 48), new THREE.MeshBasicMaterial({ color: '#ffd27a', transparent: true, opacity: 0.6, side: THREE.DoubleSide }), body, 0, 0, 0, false); ring.rotation.x = -Math.PI / 2 + 0.35;
-    const face = new THREE.Group(); body.add(face);
+    const face = new THREE.Group(); body.add(face); face.visible = !CPl; ring.visible = !CPl;
     const eyes = [makeEye(face, d.r * 0.85, 0.25, 0.3, 0.16), makeEye(face, d.r * 0.85, 0.25, -0.3, 0.16)];
-    const moon = mesh(SPH(0.25, 12, 8), M('#c8ccd8', { map: tex('rock') }), g, 0, 1.4, 0);
+    const moon = plMoon || mesh(SPH(0.25, 12, 8), M('#c8ccd8', { map: tex('rock') }), g, 0, 1.4, 0);
     const fieldM = [];
     for (let i = 0; i < 3; i++) { const m = new THREE.MeshBasicMaterial({ color: '#b07bff', transparent: true, opacity: 0.4, blending: THREE.AdditiveBlending, depthWrite: false }); const r = mesh(new THREE.RingGeometry(0.95, 1, 64), m, g, 0, 0.03, 0, false); r.rotation.x = -Math.PI / 2; fieldM.push(r); }
     const light = new THREE.PointLight('#b07bff', 1.2, 12, 2); light.position.y = 2; g.add(light);
@@ -3132,6 +3187,7 @@ const SPECIALS = {
       ball3.rotation.y = t * 0.4; ring.rotation.z = t * 0.2;
       const sq = 1 + Math.sin(o.react * 25) * o.react * 0.15; body.scale.set(sq, 2 - sq, sq);
       face.rotation.y = -Math.atan2(ball.z - d.c[1], ball.x - d.c[0]);
+      if (CPl) { CPl.wrap.rotation.y = face.rotation.y + Math.PI / 2; if (CPl.n.ring) CPl.n.ring.rotation.y = t * 0.2; } // gezicht kijkt naar de bal
       eyes.forEach(e => { lookEye(e, tmpV2.set(ball.x, ball.y, ball.z)); e.w.scale.setScalar(o.react > 0 ? 1.5 : 1); });
       moon.position.set(Math.cos(t * 1.1) * (d.r + 0.9), d.r + 0.4 + Math.sin(t * 2.2) * 0.3, Math.sin(t * 1.1) * (d.r + 0.9));
       fieldM.forEach((r, i) => { const u = ((t * 0.35 + i / 3) % 1); const rad = d.R - u * (d.R - d.r - 0.4); r.scale.setScalar(rad); r.material.opacity = 0.35 * Math.sin(u * Math.PI); });
@@ -4486,7 +4542,7 @@ function loadThemeModels(env) {
       Promise.all(pack.manifest.map(e => new Promise(ok => {
         try {
           const s = atob(pack.data[e.name]), u = new Uint8Array(s.length); for (let i = 0; i < s.length; i++) u[i] = s.charCodeAt(i);
-          loader.parse(u.buffer, '', gl => { try { MDL.models[env + '/' + e.name] = prepModel(gl.scene, e, env); } catch (err) { /* kapot model overslaan */ } ok(); }, () => ok());
+          loader.parse(u.buffer, '', gl => { try { MDL.models[env + '/' + e.name] = env === 'chars' ? prepChar(gl.scene, e) : prepModel(gl.scene, e, env); } catch (err) { /* kapot model overslaan */ } ok(); }, () => ok());
         } catch (err) { ok(); }
       }))).then(() => { delete pack.data; MDL.themes[env] = true; done(true); }); // base64 vrijgeven
     };
@@ -4521,6 +4577,29 @@ function joinGeos(gs) { // geïndexeerde merge; resultaat is gedeeld (wordt niet
   }
   g.computeBoundingSphere(); g.userData.shared = true; return g;
 }
+// figuren (koe, krab, …): de scène blijft heel, zodat de game de benoemde onderdelen (poten, scharen, hoofd) kan bewegen
+function prepChar(root, e) {
+  root.traverse(o => { if (o.isMesh) { o.geometry.userData.shared = true; o.material.userData.shared = true; if (/^glow/i.test(o.material.name || '')) o.material.userData.glow = o.material.emissiveIntensity || 1; } });
+  return { e, env: 'chars', key: 'chars/' + e.name, scene: root };
+}
+// kopie van een figuur: gedeelde geometrie, eigen kopie van de materialen in 'own' (die de game per figuur aanpast).
+// wrap draait het model zodat de voorkant (+z in het model) naar +x kijkt, zoals de oude figuren.
+function charModel(name, own = []) {
+  const M0 = MDL.models['chars/' + name]; if (!M0 || !M0.scene) return null;
+  const root = M0.scene.clone(true), n = {}, mats = {};
+  root.traverse(o => {
+    if (o.name && !n[o.name]) n[o.name] = o;
+    if (!o.isMesh) return;
+    o.castShadow = true; o.receiveShadow = true;
+    const nm = o.material.name || '';
+    if (own.includes(nm)) { if (!mats[nm]) { mats[nm] = o.material.clone(); mats[nm].userData = {}; } o.material = mats[nm]; }
+    else if (o.material.userData.glow) H.glowMats.add(o.material);
+  });
+  const wrap = new THREE.Group(); wrap.rotation.y = Math.PI / 2; wrap.add(root);
+  return { wrap, root, n, mats };
+}
+// onderdeel losmaken uit het model (bv. één staartsegment om te kopiëren)
+function detachPart(C, name) { const p = C.n[name]; if (!p) return null; p.parent.remove(p); p.position.set(0, 0, 0); return p; }
 function prepModel(root, e, env) {
   root.updateMatrixWorld(true);
   const spinCfg = {}; for (const s of e.spin || []) spinCfg[s.node] = s;
@@ -5860,8 +5939,8 @@ function frame(now) {
 // ---------- start ----------
 buildHole(0); applyEnvMaps(); resetBall(HOLES[0].start[0], HOLES[0].start[1]); showBest();
 // Blender-decor: zodra het pakket van het menuthema binnen is de achtergrond opnieuw opbouwen, daarna de andere thema's laden
-loadThemeModels(HOLES[0].theme.env).then(ok => {
-  if (ok && G.state === 'menu') { buildHole(0); applyEnvMaps(); resetBall(HOLES[0].start[0], HOLES[0].start[1]); }
+Promise.all([loadThemeModels('chars'), loadThemeModels(HOLES[0].theme.env)]).then(([c, ok]) => {
+  if ((ok || c) && G.state === 'menu') { buildHole(0); applyEnvMaps(); resetBall(HOLES[0].start[0], HOLES[0].start[1]); }
   WORLD_ORDER.reduce((pr, env) => pr.then(() => loadThemeModels(env)), Promise.resolve());
 });
 ['bQual', 'bQual2'].forEach(id => $(id).textContent = '⚙ Kwaliteit: ' + (Q.high ? 'hoog' : 'laag'));
