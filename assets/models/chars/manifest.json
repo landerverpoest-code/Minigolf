@@ -75,6 +75,36 @@
   "notes": "Parts/pivots (Blender coords, front -Y, left=+X): body (origin 0,0,0; shell, eye stalks+eyes, smile); arm_l shoulder (0.36,-0.27,0.34), arm_r shoulder (-0.36,-0.27,0.34) (arm + big claw pointing -Y); jaw_l hinge (0.46,-0.92,0.495) / jaw_r hinge (-0.46,-0.92,0.495) = movable upper pincer, PARENTED to its arm, hinge axis = local X (negative X rotation opens: tip goes up); leg_l1 (0.45,-0.08,0.3), leg_l2 (0.45,0.1,0.3), leg_l3 (0.45,0.26,0.3), leg_r1 (-0.45,-0.08,0.3), leg_r2 (-0.45,0.1,0.3), leg_r3 (-0.45,0.26,0.3) (body side). Materials: crab_red, crab_light, crab_dark, eye_white, pupil, blush."
  },
  {
+  "name": "dragon",
+  "theme": "chars",
+  "file": "models/chars/dragon.glb",
+  "kind": "char",
+  "footprint": 1.9,
+  "height": 3.838,
+  "size": [
+   3.33,
+   4.853
+  ],
+  "tris": 3490,
+  "bytes": 113576,
+  "notes": "Parts/pivots (Blender coords, front -Y, left=+X): body (origin 0,0,0 = pedestal centre on the ground; stone pedestal X2.4 x Y2.6 x Z1.6 (top z=1.6), crouching bronze torso with steel belly plates, gold spine spikes, static gears on both flanks, gold wind-up key on the back, legs, and a static tail root that drapes down the back of the pedestal); TAIL EXIT POINT (where the game should start the animated tail, heading +Y, radius ~0.22) = (0,1.98,0.7); head (neck + head, pivot at the neck base on the torso (0,-0.72,2.6); face looks -Y; gold horns, glowing eyes glow_eyes); jaw (lower jaw, PARENTED to head, hinge (0,-1.438,2.983) (world), hinge axis = X; rotation.x>0 in Blender (= three.js x>0) opens it downward; glow_eyes furnace inside); wing_l / wing_r (folded bat wings, pivot shoulder (0.5,-0.15,2.7) / (-0.5,-0.15,2.7)); tail_seg (ONE segment, centred on its origin, 0.45 long along Blender Y (three.js Z), 0.45 thick, steel collar toward -Y (the body), gold spike on top +Z; parked at (1.75,0.55,0.23)); tail_tip (gold spade, origin at its base, points -Y, 0.64 long, 0.54 wide; parked at (1.75,0.15,0.08)). Materials: stone, bronze, steel, gold, glow_eyes, membrane."
+ },
+ {
+  "name": "drone",
+  "theme": "chars",
+  "file": "models/chars/drone.glb",
+  "kind": "char",
+  "footprint": 0.5,
+  "height": 0.915,
+  "size": [
+   1.427,
+   1.881
+  ],
+  "tris": 3962,
+  "bytes": 106396,
+  "notes": "Parts/pivots (Blender coords, front -Y, left=+X): body (origin 0,0,0 = body centre; round shell bowl (material shell, recolourable) with accent equator ring, glass dome (material glass, alpha 0.38) holding a dark face screen with one big round eye glow_eye + glowing smile, antenna, thruster below, 4 struts with rotor ducts (ducts also material shell)); rotor_1 (0.447,-0.447,0.08) (front-left), rotor_2 (-0.447,-0.447,0.08) (front-right), rotor_3 (-0.447,0.447,0.08) (back-right), rotor_4 (0.447,0.447,0.08) (back-left): pivot at the rotor centre, spin around Z (three.js y); arm: pivot at the body centre (0,0,0), points -Y, scissor extender + red boxing glove centred at (0,-1,-0.11) (glove front at y=-1.15); scale it along Blender Y (three.js z) to extend. Shell radius 0.42, width over the ducts ~1.36. Materials: shell, glass, dark, glow_eye, accent, glove."
+ },
+ {
   "name": "flower_clump",
   "theme": "chars",
   "file": "models/chars/flower_clump.glb",
@@ -255,6 +285,21 @@
   "notes": "Parts/pivots (Blender coords, front -Y): body (origin 0,0,0; wooden post 1.2 m behind the shield at y=0.13 with iron bands, axle and stones); shield (pivot at its centre (0.00,-0.02,0.78); round heraldic shield r=0.46 facing -Y: gold boss, red/white/red rings, gold ring, raised blue rim with gold rivets; spin/wobble it about Blender Y (three.js z)). Materials: shield_wood, shield_red, shield_white, gold, shield_blue, shield_iron."
  },
  {
+  "name": "ship_lava",
+  "theme": "chars",
+  "file": "models/chars/ship_lava.glb",
+  "kind": "char",
+  "footprint": 1.6,
+  "height": 5.37,
+  "size": [
+   3.69,
+   6.117
+  ],
+  "tris": 3322,
+  "bytes": 118880,
+  "notes": "origin at lava-line centre (0,0,0), bow -Y, keel to z=-0.55. parts: body (pivot 0,0,0, obsidian hull, glow_lava cracks/portholes, bone skull figurehead); sail = mast+yards+tattered sail with glowing edges, pivot at mast base (0.00,-0.25,0.70); flag pivot at its pole attachment (0.00,-0.17,4.43) (top level, flies toward +Y)"
+ },
+ {
   "name": "ship_water",
   "theme": "chars",
   "file": "models/chars/ship_water.glb",
@@ -262,11 +307,11 @@
   "footprint": 1.6,
   "height": 5.23,
   "size": [
-   3.344,
+   3.355,
    6.015
   ],
-  "tris": 6236,
-  "bytes": 185764,
+  "tris": 3442,
+  "bytes": 116328,
   "notes": "origin at waterline centre (0,0,0), bow -Y, keel to z=-0.55. parts: body (pivot 0,0,0); sail = mast+yards+sail+crow nest, pivot at mast base (0.00,-0.25,0.70); flag pivot at its pole attachment (0.00,-0.17,4.43) (top level, flies toward +Y)"
  },
  {

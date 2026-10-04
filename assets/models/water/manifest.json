@@ -142,6 +142,21 @@
   "notes": "Zeilbootje; romp afgesneden op de waterlijn (oorsprong = waterlijn, z=0 is wateroppervlak). Boeg naar +X"
  },
  {
+  "name": "seagull_post",
+  "theme": "water",
+  "file": "models/water/seagull_post.glb",
+  "kind": "edge",
+  "footprint": 0.25,
+  "height": 1.208,
+  "size": [
+   0.539,
+   0.397
+  ],
+  "tris": 280,
+  "bytes": 15872,
+  "notes": "Verweerde houten meerpaal met touwlussen en losse touweinde, met een meeuw (wit lijf, grijze vleugels, gele snavel) bovenop"
+ },
+ {
   "name": "starfish_shells",
   "theme": "water",
   "file": "models/water/starfish_shells.glb",
@@ -170,6 +185,21 @@
   "tris": 2446,
   "bytes": 133772,
   "notes": "Rieten paalwoning op palen met kruisverbanden, reling, steiger naar voren (-Y) en ladder naar het water"
+ },
+ {
+  "name": "treasure_chest",
+  "theme": "water",
+  "file": "models/water/treasure_chest.glb",
+  "kind": "edge",
+  "footprint": 0.4,
+  "height": 0.58,
+  "size": [
+   1.116,
+   0.99
+  ],
+  "tris": 330,
+  "bytes": 18868,
+  "notes": "Open schatkist op een zandhoopje: houten kist met gouden banden en slot, deksel naar achteren open, berg goud met rood juweel, losse munten"
  },
  {
   "name": "tropical_bush",

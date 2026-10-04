@@ -45,6 +45,21 @@
   "notes": "ronde stenen toren: beschoeide voet, schietgaten, boogdeur, kraagstenen + kantelen, blauw kegeldak met pannenringen en dakkapel, gouden topje, rode vlag en vaandel (statisch)"
  },
  {
+  "name": "catapult",
+  "theme": "castle",
+  "file": "models/castle/catapult.glb",
+  "kind": "scatter",
+  "footprint": 1.2,
+  "height": 1.506,
+  "size": [
+   1.558,
+   2.529
+  ],
+  "tris": 838,
+  "bytes": 41548,
+  "notes": "Houten katapult: frame op vier spaakwielen met ijzeren band, A-bok met dwarsbalk en strokussen, werparm met beslag en emmer met steen, lier met touw, stapeltje reservestenen; werpt naar -Y"
+ },
+ {
   "name": "cypress_tree",
   "theme": "castle",
   "file": "models/castle/cypress_tree.glb",
@@ -75,6 +90,21 @@
   "notes": "houten boerenkar met 2 spaakwielen (ijzeren banden), dissel, steunpoot, berg hooi in 2 tinten en een hooivork"
  },
  {
+  "name": "hay_target",
+  "theme": "castle",
+  "file": "models/castle/hay_target.glb",
+  "kind": "edge",
+  "footprint": 0.42,
+  "height": 1.04,
+  "size": [
+   0.84,
+   1.052
+  ],
+  "tris": 282,
+  "bytes": 18096,
+  "notes": "Boogschietdoel: ronde strooien schijf met rood-witte ringen en gouden roos op een houten driepoot, twee pijlen met rode veren"
+ },
+ {
   "name": "knight_statue",
   "theme": "castle",
   "file": "models/castle/knight_statue.glb",
@@ -103,6 +133,36 @@
   "tris": 828,
   "bytes": 37148,
   "notes": "houten marktkraam met rood/cr\u00e8me gestreepte luifel en geschulpte rand; kratten met appels en broden, kazen, krat kool en jute zakken"
+ },
+ {
+  "name": "rose_bush",
+  "theme": "castle",
+  "file": "models/castle/rose_bush.glb",
+  "kind": "edge",
+  "footprint": 0.38,
+  "height": 0.661,
+  "size": [
+   0.818,
+   0.671
+  ],
+  "tris": 300,
+  "bytes": 18840,
+  "notes": "Rozenstruik: bolle gefacetteerde struik in twee groentinten met rode en roze rozen"
+ },
+ {
+  "name": "stone_bench_fountain",
+  "theme": "castle",
+  "file": "models/castle/stone_bench_fountain.glb",
+  "kind": "hero",
+  "footprint": 2.5,
+  "height": 2.612,
+  "size": [
+   4.999,
+   4.681
+  ],
+  "tris": 4228,
+  "bytes": 123944,
+  "notes": "Pleinfontein: achthoekig stenen bekken met pilasters en dekstenen, middenzuil met twee schalen en bekroning, vallende waterstralen en spatten, rimpelend water, mosplekken, geplaveide cirkel met twee stenen banken en struikjes"
  },
  {
   "name": "tent_striped",

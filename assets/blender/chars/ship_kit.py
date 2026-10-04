@@ -29,7 +29,7 @@ def hull_mesh(material):
         rt = 0.1
         zc = deck(y) - rt
         secs.append((y, zc, beam(y), rt, zc - keel(y)))
-    return loft_y(secs, seg=24, material=material, p=0.62)
+    return loft_y(secs, seg=20, material=material, p=0.62)
 
 
 def ring_on(o, y, z, sx, push=0.0):
