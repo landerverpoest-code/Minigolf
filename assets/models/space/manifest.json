@@ -90,6 +90,21 @@
   "notes": "stapel sci-fi kratten met strepen (glow cyaan + glow_magenta) en goudfolie bus"
  },
  {
+  "name": "crashed_satellite",
+  "theme": "space",
+  "file": "models/space/crashed_satellite.glb",
+  "kind": "scatter",
+  "footprint": 1.4,
+  "height": 1.513,
+  "size": [
+   3.071,
+   2.544
+  ],
+  "tris": 821,
+  "bytes": 45836,
+  "notes": "Neergestorte satelliet schuin in een krater: achthoekige goudfolie-romp met ringen, schoteltje en knipperend antennelampje (glow_beacon), \u00e9\u00e9n heel zonnepaneel van drie vakken en een afgebroken stomp met kabeltjes, los paneel in het stof, brokstukken en rookwolkjes"
+ },
+ {
   "name": "fuel_tanks",
   "theme": "space",
   "file": "models/space/fuel_tanks.glb",
@@ -148,6 +163,21 @@
   "tris": 568,
   "bytes": 32468,
   "notes": "hoge scheve gefacetteerde maanrots + kraterrots en kiezels"
+ },
+ {
+  "name": "robot_dog",
+  "theme": "space",
+  "file": "models/space/robot_dog.glb",
+  "kind": "edge",
+  "footprint": 0.3,
+  "height": 0.654,
+  "size": [
+   0.28,
+   0.8
+  ],
+  "tris": 300,
+  "bytes": 21428,
+  "notes": "Schattig robothondje: wit afgerond lijf met oranje streep, grote kop met donker vizier en gloeiende oogjes, driehoekige oortjes, antennestaartje met gloeibol (glow), poten met gewrichten; kijkt naar -Y"
  },
  {
   "name": "rocket_pad",

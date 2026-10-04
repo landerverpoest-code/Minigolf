@@ -1,5 +1,20 @@
 [
  {
+  "name": "balloon_arch",
+  "theme": "finale",
+  "file": "models/finale/balloon_arch.glb",
+  "kind": "hero",
+  "footprint": 2.8,
+  "height": 5.25,
+  "size": [
+   6.071,
+   1.68
+  ],
+  "tris": 4472,
+  "bytes": 104908,
+  "notes": "Ballonnenboog: spiraal van glanzende paarse, gouden, rode en witte ballonclusters over een boog van 4.6 m, grote gouden ster met twee ballonnen op de top, voetstukken met gewichten, losse ballonnen aan touwtjes, vlaggetjesslinger onder de boog, confetti op de grond; doorgang langs Y"
+ },
+ {
   "name": "banner_flags",
   "theme": "finale",
   "file": "models/finale/banner_flags.glb",
@@ -13,6 +28,36 @@
   "tris": 169,
   "bytes": 11940,
   "notes": "gouden vlaggenmast met drie driehoekige wimpels en een rode banier met ster"
+ },
+ {
+  "name": "champion_banner",
+  "theme": "finale",
+  "file": "models/finale/champion_banner.glb",
+  "kind": "scatter",
+  "footprint": 0.5,
+  "height": 4.625,
+  "size": [
+   1.675,
+   0.9
+  ],
+  "tris": 816,
+  "bytes": 43412,
+  "notes": "Kampioensvaandel: gouden paal op marmeren voet met dwarsbalk, golvend paars vaandel met zwaluwstaart en gouden zoom, embleem van een gouden trofee op een rode schijf met gouden rand, drie gouden sterren, kwastjes"
+ },
+ {
+  "name": "confetti_cannon",
+  "theme": "finale",
+  "file": "models/finale/confetti_cannon.glb",
+  "kind": "edge",
+  "footprint": 0.38,
+  "height": 1.147,
+  "size": [
+   0.5,
+   1.309
+  ],
+  "tris": 289,
+  "bytes": 16576,
+  "notes": "Confettikanon: paars-goud gestreepte loop met trompetmond op een houten affuit met gouden wieltjes, uitbarsting van rode/gouden/witte/paarse snippers, lontje; schiet naar -Y"
  },
  {
   "name": "crown_rock",
@@ -88,6 +133,21 @@
   "tris": 242,
   "bytes": 18908,
   "notes": "houten krat met vuurwerkbuizen en twee raketten; brandend lontje = glow_fuse"
+ },
+ {
+  "name": "gift_boxes",
+  "theme": "finale",
+  "file": "models/finale/gift_boxes.glb",
+  "kind": "edge",
+  "footprint": 0.4,
+  "height": 0.652,
+  "size": [
+   1.03,
+   0.571
+  ],
+  "tris": 272,
+  "bytes": 19764,
+  "notes": "Stapeltje cadeaus: paars met gouden lint, rood met wit lint erbovenop, wit met rood en klein goud met paars, elk met strik"
  },
  {
   "name": "gold_column",

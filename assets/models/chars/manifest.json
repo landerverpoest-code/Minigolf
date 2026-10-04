@@ -165,6 +165,21 @@
   "notes": "Parts: body only (origin 0,0,0 = bottom centre of the pole). White pole r=0.025 up to z=2.3, gold collar + gold ball (centre z=2.352, r=0.048, top at 2.4), steel ferrule at the foot and a small white cup-rim ring (R=0.075) at z~0.013. Cloth is added by the game (attach along the pole, e.g. z 1.75-2.28). Materials: flag_pole, gold, flag_steel."
  },
  {
+  "name": "goose",
+  "theme": "chars",
+  "file": "models/chars/goose.glb",
+  "kind": "char",
+  "footprint": 0.34,
+  "height": 0.983,
+  "size": [
+   0.628,
+   1.042
+  ],
+  "tris": 3260,
+  "bytes": 76580,
+  "notes": "Gans Gerda. Parts/pivots (Blender coords, front -Y, left=+X; ~0.95 m tall to the head): body (origin 0,0,0; plump white body, fanned tail, chest fluff); neck (pivot neck base (0,-0.2,0.5); S-neck, head with orange beak + knob, big angry-cute eyes with brows, blush, crest); wing_l (pivot shoulder (0.2,-0.12,0.53)), wing_r (pivot shoulder (-0.2,-0.12,0.53)) folded along the body, flap by rotating about Y; leg_l (pivot hip (0.1,0.08,0.3)), leg_r (pivot hip (-0.1,0.08,0.3)) orange legs with webbed feet on z=0. Collision radius 0.34. Materials: goose_white, goose_grey, goose_orange, eye_white, goose_dark, blush."
+ },
+ {
   "name": "grass_clump",
   "theme": "chars",
   "file": "models/chars/grass_clump.glb",
@@ -268,6 +283,21 @@
   "tris": 173,
   "bytes": 7344,
   "notes": "single part body, origin at base centre (0,0,0); 3 cattails (brown heads) + 5 strap leaves; materials stem, head"
+ },
+ {
+  "name": "salamander",
+  "theme": "chars",
+  "file": "models/chars/salamander.glb",
+  "kind": "char",
+  "footprint": 0.4,
+  "height": 0.293,
+  "size": [
+   0.691,
+   1.199
+  ],
+  "tris": 3348,
+  "bytes": 82060,
+  "notes": "De vuursalamander. Parts/pivots (Blender coords, front -Y, left=+X; ~1.2 m long, low): body (origin 0,0,0; flat head with big yellow eyes, smile, blush + front torso); tail (pivot at the join (0,0.027,0.145); rear body + tapering tail toward +Y, sway about Z); leg_fl (0.11,-0.192,0.132), leg_fr (-0.11,-0.192,0.132), leg_bl (0.11,0.092,0.132), leg_br (-0.11,0.092,0.132) (pivot shoulder/hip, splayed legs, feet on z=0). Glowing orange spots = material glow_spots. Materials: sala_black, glow_spots, eye_yellow, white, blush, mouth."
  },
  {
   "name": "scorpion",
