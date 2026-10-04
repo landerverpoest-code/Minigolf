@@ -4902,7 +4902,7 @@ const ENV = {
     const mill = mesh(BOX(2, 2.8, 2.6), M('#a1887f', { map: tex('wood') }), ctx.g, wheel.position.x - 1.6, 1.2, wheel.position.z, true); mesh(CONE(2.2, 1.4, 4), M('#6d4c41'), ctx.g, mill.position.x, 3.3, mill.position.z).rotation.y = Math.PI / 4;
     // waterval achter het laatste eiland
     const fp = D.falls || (D.D ? [D.D[0], D.D[1] - 9] : [H.center[0], H.bounds[1] - 9]), fx0 = fp[0], wz = fp[1];
-    const cliff = mesh(new THREE.BoxGeometry(20, 9, 4), M('#7a6a5a', { map: tex('rock') }), ctx.g, fx0, 3.4, wz, true, true); scaleUV(cliff.geometry, 4, 2);
+    const cliff = mesh(new THREE.BoxGeometry(20, 9, 4), M('#c8b496', { map: tex('rock'), emissive: '#3a3024', emissiveIntensity: 0.6 }), ctx.g, fx0, 3.4, wz, true, true); scaleUV(cliff.geometry, 4, 2);
     const wfTex = toTex(TEXGEN.waterfall()); wfTex.wrapS = wfTex.wrapT = THREE.RepeatWrapping;
     mesh(new THREE.PlaneGeometry(3.2, 8.6), new THREE.MeshBasicMaterial({ map: wfTex, transparent: true, opacity: 0.9 }), ctx.g, fx0, 3.6, wz + 2.05, false);
     foam(ctx, CIRC(fx0, wz + 2.6, 1.8, 24), 1.2, -0.3, true, lvl);

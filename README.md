@@ -1,14 +1,17 @@
 # Minigolf Avontuur 3D
 
-Een volledige 3D-minigolfgame in **één HTML-bestand** (`index.html`). Open het bestand in een moderne browser en speel meteen.
+Een 3D-minigolfgame in de browser (three.js r128). Open `index.html` en speel meteen.
 
-- 9 lange holes (1,5 tot 2 keer langer dan in de eerste versie, met bochten en extra secties), elk met een eigen thema, muziek en baanveranderende elementen:
-  schakelaar en hek, vulkaanuitbarsting met stollende lavabrug, schild en ophaalbrug, eb en vloed met zandbanken, drijvende en brekende ijsschotsen, een tornado die je bal over een kloof slingert, lantaarns met verborgen bruggen, een draaiende muur en een mini-planeet met zwaartekracht
-- Spelmodi: **Alle holes** (doorlopende scorekaart en eindscherm) of **Kies een hole** (losse hole met beste score per hole)
-- Knop **Instructies** in het menu en als ?-knop tijdens het spelen
-- Omgeving in drie lagen (voorgrond, middengrond, verre achtergrond) op heuvelachtig terrein, InstancedMesh voor bomen en details, water met golven en schuim, kwaliteitsoptie hoog/laag (laag automatisch op mobiel)
-- Three.js r128 via cdnjs. Alle textures, modellen en geluiden worden procedureel gegenereerd (canvas, geometrie in code, WebAudio)
-- 2D-fysica (x,z) met een vaste timestep van 120 Hz en adaptieve substeps; botsingen tussen cirkel en capsule met correcte reflectie, ook voor bewegende obstakels. Alle bewegende elementen draaien op een globale spelklok die alleen stopt bij pauze
-- 1–4 spelers (hot-seat), highscores in localStorage
+- **9 werelden × 3 banen = 27 holes**, elk thema met eigen muziek, sfeer en banen die veranderen: knoppen en hekken, ophaalbruggen, uitbarstende vulkanen, eb en vloed, drijvende ijsschotsen, een tornado, verborgen lantaarnbruggen, mini-planeten met zwaartekracht, een draaibrug, een veerpont, valluiken, krachtvelden en meer
+- Spelmodi: **Alle 27 holes**, **Speel een wereld** (de 3 holes van één thema, met scorekaart en record) of **een losse hole** (met beste score per hole)
+- 1–4 spelers (hot-seat), geen slagenlimiet (na 10 slagen kies je: stoppen met +2 of doorspelen), highscores in localStorage
+- **Decoratie gemaakt in Blender**: ruim 100 low-poly modellen (schuur, windmolen, kasteeltorens, vuurtoren, iglo, sfinx, mausoleum, raket, trofee, …)
+  - bron-scripts: `assets/blender/<thema>/*.py` (Blender als Python-module `bpy`)
+  - modellen + previews: `assets/models/<thema>/`, `assets/previews/<thema>/`
+  - in de game: `models/<thema>.js`, gebouwd met `python3 tools/build_models.py` (quantiseert met gltf-transform)
+  - zonder de map `models/` werkt de game ook, dan met eenvoudigere procedurele decoratie
+- 2D-fysica (x,z) op 120 Hz met substeps en correcte botsingen, ook met bewegende obstakels; alle elementen draaien op een spelklok
 
 **Besturing:** sleep vanaf de bal naar achteren (katapult) of houd Spatie ingedrukt · slepen of ←/→ om de camera te draaien · scrollwiel of +/− om te zoomen · O = overzicht · R = terug (+1 strafslag) · P = pauze · M = geluid aan/uit
+
+**Testen** (Playwright): `node tools/smoke.js` (alle holes laden), `tools/solve.js`, `tools/phys.js`, `tools/kin.js`, `tools/beauty.js` (sfeerbeelden).
