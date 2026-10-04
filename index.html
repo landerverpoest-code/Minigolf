@@ -160,6 +160,7 @@ const STOP_SPEED = 0.06;      // onder deze snelheid stopt de bal volledig
 const MAX_STROKES = 10;      // vanaf hier mag je kiezen: stoppen (+2 strafslagen) of doorspelen
 const STOP_PENALTY = 2;
 const WALL_T = 0.3, WALL_H = 0.5;
+const CUP_D = 0.24;           // diepte van de cup (boven het water- en lavaniveau)
 
 // Ondergronden: mu = constante rolweerstand (eenheden/s²), k = snelheidsafhankelijke demping
 const SURF = {
@@ -2118,8 +2119,14 @@ function buildGrave(b) {
 }
 function buildCup(hole, flagColor, num) {
   const g = holeGroup, y = hole.y;
-  mesh(CYL(HOLE_R, HOLE_R, 0.5, 24, true), M('#1a1a1a', { side: THREE.BackSide, roughness: 1 }), g, hole.x, y - 0.25, hole.z, false, true);
-  mesh(CYL(HOLE_R, HOLE_R, 0.02, 24), M('#0a0a0a'), g, hole.x, y - 0.49, hole.z, false);
+  // cup met een eigen bodem in de stijl van de ondergrond, ondiep genoeg dat er geen water of lava doorheen schijnt
+  const F = floorAt(hole.x, hole.z), sf = F ? F.surf : 'grass';
+  const CUP = { metal: ['#5a6070', 'metal'], ice: ['#7fa8c8', 'ice'], stone: ['#6a625a', 'stone'], rock: ['#4a3a32', 'rock'], wood: ['#5b3d24', 'wood'], carpet: ['#6a1a2a', null], sand: ['#9a7a4a', 'sand'] };
+  const [cc, ct] = CUP[sf] || ['#4a3422', 'rock']; // standaard: aarde
+  mesh(CYL(HOLE_R, HOLE_R, CUP_D, 24, true), M(cc, { map: ct ? tex(ct) : null, side: THREE.BackSide, roughness: 1 }), g, hole.x, y - CUP_D / 2, hole.z, false, true).renderOrder = -20;
+  mesh(CYL(HOLE_R, HOLE_R, 0.02, 24), M(new THREE.Color(cc).multiplyScalar(0.55), { map: ct ? tex(ct) : null, roughness: 1 }), g, hole.x, y - CUP_D + 0.01, hole.z, false).renderOrder = -20;
+  // onzichtbaar 'deksel' dat alleen diepte schrijft: water/lava (doorzichtig, later getekend) verdwijnt zo uit de cup, ook bij vloed
+  const cap = mesh(new THREE.CircleGeometry(HOLE_R + 0.01, 24), new THREE.MeshBasicMaterial({ colorWrite: false }), g, hole.x, y + 0.002, hole.z, false); cap.rotation.x = -Math.PI / 2; cap.renderOrder = -10; // na cup en bal, vóór water/lava
   const rim = mesh(new THREE.RingGeometry(HOLE_R, HOLE_R + 0.04, 32), M('#ffffff', { roughness: 0.5 }), g, hole.x, y + 0.004, hole.z, false); rim.rotation.x = -Math.PI / 2;
   const fg = new THREE.Group(); fg.position.set(hole.x, y, hole.z); g.add(fg);
   mesh(CYL(0.025, 0.025, 2.4, 8), M('#f5f5f5', { metalness: 0.3, roughness: 0.4 }), fg, 0, 1.2, 0);
@@ -5253,7 +5260,7 @@ const ENV = {
 const ball = { x: 0, z: 0, y: 0, vx: 0, vz: 0, state: 'rest', lastX: 0, lastZ: 0, t: 0, lipped: false, sinkFrom: null, oobKind: '', mesh: null, ring: null, air: 0, airT0: 1, held: null };
 {
   ball.mesh = new THREE.Mesh(SPH(BALL_R, 32, 24), new THREE.MeshStandardMaterial({ color: '#ffffff', map: tex('ball'), roughness: 0.22, metalness: 0.05, envMapIntensity: 0.9 }));
-  ball.mesh.castShadow = true; scene.add(ball.mesh);
+  ball.mesh.castShadow = true; ball.mesh.renderOrder = -15; scene.add(ball.mesh); // vóór het cup-deksel, zodat de bal in de cup zichtbaar blijft
   ball.ring = new THREE.Mesh(new THREE.RingGeometry(BALL_R * 1.5, BALL_R * 1.9, 32), new THREE.MeshBasicMaterial({ color: '#ffffff', transparent: true, opacity: 0.6, depthWrite: false }));
   ball.ring.rotation.x = -Math.PI / 2; scene.add(ball.ring);
 }
@@ -5580,7 +5587,7 @@ function updateBallAnim(dt) {
   if (b.state === 'sink') {
     b.t += dt; const k = Math.min(1, b.t / 1.0), f = b.sinkFrom;
     const a = f.a + b.t * 9, d = f.d * (1 - k);
-    b.x = H.hole.x + Math.cos(a) * d; b.z = H.hole.z + Math.sin(a) * d; b.y = H.hole.y + BALL_R - k * k * 0.6;
+    b.x = H.hole.x + Math.cos(a) * d; b.z = H.hole.z + Math.sin(a) * d; b.y = H.hole.y + BALL_R - k * k * (CUP_D - 0.02); // tot op de bodem van de cup
     b.mesh.rotation.y += dt * 12;
     if (b.t > 1.1 && G.state === 'play') { b.mesh.visible = false; holedOut(); }
   } else if (b.state === 'oob') {
