@@ -30,6 +30,21 @@
   "notes": "krullende buitenaardse plant met gloeiende bolletjes (glow_bulb)"
  },
  {
+  "name": "alien_tree",
+  "theme": "space",
+  "file": "models/space/alien_tree.glb",
+  "kind": "scatter",
+  "footprint": 0.7,
+  "height": 3.09,
+  "size": [
+   2.994,
+   2.93
+  ],
+  "tris": 856,
+  "bytes": 34300,
+  "notes": "Buitenaardse boom: gedraaide paarse stam met wortelknollen die zich splitst in drie armen met turquoise paddenstoelhoeden (gloeiende cyaan onderkant), magenta gloeistippen en hangende gloeibollen (glow_bulb, glow_crystal_cyan)"
+ },
+ {
   "name": "antenna_tower",
   "theme": "space",
   "file": "models/space/antenna_tower.glb",
@@ -73,6 +88,21 @@
   "tris": 256,
   "bytes": 18276,
   "notes": "stapel sci-fi kratten met strepen (glow cyaan + glow_magenta) en goudfolie bus"
+ },
+ {
+  "name": "fuel_tanks",
+  "theme": "space",
+  "file": "models/space/fuel_tanks.glb",
+  "kind": "scatter",
+  "footprint": 1.3,
+  "height": 1.52,
+  "size": [
+   2.539,
+   1.675
+  ],
+  "tris": 900,
+  "bytes": 39228,
+  "notes": "Brandstofdepot: twee liggende witte tanks met oranje/navy banden op zadels, kleppen en gloeiende meters, staande bol-tank op vier poten met gloeiend lampje, verbindingsleidingen, slang met vulpistool, betonplaat met waarschuwingsstrepen"
  },
  {
   "name": "habitat_dome",

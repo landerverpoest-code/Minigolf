@@ -2038,7 +2038,9 @@ function buildHole(idx) {
   const ctx = { g, def, H, mdl: mdlReady(th.env), upd: f => H.updaters.push(f), occ: m => H.occluders.push(m) };
   ENV[th.env](ctx); H.ctx = ctx;
   if (th.stars && th.env !== 'space') shootingStars(ctx); // nachthemel
-  if (th.env === 'volcano' || th.env === 'finale') lavaBubbles(ctx);
+  if (th.env === 'volcano' || th.env === 'finale') { lavaBubbles(ctx); if (mdlReady('chars')) { sailingShips(ctx, 'ship_lava', () => -0.55, 2); lavaSerpent(ctx); } }
+  if (th.env === 'water' && mdlReady('chars')) { const lv = t => (H.tide ? H.tide.level(t) : -0.32); sailingShips(ctx, 'ship_water', lv, 2); whale(ctx, lv); }
+  if (['meadow', 'water', 'castle', 'desert'].includes(th.env) && mdlReady('chars')) birdFlock(ctx, th.env === 'water' ? 7 : 5, th.env === 'desert' ? 14 : 10);
   if (th.env === 'meadow' || th.env === 'castle') fallingLeaves(ctx, th.env === 'castle' ? ['#d9822b', '#c0392b', '#e6b33a'] : ['#7cb342', '#9ccc65', '#f4d35e']);
   decorateModels(ctx);
   H.updaters.push((t) => { let k = 0; for (const m of H.glowMats) { m.emissiveIntensity = m.userData.glow * (0.82 + Math.sin(t * 2.2 + k++ * 1.7) * 0.18); } }); // gloeiende delen pulseren
@@ -2435,6 +2437,12 @@ const SPECIALS = {
     const eyes = [makeEye(face, d.r * 0.82, 0.2, 0.25, 0.14), makeEye(face, d.r * 0.82, 0.2, -0.25, 0.14)];
     const brows = [-1, 1].map(s => { const b = mesh(BOX(0.06, 0.06, 0.3), dark2(), face, d.r * 0.92, 0.42, s * 0.25, false); b.rotation.x = s * 0.5; return b; });
     function dark2() { return M('#1a1010'); }
+    const CBo = charModel('boulder');
+    if (CBo) { // Blender-rotsblok (straal 1, geschaald): rots rolt, gezicht blijft rechtop en kijkt vooruit
+      rock.visible = false; face.children.forEach(c => c.visible = false);
+      const rk = detachPart(CBo, 'rock'); if (rk) { rk.scale.setScalar(d.r); roll.add(rk); }
+      CBo.wrap.scale.setScalar(d.r); face.add(CBo.wrap);
+    }
     o.update = (t) => {
       const ph = t % d.period; st.warn = 0;
       if (ph < d.warn) { st.on = false; st.dist = 0; st.warn = ph / d.warn; }
@@ -2487,6 +2495,13 @@ const SPECIALS = {
     mesh(SPH(0.3, 14, 10), starMat, starG, 0, 0, 0);
     for (let i = 0; i < 10; i++) { const sp = mesh(CONE(0.07, 0.22, 6), starMat, starG, 0, 0, 0); const dir = new THREE.Vector3(Math.cos(i * 2.4) * Math.sin(i * 1.3 + 0.5), Math.cos(i * 1.3 + 0.5), Math.sin(i * 2.4) * Math.sin(i * 1.3 + 0.5)).normalize(); sp.position.copy(dir).multiplyScalar(0.33); sp.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), dir); }
     const chain = mesh(CYL(0.03, 0.03, 1, 6), M('#666', { metalness: 0.9 }), o.group, 0, 0, 0, false);
+    const CKn = charModel('knight', ['star']); let knArm = null, knHead = null, smat = starMat;
+    if (CKn) { // Blender-ridder: rechterarm wijst naar de morgenster
+      torso.children.forEach(c => c.visible = false); CKn.wrap.rotation.y = Math.PI; torso.add(CKn.wrap);
+      knArm = CKn.n.arm_r; knHead = CKn.n.head;
+      const st2 = detachPart(CKn, 'star'); if (st2) { starG.children.forEach(c => c.visible = false); starG.add(st2); }
+      if (CKn.mats.star) { smat = CKn.mats.star; smat.emissive = new THREE.Color('#ff1a00'); }
+    }
     o.update = (t) => {
       const ph = t % T;
       if (ph < d.spin) { st.th = theta0 + 2 * TAU * easeMove(ph / d.spin); st.spin = true; st.warn = false; }
@@ -2500,10 +2515,12 @@ const SPECIALS = {
       starG.position.set(sx, sy + Math.abs(sway), sz + sway); starG.rotation.y = -st.th * 2 + t * (st.spin ? 0 : 0.6);
       torso.position.y = Math.sin(t * 2.2) * 0.02;
       torso.rotation.y = -st.th;
-      const hand = tmpV.set(d.pos[0] + Math.cos(st.th) * 0.65, st.warn ? 1.6 : 1.3, d.pos[1] + Math.sin(st.th) * 0.65);
+      const hand = CKn ? tmpV.set(d.pos[0] + Math.cos(st.th) * 0.96, st.warn ? 1.05 : 0.76, d.pos[1] + Math.sin(st.th) * 0.96) : tmpV.set(d.pos[0] + Math.cos(st.th) * 0.65, st.warn ? 1.6 : 1.3, d.pos[1] + Math.sin(st.th) * 0.65);
       orientCyl(chain, hand.clone(), new THREE.Vector3(sx, sy, sz));
       arm.rotation.z = st.warn ? 0.6 + Math.sin(t * 20) * 0.1 : (o.react > 0 ? 1.4 : 0);
-      starMat.emissiveIntensity = st.warn ? 0.6 + Math.sin(t * 25) * 0.4 : 0;
+      starMat.emissiveIntensity = st.warn ? 0.6 + Math.sin(t * 25) * 0.4 : 0; smat.emissiveIntensity = starMat.emissiveIntensity;
+      if (knArm) knArm.rotation.z = -(st.warn ? 0.35 + Math.sin(t * 20) * 0.06 : o.react > 0 ? 0.8 : 0);
+      if (knHead) knHead.position.y = 1.17 + (o.react > 0 ? Math.abs(Math.sin(t * 20)) * 0.05 : 0);
       helm.position.y = 1.65 + (o.react > 0 ? Math.abs(Math.sin(t * 20)) * 0.06 : 0);
       if (st.warn && !o.prevWarn && camDistTo(g.position) < 30) { SND.hup(); SND.clank(); } o.prevWarn = st.warn;
       if (st.spin && Math.random() < dt * 30) fx.emit(sx, 0.05, sz, 0, 0.4, 0, 0.5, 0.15, new THREE.Color('#9a9080'), { grow: 0.4, alpha: 0.4 });
@@ -2795,6 +2812,12 @@ const SPECIALS = {
     const armBox = mesh(BOX(1, 0.12, 0.12), M('#ffb300', { metalness: 0.6, roughness: 0.3 }), armG, 0.5, -0.05, 0);
     const glove = mesh(SPH(0.2, 12, 10), M('#d32f2f', { roughness: 0.5 }), armG, 1, -0.05, 0);
     if (d.color) g.children[0].material.color.set(d.color);
+    const CDr = charModel('drone', ['shell', 'glow_eye']); let drRot = [], drArm = null;
+    if (CDr) { // Blender-drone (mini-robots krijgen hun eigen kleur op de schaal)
+      g.children.forEach(c => c.visible = false); g.add(CDr.wrap); CDr.wrap.position.y = 0.05;
+      if (d.color && CDr.mats.shell) CDr.mats.shell.color.set(d.color);
+      drRot = ['rotor_1', 'rotor_2', 'rotor_3', 'rotor_4'].map(k => CDr.n[k]).filter(Boolean); drArm = CDr.n.arm;
+    }
     g.scale.setScalar(sc);
     o.update = (t) => {
       S.ang = d.w * t + a0; const c = Math.cos(S.ang), s = Math.sin(S.ang);
@@ -2814,7 +2837,8 @@ const SPECIALS = {
       rotors.forEach((r, i) => r.rotation.y = t * 40 * (i % 2 ? 1 : -1));
       eyeG.rotation.y = S.warn ? 0 : Math.sin(t * 2.5) * 0.9;
       eyeMat.emissiveIntensity = S.warn ? (Math.sin(t * 40) > 0 ? 3 : 0.2) : 1.5;
-      const L = 0.45 + 1.9 * S.ext; armBox.scale.x = L; armBox.position.x = L / 2; glove.position.x = L; armG.visible = S.ext > 0.01;
+      const L = 0.45 + 1.9 * S.ext; armBox.scale.x = L; armBox.position.x = L / 2; glove.position.x = L; armG.visible = S.ext > 0.01 && !CDr;
+      if (CDr) { drRot.forEach((r, i) => r.rotation.y = t * 40 * (i % 2 ? 1 : -1)); if (drArm) { drArm.visible = S.ext > 0.01; drArm.scale.z = Math.max(0.05, L * 1.0); } const em = CDr.mats.glow_eye; if (em) em.emissiveIntensity = S.warn ? (Math.sin(t * 40) > 0 ? 3 : 0.2) : 1.4; }
       const near = camDistTo(g.position) < 28;
       if (S.warn && t - o.lastBeep > 0.16) { o.lastBeep = t; if (near) SND.beep(2200); }
       if (S.ext > 0.5 && o.prevExt <= 0.5 && near) SND.snap(); o.prevExt = S.ext;
@@ -2861,6 +2885,15 @@ const SPECIALS = {
     const spikes = []; for (let k = 0; k < nT; k += 2) spikes.push(mesh(CONE(0.1, 0.35, 6), gold, o.group, 0, 0, 0));
     const tip = mesh(CONE(0.28, 0.6, 4), gold, o.group, 0, 0, 0);
     let lastA = d.restA;
+    const CD = charModel('dragon', ['glow_eyes']); let dTail = null, dTip = null, dBridge = [];
+    if (CD) { // Blender-draak op zijn sokkel; staart = losse segmenten langs de colliders + overbrugging naar de sokkel
+      g.children.forEach(c => c.visible = false); CD.wrap.rotation.y = 0; CD.wrap.position.y = -baseY; g.add(CD.wrap);
+      const seg = detachPart(CD, 'tail_seg'), tp = detachPart(CD, 'tail_tip');
+      if (seg) { tailMeshes.forEach(m => m.visible = false); spikes.forEach(m => m.visible = false);
+        dTail = tailMeshes.map((m, k) => { const c = seg.clone(); c.scale.setScalar(lerp(1.0, 0.6, k / (nT - 1))); o.group.add(c); return c; });
+        for (let k = 0; k < 5; k++) { const c = seg.clone(); c.scale.setScalar(1.05); o.group.add(c); dBridge.push(c); } }
+      if (tp) { tip.visible = false; dTip = tp; o.group.add(tp); }
+    }
     o.update = (t) => {
       const r = angleAt(t); S.warn = r.warn; S.vel = (r.a - lastA); lastA = r.a; S.a = r.a;
       segs.forEach((s, i) => { const a = r.a; setSeg(o.prims[i], px + Math.cos(a) * s[0], pz + Math.sin(a) * s[0], px + Math.cos(a) * s[1], pz + Math.sin(a) * s[1]); });
@@ -2871,6 +2904,18 @@ const SPECIALS = {
       spikes.forEach((s, i) => { const m = tailMeshes[i * 2]; s.position.set(m.position.x, m.position.y + 0.3, m.position.z); });
       tip.position.set(px + Math.cos(S.a) * d.len, baseY + 0.32, pz + Math.sin(S.a) * d.len); tip.rotation.set(0, -S.a, -Math.PI / 2);
       const look = Math.atan2(ball.z - pz, ball.x - (px - 2.3)); neck.rotation.y = clamp(-look, -0.9, 0.9); head.rotation.z = Math.sin(t * 1.5) * 0.1 - 0.35;
+      if (CD) {
+        const hd = CD.n.head, jw = CD.n.jaw, em = CD.mats.glow_eyes;
+        if (hd) { hd.rotation.y = clamp(Math.atan2(ball.x - (px - 2.3), ball.z - pz), -0.9, 0.9); hd.rotation.x = Math.sin(t * 1.5) * 0.06; }
+        if (jw) jw.rotation.x = S.warn || o.react > 0 ? 0.45 + Math.sin(t * 25) * 0.08 : 0.05;
+        if (em) em.emissiveIntensity = S.warn ? 2.5 + Math.sin(t * 30) : 0.8;
+        ['wing_l', 'wing_r'].forEach((k, i) => { const w = CD.n[k]; if (w) w.rotation.z = (i ? -1 : 1) * (0.15 + Math.sin(t * 2.2) * 0.2 + (o.react > 0 ? Math.sin(t * 15) * 0.35 : 0)); });
+        if (dTail) dTail.forEach((c, k) => { const m = tailMeshes[k]; c.position.copy(m.position); c.rotation.set(0, Math.PI / 2 - S.a, 0); });
+        if (dTip) { dTip.position.set(px + Math.cos(S.a) * (d.len - 0.25), baseY + 0.32, pz + Math.sin(S.a) * (d.len - 0.25)); dTip.rotation.set(0, Math.PI / 2 - S.a, 0); }
+        // overbrugging van de staartaanzet (achterkant sokkel) naar het draaipunt
+        const ex = px - 2.3, ez = pz - 1.98, ey = 0.7;
+        dBridge.forEach((c, k) => { const u = (k + 1) / (dBridge.length + 1), mx = ex + 1.6, mz = ez + 0.2; const bx = (1 - u) * (1 - u) * ex + 2 * (1 - u) * u * mx + u * u * px, bz = (1 - u) * (1 - u) * ez + 2 * (1 - u) * u * mz + u * u * pz; c.position.set(bx, lerp(ey, baseY + 0.32, u), bz); const nx = 2 * (1 - u) * (mx - ex) + 2 * u * (px - mx), nz = 2 * (1 - u) * (mz - ez) + 2 * u * (pz - mz); c.rotation.set(0, Math.atan2(nx, nz), 0); });
+      }
       jaw.position.y = -0.25 - (S.warn || o.react > 0 ? 0.15 + Math.sin(t * 25) * 0.04 : 0);
       eyeMat.emissiveIntensity = S.warn ? 2.5 + Math.sin(t * 30) : 0.5;
       wings.forEach((w, i) => w.rotation.x = (i ? 1 : -1) * (0.2 + Math.sin(t * 2.2) * 0.25 + (o.react > 0 ? Math.sin(t * 15) * 0.4 : 0)));
@@ -4476,6 +4521,16 @@ function windFX(mat, height = 0.5, amp = 0.18) {
   return mat;
 }
 // Een pol grassprieten: gebogen, taps toelopende sprieten met kleurverloop van donker (voet) naar licht (top)
+// gras-pol uit Blender (13 sprieten), geschaald naar hoogte h, met kleurverloop voet->top voor de windshader
+function blenderGrass(h) {
+  const M0 = MDL.models['chars/grass_clump']; if (!M0 || !M0.scene) return null;
+  let src = null; M0.scene.traverse(o => { if (o.isMesh && !src) src = o; }); if (!src) return null;
+  src.updateMatrixWorld(true); const g = bakeGeo(src.geometry, src.matrixWorld);
+  g.computeBoundingBox(); const hy = g.boundingBox.max.y || 0.5, s = h / hy; g.scale(s, s, s);
+  const pa = g.attributes.position, col = new Float32Array(pa.count * 3);
+  for (let i = 0; i < pa.count; i++) { const c = 0.5 + clamp(pa.getY(i) / h, 0, 1) * 0.55; col[i * 3] = col[i * 3 + 1] = col[i * 3 + 2] = c; }
+  g.setAttribute('color', new THREE.BufferAttribute(col, 3)); return g;
+}
 function grassGeo(h, blades = 7) {
   const pos = [], col = [], idx = [], r = mulberry(17);
   for (let b = 0; b < blades; b++) {
@@ -4576,6 +4631,82 @@ function fallingLeaves(ctx, colors) {
   ctx.upd((t, dt) => { if (Math.random() < dt * 6 * Q.fx) fx.emit(Cam.tx + (Math.random() - 0.5) * 30, 5 + Math.random() * 4, Cam.tz + (Math.random() - 0.5) * 30, 0.6 + Math.sin(t) * 0.4, -0.5, 0.3, 9, 0.14, cols[Math.floor(Math.random() * cols.length)], { alpha: 0.9, drag: 0.3 }); });
 }
 
+// ---------- Blender-figuren in de omgeving: schepen, vogels, lavaslang, walvis ----------
+// cirkel rond de baan waarop het overal diep genoeg is (water/lava), van ver naar dichtbij geprobeerd
+// ellips rond de baan (op afstand d van de randen) waar het overal diep genoeg is; van ver naar dichtbij geprobeerd
+function deepRoute(ctx, maxY, dMin = 5, dMax = 34) {
+  const th = ctx.th || (() => -9), cx = H.center[0], cz = H.center[1], hx = (H.bounds[2] - H.bounds[0]) / 2, hz = (H.bounds[3] - H.bounds[1]) / 2;
+  for (let d = dMax; d >= dMin; d -= 1.5) {
+    const rx = hx + d, rz = hz + d; let ok = true;
+    for (let k = 0; k < 40 && ok; k++) { const a = k / 40 * TAU, x = cx + Math.cos(a) * rx, z = cz + Math.sin(a) * rz; if (th(x, z) > maxY || courseDist(x, z) < 3.5) ok = false; }
+    if (ok) return { cx, cz, rx, rz };
+  }
+  return null;
+}
+function sailingShips(ctx, name, levelFn, n = 2) {
+  const E = deepRoute(ctx, name === 'ship_lava' ? -0.75 : -0.9); if (!E) return;
+  for (let i = 0; i < n; i++) {
+    const C = charModel(name); if (!C) return;
+    const k2 = 1 - i * 0.07, rx = E.rx * k2, rz = E.rz * k2, dir = i % 2 ? -1 : 1, w = dir * 1.1 / ((rx + rz) / 2) * (1 + i * 0.15), ph = i * 2.6;
+    C.wrap.rotation.y = 0; ctx.g.add(C.wrap); C.wrap.scale.setScalar(1.15 - i * 0.12);
+    const sail = C.n.sail, flag = C.n.flag, cx = H.center[0], cz = H.center[1];
+    ctx.upd((t) => {
+      const a = ph + t * w, x = cx + Math.cos(a) * rx, z = cz + Math.sin(a) * rz, lv = levelFn(t);
+      C.wrap.position.set(x, lv + Math.sin(t * 1.3 + i) * 0.08, z);
+      const vx = -Math.sin(a) * rx * dir, vz = Math.cos(a) * rz * dir; // vaarrichting
+      C.wrap.rotation.set(Math.sin(t * 0.9 + i) * 0.04, Math.atan2(vx, vz), Math.sin(t * 1.1 + i * 2) * 0.06); // voorkant (+z) vooruit
+      if (sail) sail.rotation.z = Math.sin(t * 0.7 + i) * 0.08; if (flag) flag.rotation.z = Math.sin(t * 5 + i) * 0.35;
+      if (name === 'ship_lava' && Math.random() < 0.08) fxAdd.emit(x + (Math.random() - 0.5) * 2, lv + 0.2, z + (Math.random() - 0.5) * 2, 0, 1.2, 0, 1.2, 0.18, new THREE.Color('#ff7a1a'), { grow: -0.1 });
+      else if (Math.random() < 0.15) fx.emit(x, lv + 0.05, z, (Math.random() - 0.5) * 0.6, 0.4, (Math.random() - 0.5) * 0.6, 0.9, 0.25, new THREE.Color('#ffffff'), { alpha: 0.5, grow: 0.5 });
+    });
+  }
+}
+function birdFlock(ctx, n = 6, y = 10) {
+  for (let i = 0; i < n; i++) {
+    const C = charModel('bird'); if (!C) return;
+    C.wrap.scale.setScalar(1.6); ctx.g.add(C.wrap);
+    const R = 9 + (i % 3) * 3.5, h = y + (i % 4) * 1.4, sp = 0.35 + (i % 3) * 0.06, ph = i * 1.05, wl = C.n.wing_l, wr = C.n.wing_r, cx = H.center[0], cz = H.center[1];
+    ctx.upd((t) => {
+      const a = ph + t * sp; C.wrap.position.set(cx + Math.cos(a) * R + Math.sin(t * 0.3 + i) * 3, h + Math.sin(t * 1.7 + i) * 0.6, cz + Math.sin(a) * R * 1.4);
+      C.wrap.rotation.set(0, Math.atan2(-Math.sin(a) * R, Math.cos(a) * R * 1.4), -0.25);
+      const f = Math.sin(t * 9 + i * 1.3) * (Math.sin(t * 0.8 + i) > -0.3 ? 0.7 : 0.08); // klapperen, soms zweven
+      if (wl) wl.rotation.y = f; if (wr) wr.rotation.y = -f;
+    });
+  }
+}
+function lavaSerpent(ctx, y = -0.55) {
+  const C = charModel('lava_serpent'); if (!C) return;
+  ctx.g.add(C.wrap); C.wrap.visible = false; const jaw = C.n.jaw;
+  let t0 = -99, x = 0, z = 0;
+  ctx.upd((t) => {
+    if (t - t0 > 11 + (t0 * 3.1 % 5)) { // nieuwe plek dichtbij de camera, in de lava
+      for (let k = 0; k < 20; k++) { const a = Math.random() * TAU, d = 9 + Math.random() * 16; const px = Cam.tx + Math.cos(a) * d, pz = Cam.tz + Math.sin(a) * d; if (courseDist(px, pz) > 3 && (!ctx.th || ctx.th(px, pz) < y - 0.3)) { x = px; z = pz; t0 = t; break; } }
+    }
+    const k = t - t0, vis = k < 4.2; C.wrap.visible = vis; if (!vis) return;
+    const up = k < 0.8 ? smooth(k / 0.8) : k < 3.4 ? 1 : 1 - smooth((k - 3.4) / 0.8);
+    C.wrap.position.set(x, y - 2.6 + up * 2.6, z); C.wrap.rotation.y = Math.atan2(Cam.tx - x, Cam.tz - z) - Math.PI / 2 + Math.sin(t * 1.5) * 0.2 + Math.PI / 2;
+    if (jaw) jaw.rotation.x = k > 1.2 && k < 2.6 ? -0.5 - Math.sin(t * 14) * 0.1 : -0.05;
+    if (k < 0.1 || (k > 3.4 && k < 3.5)) fxAdd.burst(x, y + 0.2, z, 25, { color: '#ffb040', speed: 3, up: 4, grav: 7, life: 0.9, size: 0.18 });
+    if (k > 1.2 && k < 2.6 && Math.random() < 0.5) fxAdd.emit(x, y + 2.1, z, (Cam.tx - x) * 0.15, 0.6, (Cam.tz - z) * 0.15, 0.7, 0.2, new THREE.Color('#ff6a00'), { grow: 0.4 }); // vuurspuwen
+  });
+}
+function whale(ctx, levelFn) {
+  const C = charModel('whale'); if (!C) return;
+  ctx.g.add(C.wrap); C.wrap.visible = false; const tail = C.n.tail;
+  let t0 = -99, x = 0, z = 0, hd = 0;
+  ctx.upd((t) => {
+    if (t - t0 > 16) {
+      for (let k = 0; k < 30; k++) { const a = Math.random() * TAU, d = 14 + Math.random() * 22; const px = H.center[0] + Math.cos(a) * d, pz = H.center[1] + Math.sin(a) * d; if (courseDist(px, pz) > 6 && (!ctx.th || ctx.th(px, pz) < -1.5)) { x = px; z = pz; t0 = t; hd = Math.random() * TAU; break; } }
+    }
+    const k = t - t0, vis = k < 7; C.wrap.visible = vis; if (!vis) return;
+    const lv = levelFn(t), up = k < 1.2 ? smooth(k / 1.2) : k < 5.5 ? 1 : 1 - smooth((k - 5.5) / 1.5);
+    C.wrap.position.set(x + Math.cos(hd) * k * 0.6, lv - 1.3 + up * 1.15 + Math.sin(t * 1.2) * 0.05, z + Math.sin(hd) * k * 0.6); C.wrap.rotation.y = Math.PI / 2 - hd + Math.PI / 2;
+    C.wrap.rotation.x = k > 5.5 ? (k - 5.5) * 0.25 : 0;
+    if (tail) tail.rotation.x = Math.sin(t * 2.2) * 0.35;
+    if (k > 1.6 && k < 4.6 && Math.random() < 0.6) fx.emit(C.wrap.position.x, lv + 1.2, C.wrap.position.z, (Math.random() - 0.5) * 0.8, 4 + Math.random() * 2, (Math.random() - 0.5) * 0.8, 1.3, 0.22, new THREE.Color('#e8f8ff'), { grav: 5, alpha: 0.8 }); // fontein
+  });
+}
+
 // --- gedeelde omgevings-helpers ---
 // Omgeving in drie lagen: voorgrond (details langs de muren), middengrond (bomen, rotsen, gebouwen
 // op glooiend terrein) en verre achtergrond (bergen, skyline, planeten) + hemel, wolken en mist.
@@ -4674,7 +4805,7 @@ function grassField(ctx, n, colors, h = 0.4, dMax = 30, minY = -0.2) {
 }
 function tufts(ctx, pts, colors, h = 0.35, stiff = false) { // grasplukjes (wuiven in de wind) / kristallen
   const th = ctx.th || (() => 0), gs = [];
-  if (!stiff) { inst(ctx, grassGeo(h * 1.25, 8), windFX(M('#ffffff', { roughness: 0.85, vertexColors: true, side: THREE.DoubleSide }), h * 1.4, 0.22), pts.map(([x, z, r]) => ({ x, y: th(x, z) - 0.02, z, s: 0.75 + r * 0.8, ry: r * 6, c: colors[Math.floor(r * colors.length)] }))); return; }
+  if (!stiff) { inst(ctx, blenderGrass(h * 1.25) || grassGeo(h * 1.25, 8), windFX(M('#ffffff', { roughness: 0.85, vertexColors: true, side: THREE.DoubleSide }), h * 1.4, 0.22), pts.map(([x, z, r]) => ({ x, y: th(x, z) - 0.02, z, s: 0.75 + r * 0.8, ry: r * 6, c: colors[Math.floor(r * colors.length)] }))); return; }
   for (let k = 0; k < 4; k++) { const g = CONE(0.05, h, 3); g.translate(0, h / 2, 0); g.rotateZ((k - 1.5) * 0.25); g.rotateY(k * 1.6); gs.push(g); }
   inst(ctx, mergeGeos(gs), M('#ffffff', { roughness: 0.9 }), pts.map(([x, z, r]) => ({ x, y: th(x, z) - 0.02, z, s: 0.7 + r * 0.8, ry: r * 6, c: colors[Math.floor(r * colors.length)] })));
 }

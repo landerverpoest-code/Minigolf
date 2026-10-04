@@ -477,6 +477,18 @@ def flower_head(R=0.05, rc=0.015, petals=5, cup=0.012, petal_mat=None, heart_mat
     return o
 
 
+def dust(o, material, thresh=0.7, noise_amt=0.0, seed=0):
+    """Vlakken die naar boven wijzen krijgen een ander materiaal (sneeuw, mos, as)."""
+    if material.name not in [m.name for m in o.data.materials]:
+        o.data.materials.append(material)
+    idx = [m.name for m in o.data.materials].index(material.name)
+    off = Vector((seed * 1.3, seed * 0.7, 0))
+    for p in o.data.polygons:
+        if p.normal.z + noise_amt * noise.noise(p.center * 2 + off) > thresh:
+            p.material_index = idx
+    return o
+
+
 def orient(o, normal, loc):
     """Object (gemaakt rond de oorsprong, as = +Z) naar normal draaien en op loc zetten."""
     bake(o)

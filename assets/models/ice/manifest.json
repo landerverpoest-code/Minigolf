@@ -15,6 +15,21 @@
   "notes": "Kale bevroren boom: rijp op de bovenkant van de takken, ijspegels en ijsklompjes aan de takpunten"
  },
  {
+  "name": "frozen_waterfall",
+  "theme": "ice",
+  "file": "models/ice/frozen_waterfall.glb",
+  "kind": "hero",
+  "footprint": 2.7,
+  "height": 3.5,
+  "size": [
+   5.781,
+   3.73
+  ],
+  "tris": 2514,
+  "bytes": 100660,
+  "notes": "Bevroren waterval: hoefijzervormige rotswand van gefacetteerde blokken met sneeuw bovenop, gordijn van bevroren ijsstromen, hangende ijspegels, bevroren vijver met schotsen, opgespat ijs aan de voet, gloeiende ijskristallen (glow_ice) en sneeuwhopen"
+ },
+ {
   "name": "ice_arch",
   "theme": "ice",
   "file": "models/ice/ice_arch.glb",
@@ -43,6 +58,21 @@
   "tris": 236,
   "bytes": 19564,
   "notes": "Cluster cyaan ijskristallen (lage roughness, lichte emissie); middelste kristallen gloeien (glow_crystal)"
+ },
+ {
+  "name": "ice_fishing_spot",
+  "theme": "ice",
+  "file": "models/ice/ice_fishing_spot.glb",
+  "kind": "scatter",
+  "footprint": 1.0,
+  "height": 0.862,
+  "size": [
+   2.318,
+   2.137
+  ],
+  "tris": 791,
+  "bytes": 43056,
+  "notes": "IJsvisplek: ijsvlakte met sneeuwrand en een wak met ijsbrokjes, hengel op gevorkt stokje met lijn en rood dobbertje, rode emmer met vis, vis op het ijs, houten krukje"
  },
  {
   "name": "ice_rock",
@@ -105,6 +135,21 @@
   "notes": "Drie schattige pinguins (twee volwassen, een grijs kuiken) op een ijsschotsje; kijken naar -Y"
  },
  {
+  "name": "polar_bear",
+  "theme": "ice",
+  "file": "models/ice/polar_bear.glb",
+  "kind": "scatter",
+  "footprint": 0.9,
+  "height": 1.158,
+  "size": [
+   1.457,
+   1.959
+  ],
+  "tris": 882,
+  "bytes": 31988,
+  "notes": "Schattige mollige ijsbeer op vier poten (lijf als unie van bollen), ronde oortjes, zwarte neus en kraaloogjes met glimlichtje, nageltjes, op een ijsschots; kijkt naar -Y"
+ },
+ {
   "name": "polar_cabin",
   "theme": "ice",
   "file": "models/ice/polar_cabin.glb",
@@ -133,6 +178,21 @@
   "tris": 298,
   "bytes": 20908,
   "notes": "Houten slee met rode gekrulde glijders, touw en een plukje sneeuw"
+ },
+ {
+  "name": "snow_lantern",
+  "theme": "ice",
+  "file": "models/ice/snow_lantern.glb",
+  "kind": "edge",
+  "footprint": 0.3,
+  "height": 0.957,
+  "size": [
+   0.77,
+   0.805
+  ],
+  "tris": 278,
+  "bytes": 15076,
+  "notes": "Stenen sneeuwlantaarn (yukimi-doro) op drie poten met gloeiende lichtkamer (glow_window), zeshoekig dak met sneeuwkap en knop, sneeuwhoopje aan de voet"
  },
  {
   "name": "snowman",

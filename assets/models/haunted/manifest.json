@@ -15,6 +15,36 @@
   "notes": "doornige dode struik met een paar verdroogde bessen"
  },
  {
+  "name": "broken_cart",
+  "theme": "haunted",
+  "file": "models/haunted/broken_cart.glb",
+  "kind": "scatter",
+  "footprint": 1.3,
+  "height": 0.883,
+  "size": [
+   3.07,
+   2.19
+  ],
+  "tris": 800,
+  "bytes": 43376,
+  "notes": "Gebroken houten kar: laadbak met losse plankjes en een gebroken zijplank, zakt scheef weg; \u00e9\u00e9n heel spaakwiel, het kapotte wiel ligt ernaast, disselboom op de grond, losse planken, mosplekken en een nog brandend lantaarntje (glow_lamp)"
+ },
+ {
+  "name": "cauldron",
+  "theme": "haunted",
+  "file": "models/haunted/cauldron.glb",
+  "kind": "scatter",
+  "footprint": 0.8,
+  "height": 1.415,
+  "size": [
+   1.539,
+   1.516
+  ],
+  "tris": 776,
+  "bytes": 41084,
+  "notes": "Heksenketel: ijzeren buikige ketel op drie pootjes met oortjes, bubbelend gloeiend groen brouwsel en opstijgende bellen (glow_brew), houtvuurtje met vlammetjes (glow_fire), kring van stenen, pollepel"
+ },
+ {
   "name": "coffin",
   "theme": "haunted",
   "file": "models/haunted/coffin.glb",
@@ -43,6 +73,21 @@
   "tris": 536,
   "bytes": 27964,
   "notes": "kromme ijzeren straatlantaarn met hangende lantaarn (glow_lamp)"
+ },
+ {
+  "name": "crow_fence_post",
+  "theme": "haunted",
+  "file": "models/haunted/crow_fence_post.glb",
+  "kind": "edge",
+  "footprint": 0.3,
+  "height": 1.439,
+  "size": [
+   0.625,
+   0.578
+  ],
+  "tris": 198,
+  "bytes": 13564,
+  "notes": "Scheve houten hekpaal met afgebroken latten en spijkers, met een zwarte kraai (gloeiende gele oogjes, glow_eyes) bovenop"
  },
  {
   "name": "glow_mushrooms",
@@ -133,6 +178,21 @@
   "tris": 698,
   "bytes": 39904,
   "notes": "gerafelde vogelverschrikker met pompoenhoofd (glow_pumpkin), heksenhoed en kraai"
+ },
+ {
+  "name": "spider_web_tree",
+  "theme": "haunted",
+  "file": "models/haunted/spider_web_tree.glb",
+  "kind": "scatter",
+  "footprint": 0.8,
+  "height": 3.916,
+  "size": [
+   2.8,
+   1.401
+  ],
+  "tris": 828,
+  "bytes": 33816,
+  "notes": "Dode kale boom met wortels en hoekige takken, twee grote spinnenwebben (radialen en hangende ringen) tussen stam en takken, zwarte spin met gloeiende oogjes (glow_eyes) aan een draad"
  },
  {
   "name": "tombstone_a",

@@ -214,7 +214,7 @@ xf(sp, rotm((90, 0, 0)))                                       # -> outline in X
 TT = [sp, lathe([(0.0, 0.0), (0.12, 0.0), (0.13, -0.08), (0.08, -0.14), (0.0, -0.15)], seg=8, material=STEEL)]
 xf(TT[1], rotm((90, 0, 0)) @ Matrix.Translation((0, 0, 0)))
 TT.append(ell(V(0, -0.3, 0.035), (0.05, 0.16, 0.03), seg=6, rings=4, material=BRONZE))
-TTIP = V(1.75, 0.15, 0.08)
+TTIP = V(1.75, 0.15, 0.14)
 tail_tip = apart(TT, 'tail_tip', (0, 0, 0))
 tail_tip.location = TTIP
 

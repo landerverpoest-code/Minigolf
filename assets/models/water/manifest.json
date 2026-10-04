@@ -127,6 +127,21 @@
   "notes": "Natuurlijke rotsboog uit zee met gelaagd gesteente, groene kuif, ranken en een palmpje bovenop"
  },
  {
+  "name": "rowboat",
+  "theme": "water",
+  "file": "models/water/rowboat.glb",
+  "kind": "scatter",
+  "footprint": 1.3,
+  "height": 0.641,
+  "size": [
+   1.618,
+   3.285
+  ],
+  "tris": 651,
+  "bytes": 36404,
+  "notes": "Op het strand getrokken roeiboot: witte romp met turquoise boord en koraalrode waterlijn, houten binnenkant met twee doften, kiel, roeiriemen met koraalrode bladen, touw naar een meerpaaltje, zandhoop"
+ },
+ {
   "name": "sailboat",
   "theme": "water",
   "file": "models/water/sailboat.glb",
@@ -147,10 +162,10 @@
   "file": "models/water/seagull_post.glb",
   "kind": "edge",
   "footprint": 0.25,
-  "height": 1.208,
+  "height": 1.334,
   "size": [
-   0.539,
-   0.397
+   0.574,
+   0.575
   ],
   "tris": 280,
   "bytes": 15872,
@@ -187,18 +202,33 @@
   "notes": "Rieten paalwoning op palen met kruisverbanden, reling, steiger naar voren (-Y) en ladder naar het water"
  },
  {
+  "name": "tiki_bar",
+  "theme": "water",
+  "file": "models/water/tiki_bar.glb",
+  "kind": "hero",
+  "footprint": 2.2,
+  "height": 4.26,
+  "size": [
+   3.873,
+   2.858
+  ],
+  "tris": 2816,
+  "bytes": 131044,
+  "notes": "Tiki-strandbar: vlonder van planken, bamboe hoekpalen met knopen, dubbel rieten schilddak met gerafelde franje en turquoise nokbol, bar met bamboe gevel, kokosnootbekers met rietjes, achterwand met flessen, uithangbord, drie barkrukken, gloeiende lampionnen (glow_lamp), twee tiki-fakkels en een tiki-masker"
+ },
+ {
   "name": "treasure_chest",
   "theme": "water",
   "file": "models/water/treasure_chest.glb",
   "kind": "edge",
   "footprint": 0.4,
-  "height": 0.58,
+  "height": 0.551,
   "size": [
    1.116,
    0.99
   ],
-  "tris": 330,
-  "bytes": 18868,
+  "tris": 298,
+  "bytes": 21076,
   "notes": "Open schatkist op een zandhoopje: houten kist met gouden banden en slot, deksel naar achteren open, berg goud met rood juweel, losse munten"
  },
  {

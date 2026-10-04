@@ -60,6 +60,21 @@
   "notes": "Cartoon-dromedaris met rood-goud-turkooise zadeldeken met kwastjes en zadel; loopt langs +X, kop kijkt licht naar -Y"
  },
  {
+  "name": "cow_skull_sign",
+  "theme": "desert",
+  "file": "models/desert/cow_skull_sign.glb",
+  "kind": "edge",
+  "footprint": 0.35,
+  "height": 1.541,
+  "size": [
+   0.97,
+   0.484
+  ],
+  "tris": 253,
+  "bytes": 17948,
+  "notes": "Woestijnwegwijzer: scheve houten paal met twee pijlborden met rode streep, koeienschedel met lange hoorns op de top"
+ },
+ {
   "name": "date_palm",
   "theme": "desert",
   "file": "models/desert/date_palm.glb",
@@ -73,6 +88,36 @@
   "tris": 696,
   "bytes": 39656,
   "notes": "Rechte dadelpalm met ruwe geschubde stam, stijve boogbladeren, dode hangbladeren en oranje dadeltrossen"
+ },
+ {
+  "name": "market_rugs",
+  "theme": "desert",
+  "file": "models/desert/market_rugs.glb",
+  "kind": "scatter",
+  "footprint": 1.5,
+  "height": 2.233,
+  "size": [
+   3.23,
+   1.582
+  ],
+  "tris": 762,
+  "bytes": 41164,
+  "notes": "Tapijtkraam: houten frame met rood-cr\u00e8me gestreept zonnedoek en franje, drie hangende tapijten en een kleed achter met rand- en ruitpatroon (rood, turquoise, goud, cr\u00e8me), opgerolde tapijten, stapel gevouwen kleden, krukje"
+ },
+ {
+  "name": "oasis_pond",
+  "theme": "desert",
+  "file": "models/desert/oasis_pond.glb",
+  "kind": "scatter",
+  "footprint": 1.4,
+  "height": 0.882,
+  "size": [
+   2.905,
+   2.174
+  ],
+  "tris": 656,
+  "bytes": 37312,
+  "notes": "Oasevijvertje: onregelmatige zandoever met turquoise waterspiegel, zandsteentjes langs de rand, drie rietpollen met lisdoddes, waterlelieblaadjes met roze bloemen"
  },
  {
   "name": "obelisk",
@@ -148,6 +193,21 @@
   "tris": 656,
   "bytes": 38728,
   "notes": "Gelaagde, uitgesleten mesa-rots in terracotta en zandsteen met losse brokken en een kleine rotszuil"
+ },
+ {
+  "name": "scarab_statue",
+  "theme": "desert",
+  "file": "models/desert/scarab_statue.glb",
+  "kind": "scatter",
+  "footprint": 0.8,
+  "height": 1.36,
+  "size": [
+   1.3,
+   1.47
+  ],
+  "tris": 806,
+  "bytes": 32844,
+  "notes": "Gouden scarabee op een getrapte zandstenen sokkel met turquoise band en hi\u00ebrogliefblokjes: glanzende dekschilden met lapis-naad, borststuk, kop met tandjes, zes geknikte pootjes, duwt een gouden zonneschijf met turquoise/lapis kern"
  },
  {
   "name": "sphinx",

@@ -15,6 +15,21 @@
   "notes": "origin at body centre (0,0,0). parts: body (pivot 0,0,0); wing_l pivot (0.055,-0.02,0.035), wing_r pivot (-0.055,-0.02,0.035) at the shoulders, wings extended (glide pose), flap = rotate around forward axis (Blender Y / three.js z)"
  },
  {
+  "name": "boulder",
+  "theme": "chars",
+  "file": "models/chars/boulder.glb",
+  "kind": "char",
+  "footprint": 1.0,
+  "height": 1.949,
+  "size": [
+   1.936,
+   2.049
+  ],
+  "tris": 3320,
+  "bytes": 98388,
+  "notes": "Parts/pivots (Blender coords, front -Y): rock (origin = centre (0,0,0); voronoi plates of rock / rock_light, max radius exactly 1.0, separated by glowing cracks = inner lava core glow_lava (r 0.9); rotate it to roll); face (origin = rock centre (0,0,0); on the -Y side, everything outside r=1.0: two bulging eyes (left bigger), small pupils with highlights, angry rock brows, wide grimace with white teeth and lava glowing in the mouth; keep it upright and yaw it toward the motion). Materials: rock, rock_light, glow_lava, eye_white, pupil."
+ },
+ {
   "name": "bumper",
   "theme": "chars",
   "file": "models/chars/bumper.glb",
@@ -80,14 +95,14 @@
   "file": "models/chars/dragon.glb",
   "kind": "char",
   "footprint": 1.9,
-  "height": 3.838,
+  "height": 3.788,
   "size": [
    3.33,
    4.853
   ],
   "tris": 3490,
   "bytes": 113576,
-  "notes": "Parts/pivots (Blender coords, front -Y, left=+X): body (origin 0,0,0 = pedestal centre on the ground; stone pedestal X2.4 x Y2.6 x Z1.6 (top z=1.6), crouching bronze torso with steel belly plates, gold spine spikes, static gears on both flanks, gold wind-up key on the back, legs, and a static tail root that drapes down the back of the pedestal); TAIL EXIT POINT (where the game should start the animated tail, heading +Y, radius ~0.22) = (0,1.98,0.7); head (neck + head, pivot at the neck base on the torso (0,-0.72,2.6); face looks -Y; gold horns, glowing eyes glow_eyes); jaw (lower jaw, PARENTED to head, hinge (0,-1.438,2.983) (world), hinge axis = X; rotation.x>0 in Blender (= three.js x>0) opens it downward; glow_eyes furnace inside); wing_l / wing_r (folded bat wings, pivot shoulder (0.5,-0.15,2.7) / (-0.5,-0.15,2.7)); tail_seg (ONE segment, centred on its origin, 0.45 long along Blender Y (three.js Z), 0.45 thick, steel collar toward -Y (the body), gold spike on top +Z; parked at (1.75,0.55,0.23)); tail_tip (gold spade, origin at its base, points -Y, 0.64 long, 0.54 wide; parked at (1.75,0.15,0.08)). Materials: stone, bronze, steel, gold, glow_eyes, membrane."
+  "notes": "Parts/pivots (Blender coords, front -Y, left=+X): body (origin 0,0,0 = pedestal centre on the ground; stone pedestal X2.4 x Y2.6 x Z1.6 (top z=1.6), crouching bronze torso with steel belly plates, gold spine spikes, static gears on both flanks, gold wind-up key on the back, legs, and a static tail root that drapes down the back of the pedestal); TAIL EXIT POINT (where the game should start the animated tail, heading +Y, radius ~0.22) = (0,1.98,0.7); head (neck + head, pivot at the neck base on the torso (0,-0.72,2.6); face looks -Y; gold horns, glowing eyes glow_eyes); jaw (lower jaw, PARENTED to head, hinge (0,-1.438,2.983) (world), hinge axis = X; rotation.x>0 in Blender (= three.js x>0) opens it downward; glow_eyes furnace inside); wing_l / wing_r (folded bat wings, pivot shoulder (0.5,-0.15,2.7) / (-0.5,-0.15,2.7)); tail_seg (ONE segment, centred on its origin, 0.45 long along Blender Y (three.js Z), 0.45 thick, steel collar toward -Y (the body), gold spike on top +Z; parked at (1.75,0.55,0.23)); tail_tip (gold spade, origin at its base, points -Y, 0.64 long, 0.54 wide; parked at (1.75,0.15,0.14)). Materials: stone, bronze, steel, gold, glow_eyes, membrane."
  },
  {
   "name": "drone",
@@ -98,11 +113,11 @@
   "height": 0.915,
   "size": [
    1.427,
-   1.881
+   1.874
   ],
-  "tris": 3962,
-  "bytes": 106396,
-  "notes": "Parts/pivots (Blender coords, front -Y, left=+X): body (origin 0,0,0 = body centre; round shell bowl (material shell, recolourable) with accent equator ring, glass dome (material glass, alpha 0.38) holding a dark face screen with one big round eye glow_eye + glowing smile, antenna, thruster below, 4 struts with rotor ducts (ducts also material shell)); rotor_1 (0.447,-0.447,0.08) (front-left), rotor_2 (-0.447,-0.447,0.08) (front-right), rotor_3 (-0.447,0.447,0.08) (back-right), rotor_4 (0.447,0.447,0.08) (back-left): pivot at the rotor centre, spin around Z (three.js y); arm: pivot at the body centre (0,0,0), points -Y, scissor extender + red boxing glove centred at (0,-1,-0.11) (glove front at y=-1.15); scale it along Blender Y (three.js z) to extend. Shell radius 0.42, width over the ducts ~1.36. Materials: shell, glass, dark, glow_eye, accent, glove."
+  "tris": 2982,
+  "bytes": 90276,
+  "notes": "Parts/pivots (Blender coords, front -Y, left=+X): body (origin 0,0,0 = body centre; round shell bowl (material shell, recolourable) with accent equator ring, glass dome (material glass, alpha 0.25) holding a dark face screen with one big round eye glow_eye + glowing smile, antenna, thruster below, 4 struts with rotor ducts (ducts also material shell)); rotor_1 (0.447,-0.447,0.08) (front-left), rotor_2 (-0.447,-0.447,0.08) (front-right), rotor_3 (-0.447,0.447,0.08) (back-right), rotor_4 (0.447,0.447,0.08) (back-left): pivot at the rotor centre, spin around Z (three.js y); arm: pivot at the body centre (0,0,0), points -Y, scissor extender + red boxing glove centred at (0,-1,-0.11) (glove front at y=-1.15); scale it along Blender Y (three.js z) to extend. Shell radius 0.42, width over the ducts ~1.36. Materials: shell, glass, dark, glow_eye, accent, glove."
  },
  {
   "name": "flower_clump",
