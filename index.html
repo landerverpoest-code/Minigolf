@@ -1814,10 +1814,42 @@ function M(color, o = {}) { return new THREE.MeshStandardMaterial(Object.assign(
 function mesh(geo, mat, parent, x = 0, y = 0, z = 0, cast = true, recv = false) {
   const m = new THREE.Mesh(geo, mat); m.position.set(x, y, z); m.castShadow = cast; m.receiveShadow = recv; if (parent) parent.add(m); return m;
 }
-const BOX = (w, h, d) => new THREE.BoxGeometry(w, h, d);
-const SPH = (r, a = 16, b = 12) => new THREE.SphereGeometry(r, a, b);
-const CYL = (rt, rb, h, s = 12, open = false) => new THREE.CylinderGeometry(rt, rb, h, s, 1, open);
-const CONE = (r, h, s = 12) => new THREE.ConeGeometry(r, h, s);
+// Afgeronde balk: een onderverdeelde kubus waarvan de punten in de randzone op een bol met straal r worden gezet.
+// Normalen zijn exact (richting vanaf de binnenste balk). uvs = meter per textuurherhaling (anders 0..1 per vlak).
+function roundedBox(w, h, d, r, uvs, k = 2) {
+  r = Math.min(r, w / 2 - 1e-4, h / 2 - 1e-4, d / 2 - 1e-4);
+  if (r < 0.006) return new THREE.BoxGeometry(w, h, d);
+  const N = 2 * k + 1, g = new THREE.BoxGeometry(w, h, d, N, N, N), pa = g.attributes.position, no = g.attributes.normal, uv = g.attributes.uv;
+  const hx = w / 2, hy = h / 2, hz = d / 2, p = new THREE.Vector3(), q = new THREE.Vector3();
+  const remap = (c, half) => { const j = Math.round((c / half + 1) / 2 * N); return j <= k ? -half + r * (j / k) : j >= N - k ? half - r * ((N - j) / k) : -half + r + (half - r) * 2 * (j - k) / (N - 2 * k); };
+  for (let i = 0; i < pa.count; i++) {
+    p.set(remap(pa.getX(i), hx), remap(pa.getY(i), hy), remap(pa.getZ(i), hz));
+    q.set(clamp(p.x, -hx + r, hx - r), clamp(p.y, -hy + r, hy - r), clamp(p.z, -hz + r, hz - r));
+    const n = p.clone().sub(q); if (n.lengthSq() < 1e-12) n.set(0, 1, 0); n.normalize(); p.copy(q).addScaledVector(n, r);
+    pa.setXYZ(i, p.x, p.y, p.z); no.setXYZ(i, n.x, n.y, n.z);
+    const ax = Math.abs(n.x), ay = Math.abs(n.y), az = Math.abs(n.z);
+    let u, v, su = 2 * hz, sv = 2 * hy, cu = p.z, cv = p.y; // vlak loodrecht op x
+    if (ay >= ax && ay >= az) { cu = p.x; cv = p.z; su = 2 * hx; sv = 2 * hz; } else if (az >= ax) { cu = p.x; cv = p.y; su = 2 * hx; sv = 2 * hy; }
+    if (uvs) { u = cu / uvs; v = cv / uvs; } else { u = cu / su + 0.5; v = cv / sv + 0.5; }
+    uv.setXY(i, u, v);
+  }
+  g.computeBoundingSphere(); return g;
+}
+function lumpyRock(r) { // ronde, licht geknobbelde steen
+  const g = new THREE.IcosahedronGeometry(r, 2), pa = g.attributes.position, v = new THREE.Vector3();
+  for (let i = 0; i < pa.count; i++) { v.fromBufferAttribute(pa, i); const n = 1 + Math.sin(v.x * 4.1 / r + 1.3) * Math.cos(v.y * 3.7 / r) * Math.sin(v.z * 4.3 / r + 0.7) * 0.13; pa.setXYZ(i, v.x * n, v.y * n, v.z * n); }
+  g.computeVertexNormals(); return mergeNormals(g);
+}
+function mergeNormals(g) { // gelijke posities delen hun normaal (zachte schaduw op een niet-geïndexeerde vorm)
+  const pa = g.attributes.position, no = g.attributes.normal, acc = new Map(), key = i => `${pa.getX(i).toFixed(4)},${pa.getY(i).toFixed(4)},${pa.getZ(i).toFixed(4)}`;
+  for (let i = 0; i < pa.count; i++) { const k = key(i), a = acc.get(k) || [0, 0, 0]; a[0] += no.getX(i); a[1] += no.getY(i); a[2] += no.getZ(i); acc.set(k, a); }
+  for (let i = 0; i < pa.count; i++) { const a = acc.get(key(i)), l = Math.hypot(a[0], a[1], a[2]) || 1; no.setXYZ(i, a[0] / l, a[1] / l, a[2] / l); }
+  return g;
+}
+const BOX = (w, h, d) => roundedBox(w, h, d, Math.min(w, h, d) * 0.22); // alles iets ronder
+const SPH = (r, a = 16, b = 12) => new THREE.SphereGeometry(r, Math.max(a, 18), Math.max(b, 12));
+const CYL = (rt, rb, h, s = 12, open = false) => new THREE.CylinderGeometry(rt, rb, h, Math.max(s, 16), 1, open);
+const CONE = (r, h, s = 12) => new THREE.ConeGeometry(r, h, Math.max(s, 14));
 function scaleUV(geo, su, sv = su) { const uv = geo.attributes.uv; for (let i = 0; i < uv.count; i++) uv.setXY(i, uv.getX(i) * su, uv.getY(i) * sv); uv.needsUpdate = true; return geo; }
 function orientCyl(m, a, b) { // cilinder (as langs Y) tussen punten a en b plaatsen
   tmpV.subVectors(b, a); const l = tmpV.length(); m.position.copy(a).addScaledVector(tmpV, 0.5);
@@ -2026,12 +2058,13 @@ function buildWalls(def) {
       const [ax, az] = pts[i], [bx, bz] = pts[i + 1];
       const dx = bx - ax, dz = bz - az, L = Math.hypot(dx, dz); if (L < 1e-3) continue;
       H.statics.push(staticSeg(ax, az, bx, bz, t / 2, { e: S.e, kind: S.kind }));
-      const len = L + t * 0.96, hh = h + 0.12;
-      const geo = BOX(len, hh, t); const uv = geo.attributes.uv;
-      for (let k = 0; k < uv.count; k++) {
-        let u = uv.getX(k), v = uv.getY(k);
-        if (k < 8) { u *= t / 1.5; v *= hh / 1.5; } else if (k < 16) { u *= len / 1.5; v *= t / 1.5; } else { u *= len / 1.5; v *= hh / 1.5; }
-        uv.setXY(k, u, v);
+      const len = L + t * 0.3, hh = h + 0.12;
+      const geo = roundedBox(len, hh, t, t * 0.45, 1.5, 3); // afgeronde muur
+      if (i === 0 || i === pts.length - 2 || true) { // rond kolommetje op elk hoekpunt: naadloze, ronde hoeken
+        for (const [px, pz] of (i === 0 ? [[ax, az], [bx, bz]] : [[bx, bz]])) {
+          const c = new THREE.CylinderGeometry(t / 2, t / 2, hh - t / 2, 18, 1, true); scaleUV(c, Math.PI * t / 1.5, (hh - t / 2) / 1.5); c.translate(px, (hh - t / 2) / 2 - 0.12, pz); G.geos.push(c);
+          const cap = new THREE.SphereGeometry(t / 2, 18, 8, 0, TAU, 0, Math.PI / 2); scaleUV(cap, Math.PI * t / 1.5, t / 3); cap.translate(px, hh - t / 2 - 0.12, pz); G.geos.push(cap);
+        }
       }
       const ang = -Math.atan2(dz, dx), mx = (ax + bx) / 2, mz = (az + bz) / 2;
       const m4 = new THREE.Matrix4().compose(new THREE.Vector3(mx, hh / 2 - 0.12, mz), new THREE.Quaternion().setFromEuler(new THREE.Euler(0, ang, 0)), new THREE.Vector3(1, 1, 1));
@@ -2065,7 +2098,7 @@ function buildPost(p) {
   }
   switch (p.kind) {
     case 'stump': { mesh(CYL(p.r, p.r * 1.15, 0.5, 14), M('#6d4c2f', { map: tex('wood') }), g, p.x, 0.25, p.z); mesh(CYL(p.r * 0.95, p.r * 0.95, 0.02, 14), M('#c8a070'), g, p.x, 0.51, p.z, false); break; }
-    case 'rock': { const m = mesh(new THREE.DodecahedronGeometry(p.r * 1.25, 0), M('#3a302c', { map: tex('rock'), flatShading: true }), g, p.x, 0.3, p.z); m.scale.y = 0.8; m.rotation.y = p.x; break; }
+    case 'rock': { const m = mesh(lumpyRock(p.r * 1.25), M('#3a302c', { map: tex('rock') }), g, p.x, 0.3, p.z); m.scale.y = 0.8; m.rotation.y = p.x; break; }
     case 'tower': {
       const tm = M('#d0c7ba', { map: tex('stone') });
       const t = mesh(scaleUV(CYL(p.r, p.r * 1.05, 4.2, 18), 3, 2), tm, g, p.x, 2.1, p.z, true, true); t.userData.occ = true; H.occluders.push(t);
@@ -4449,7 +4482,7 @@ function tufts(ctx, pts, colors, h = 0.35) { // grasplukjes / kristallen / strui
 }
 function pebbles(ctx, pts, color, size = 0.3) {
   const th = ctx.th || (() => 0);
-  inst(ctx, new THREE.DodecahedronGeometry(size, 0), M('#ffffff', { roughness: 1, flatShading: true }), pts.map(([x, z, r]) => ({ x, y: th(x, z) + size * 0.3, z, s: 0.5 + r * 1.2, sy: 0.4 + r * 0.5, ry: r * 9, c: new THREE.Color(color).offsetHSL(0, 0, (r - 0.5) * 0.15).getHex() })), true, true);
+  inst(ctx, lumpyRock(size), M('#ffffff', { roughness: 1 }), pts.map(([x, z, r]) => ({ x, y: th(x, z) + size * 0.3, z, s: 0.5 + r * 1.2, sy: 0.4 + r * 0.5, ry: r * 9, c: new THREE.Color(color).offsetHSL(0, 0, (r - 0.5) * 0.15).getHex() })), true, true);
 }
 // schuimrand: ring of strook met een golvende schuimtextuur die langzaam beweegt
 function foamGeo(path, w, closed) {
@@ -4872,7 +4905,7 @@ const ENV = {
     lavaSea(ctx);
     terrain(ctx, { base: -2.4, amp: 26, flat: 10, ramp: 50, c0: '#1e1816', c1: '#3a2a24', c2: '#5c3a28', tex: 'rock', texScale: 6 });
     const rk = scatter(70, 14, 70, 41, 6).map(([x, z, q]) => [x, z, q]);
-    inst(ctx, new THREE.DodecahedronGeometry(1, 0), M('#ffffff', { map: tex('rock'), flatShading: true }), rk.map(([x, z, q]) => ({ x, y: Math.max(ctx.th(x, z), -0.7) + 0.2, z, s: 0.8 + q * 2.6, sy: 0.5 + q * 0.6, ry: q * 9, c: '#3a2e2a' })), true, true);
+    inst(ctx, lumpyRock(1), M('#ffffff', { map: tex('rock') }), rk.map(([x, z, q]) => ({ x, y: Math.max(ctx.th(x, z), -0.7) + 0.2, z, s: 0.8 + q * 2.6, sy: 0.5 + q * 0.6, ry: q * 9, c: '#3a2e2a' })), true, true);
     pebbles(ctx, edgePoints(140, 42, 0.4, 3), '#2a2220', 0.25);
     // de vulkaan in de baan (alleen als de hole er een heeft: set.cone = [x, z])
     const S = ctx.def.set || {}, VC = S.cone;
@@ -5189,7 +5222,7 @@ const ENV = {
     const moon = new THREE.Mesh(SPH(10, 24, 16), M('#9aa0aa', { map: tex('rock'), fog: false })); moon.position.set(120, 60, -220); ctx.g.add(moon);
     // middengrond: asteroïden (InstancedMesh) en zwevende stationsmodules
     const astPts = []; for (let i = 0; i < (Q.high ? 70 : 35); i++) { const a = r() * TAU, d = 20 + r() * 70; let y = -8 + r() * 20; const x = H.center[0] + Math.cos(a) * d, z = H.center[1] + Math.sin(a) * d; if (inBB(x, z, H.bounds, 4) && y > -3) y = -10; astPts.push({ x, y, z, s: 0.5 + r() * 2.5, rx: r() * 6, ry: r() * 6, c: new THREE.Color('#6a625a').offsetHSL(0, 0, (r() - 0.5) * 0.2).getHex() }); }
-    const ast = inst(ctx, new THREE.DodecahedronGeometry(1, 0), M('#ffffff', { map: tex('rock'), flatShading: true }), astPts);
+    const ast = inst(ctx, lumpyRock(1), M('#ffffff', { map: tex('rock') }), astPts);
     ctx.upd((t) => { if (ast) ast.rotation.y = t * 0.01; planet.rotation.y = t * 0.01; });
     for (const [x, z, s] of [[-26, 10, 1], [28, -14, 1.3], [-30, -28, 0.8]]) { const mg = new THREE.Group(); mg.position.set(H.center[0] + x, 6, H.center[1] + z); mg.scale.setScalar(s); ctx.g.add(mg); mesh(CYL(2.5, 2.5, 10, 16), M('#c8d0dc', { metalness: 0.7, roughness: 0.35 }), mg, 0, 0, 0, false).rotation.z = Math.PI / 2; for (const k of [-1, 1]) mesh(BOX(1, 0.1, 9), M('#16285a', { metalness: 0.6, emissive: '#0a1440', emissiveIntensity: 0.5 }), mg, k * 6, 0, 0, false); ctx.upd((t) => { mg.rotation.y = t * 0.05 * s; }); }
     // neonranden langs alle vloerranden + steunbalken
@@ -5215,7 +5248,7 @@ const ENV = {
     terrain(ctx, { base: -2.4, amp: 28, flat: 10, ramp: 55, c0: '#1e1418', c1: '#3a1a30', c2: '#6a2a40', tex: 'rock', texScale: 6 });
     mountains(ctx, { n: 16, rMin: 200, rMax: 270, hMin: 60, hMax: 120, color: '#3a1a30', snow: '#ff7a3a', snowLine: 0.88, seed: 13, wide: 1.2 });
     const fr = scatter(40, 14, 70, 111, 6);
-    const rocks = inst(ctx, new THREE.DodecahedronGeometry(1, 0), M('#ffffff', { map: tex('rock'), flatShading: true }), fr.map(([x, z, q]) => ({ x, y: Math.max(ctx.th(x, z), -0.6) + 0.3 + q * 2, z, s: 0.8 + q * 2.2, sy: 0.6, ry: q * 5, c: '#2a2028' })), true, true);
+    const rocks = inst(ctx, lumpyRock(1), M('#ffffff', { map: tex('rock') }), fr.map(([x, z, q]) => ({ x, y: Math.max(ctx.th(x, z), -0.6) + 0.3 + q * 2, z, s: 0.8 + q * 2.2, sy: 0.6, ry: q * 5, c: '#2a2028' })), true, true);
     ctx.upd((t) => { if (rocks) rocks.position.y = Math.sin(t * 0.6) * 0.25; }); // zwevende rotsen
     pebbles(ctx, edgePoints(120, 112, 0.4, 3), '#2a2028', 0.24);
     // gouden finishboog achter het gat (set.arch = [x0, x1, z]), poorthuis voor een schuifhek (set.gatehouse = [x, z, breedte])
