@@ -330,6 +330,21 @@
   "notes": "De vuursalamander. Parts/pivots (Blender coords, front -Y, left=+X; ~1.2 m long, low): body (origin 0,0,0; flat head with big yellow eyes, smile, blush + front torso); tail (pivot at the join (0,0.027,0.145); rear body + tapering tail toward +Y, sway about Z); leg_fl (0.11,-0.192,0.132), leg_fr (-0.11,-0.192,0.132), leg_bl (0.11,0.092,0.132), leg_br (-0.11,0.092,0.132) (pivot shoulder/hip, splayed legs, feet on z=0). Glowing orange spots = material glow_spots. Materials: sala_black, glow_spots, eye_yellow, white, blush, mouth."
  },
  {
+  "name": "scarab",
+  "theme": "chars",
+  "file": "models/chars/scarab.glb",
+  "kind": "char",
+  "footprint": 0.45,
+  "height": 0.479,
+  "size": [
+   0.9,
+   0.956
+  ],
+  "tris": 3416,
+  "bytes": 113768,
+  "notes": "De gouden skarabee. Parts/pivots (Blender coords, front -Y): base (origin 0,0,0; round sandstone base r=0.45, plinth + drum with carved hieroglyph grooves (ankh, eye, water, sun, feather), lapis band with gold studs, top at z=0.24); beetle (origin at its base centre (0,0,0.24) on top of the base; golden scarab in material \"gold\" ~0.85 m long, glowing turquoise eyes \"glow_eyes\", lapis collar, toothed head and legs; press it down along -Z). Materials: sandstone, groove, lapis, gold, glow_eyes, white."
+ },
+ {
   "name": "scorpion",
   "theme": "chars",
   "file": "models/chars/scorpion.glb",
