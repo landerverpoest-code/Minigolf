@@ -165,6 +165,21 @@
   "notes": "Parts/pivots (Blender coords, front -Y, left=+X): body (origin 0,0,0 = pedestal centre on the ground; stone pedestal X2.4 x Y2.6 x Z1.6 (top z=1.6), crouching bronze torso with steel belly plates, gold spine spikes, static gears on both flanks, gold wind-up key on the back, legs, and a static tail root that drapes down the back of the pedestal); TAIL EXIT POINT (where the game should start the animated tail, heading +Y, radius ~0.22) = (0,1.98,0.7); head (neck + head, pivot at the neck base on the torso (0,-0.72,2.6); face looks -Y; gold horns, glowing eyes glow_eyes); jaw (lower jaw, PARENTED to head, hinge (0,-1.438,2.983) (world), hinge axis = X; rotation.x>0 in Blender (= three.js x>0) opens it downward; glow_eyes furnace inside); wing_l / wing_r (folded bat wings, pivot shoulder (0.5,-0.15,2.7) / (-0.5,-0.15,2.7)); tail_seg (ONE segment, centred on its origin, 0.45 long along Blender Y (three.js Z), 0.45 thick, steel collar toward -Y (the body), gold spike on top +Z; parked at (1.75,0.55,0.23)); tail_tip (gold spade, origin at its base, points -Y, 0.64 long, 0.54 wide; parked at (1.75,0.15,0.14)). Materials: stone, bronze, steel, gold, glow_eyes, membrane."
  },
  {
+  "name": "drawbridge_deck",
+  "theme": "chars",
+  "file": "models/chars/drawbridge_deck.glb",
+  "kind": "char",
+  "footprint": 0.5,
+  "height": 0.216,
+  "size": [
+   1.043,
+   1.014
+  ],
+  "tris": 1380,
+  "bytes": 47208,
+  "notes": "Castle drawbridge deck. Part: body (origin (0,0,0) = centre of the hinge line, no rotation). Spans X -0.5..0.5 (width, scale X), Y 0 (hinge) .. -1.0 (far end, scale Y), Z -0.18..0 (top at z=0; iron bands/rivets stand up to ~0.03). 8 heavy planks running across, iron edge bands along both long edges, far-end iron strap with 4 big rivets, hinge rod with knuckles along the hinge line, chain eye rings on the side faces near the far end."
+ },
+ {
   "name": "drone",
   "theme": "chars",
   "file": "models/chars/drone.glb",
@@ -478,6 +493,21 @@
   "tris": 3442,
   "bytes": 116328,
   "notes": "origin at waterline centre (0,0,0), bow -Y, keel to z=-0.55. parts: body (pivot 0,0,0); sail = mast+yards+sail+crow nest, pivot at mast base (0.00,-0.25,0.70); flag pivot at its pole attachment (0.00,-0.17,4.43) (top level, flies toward +Y)"
+ },
+ {
+  "name": "slider_wall",
+  "theme": "chars",
+  "file": "models/chars/slider_wall.glb",
+  "kind": "char",
+  "footprint": 0.5,
+  "height": 1.15,
+  "size": [
+   1.0,
+   0.278
+  ],
+  "tris": 1580,
+  "bytes": 69440,
+  "notes": "Haunted sliding wall panel. Part: body (origin (0,0,0) at the bottom centre). Spans X -0.5..0.5 (scale X to wall length), Z -0.075..1.075, thickness 0.24 centred on Y=0. Horizontal purple-brown planks between dark beams, iron rune channel with a glowing purple rune strip \"glow_runes\" on both faces (z 0.45..0.57), iron end straps with rivets."
  },
  {
   "name": "snowball",
