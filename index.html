@@ -2309,17 +2309,25 @@ const MOVERS = {
     for (let i = 0; i < d.blades; i++) o.prims.push(prim(0.16, { e: 0.7, kick: 3, kind: 'wood' }));
     const g = o.group, wm = M('#f1e6d4', { roughness: 0.9 }), rm = M('#9c3b2b', { roughness: 0.7 });
     const hz = d.hub[1] - 1.5; // midden van het huisje
-    const parts = [mesh(BOX(2.2, 2.6, 2.6), wm, g, 13.1, 1.3, hz), mesh(BOX(2.2, 2.6, 2.6), wm, g, 16.9, 1.3, hz), mesh(BOX(1.6, 1.5, 2.6), wm, g, 15, 1.85, hz)];
-    const roof = mesh(CONE(4.3, 2.4, 4), rm, g, 15, 3.8, hz); roof.rotation.y = Math.PI / 4; roof.scale.z = 0.7; parts.push(roof);
-    mesh(BOX(1.6, 0.08, 2.62), M('#5a3a22'), g, 15, 1.08, hz, false);
-    mesh(BOX(0.5, 0.6, 0.05), new THREE.MeshBasicMaterial({ color: '#ffd27a' }), g, 13.1, 1.7, hz + 1.31, false);
-    mesh(BOX(0.5, 0.6, 0.05), new THREE.MeshBasicMaterial({ color: '#ffd27a' }), g, 16.9, 1.7, hz + 1.31, false);
-    parts.forEach(p => { p.userData.occ = true; H.occluders.push(p); });
+    const CHs = charModel('windmill_house', ['plaster', 'timber', 'roof_tile', 'roof_dark', 'glow_window', 'leaf']);
+    if (CHs) { // Blender-molenhuis met open doorgang; eigen materialen zodat het kan vervagen voor de camera
+      CHs.wrap.rotation.y = 0; CHs.wrap.position.set(d.hub[0], 0, hz); g.add(CHs.wrap);
+      CHs.root.traverse(m => { if (m.isMesh) { m.userData.occ = true; H.occluders.push(m); } });
+    } else {
+      const parts = [mesh(BOX(2.2, 2.6, 2.6), wm, g, 13.1, 1.3, hz), mesh(BOX(2.2, 2.6, 2.6), wm, g, 16.9, 1.3, hz), mesh(BOX(1.6, 1.5, 2.6), wm, g, 15, 1.85, hz)];
+      const roof = mesh(CONE(4.3, 2.4, 4), rm, g, 15, 3.8, hz); roof.rotation.y = Math.PI / 4; roof.scale.z = 0.7; parts.push(roof);
+      mesh(BOX(1.6, 0.08, 2.62), M('#5a3a22'), g, 15, 1.08, hz, false);
+      mesh(BOX(0.5, 0.6, 0.05), new THREE.MeshBasicMaterial({ color: '#ffd27a' }), g, 13.1, 1.7, hz + 1.31, false);
+      mesh(BOX(0.5, 0.6, 0.05), new THREE.MeshBasicMaterial({ color: '#ffd27a' }), g, 16.9, 1.7, hz + 1.31, false);
+      parts.forEach(p => { p.userData.occ = true; H.occluders.push(p); });
+    }
     const hub = new THREE.Group(); hub.position.set(d.hub[0], d.hubY, d.hub[1]); g.add(hub);
-    mesh(CYL(0.25, 0.25, 0.4, 12), M('#4a3020'), hub, 0, 0, 0).rotation.x = Math.PI / 2;
     const sail = M('#fff8ea', { side: THREE.DoubleSide, roughness: 0.9 }), frame = M('#6d4c2f');
+    if (!mdlReady('chars') || !MDL.models['chars/mill_sail']) mesh(CYL(0.25, 0.25, 0.4, 12), M('#4a3020'), hub, 0, 0, 0).rotation.x = Math.PI / 2;
     for (let i = 0; i < d.blades; i++) {
       const b = new THREE.Group(); b.rotation.z = i / d.blades * TAU; hub.add(b);
+      const CSl = charModel('mill_sail'); // Blender-wiek (3 m lang, wijst omlaag vanaf de as)
+      if (CSl) { CSl.wrap.rotation.y = 0; CSl.wrap.scale.setScalar(d.len / 3); CSl.wrap.position.z = 0.1; b.add(CSl.wrap); continue; }
       mesh(BOX(0.1, d.len, 0.1), frame, b, 0, -d.len / 2, 0.1);
       mesh(new THREE.PlaneGeometry(0.6, d.len * 0.8), sail, b, 0.36, -d.len * 0.55, 0.12);
     }
@@ -3656,6 +3664,13 @@ const SPECIALS = {
       const hg = new THREE.Group(); hg.position.set(d.len * 0.5, 0, 0); hz.add(hg);
       mesh(CYL(0.03, 0.03, 2.2, 6), gold, hg, 0, 2.15, 0, false);
       const hb = new THREE.Group(); hg.add(hb);
+      const CHo = charModel('carousel_horse', ['coat', 'saddle']);
+      if (CHo) { // Blender-paardje aan zijn eigen stang (beweegt mee op en neer)
+        hg.children[0].visible = false; CHo.wrap.rotation.y = 0; hb.add(CHo.wrap);
+        if (CHo.mats.coat) CHo.mats.coat.color.set(['#ffffff', '#a0704a', '#5a4a44', '#c9bdb6'][i % 4]);
+        if (CHo.mats.saddle) CHo.mats.saddle.color.set(i % 2 ? '#1e5bd8' : '#c62828');
+        horses.push({ hb, ph: i * 1.3 }); continue;
+      }
       const hm = M(['#f5f0e6', '#5d4037', '#212121', '#bcaaa4'][i % 4], { roughness: 0.5 });
       mesh(BOX(0.18, 0.22, 0.62), hm, hb, 0, 1.5, 0); mesh(BOX(0.12, 0.3, 0.14), hm, hb, 0, 1.72, 0.3).rotation.x = -0.4; mesh(BOX(0.12, 0.13, 0.25), hm, hb, 0, 1.86, 0.4);
       for (const [lx, lz] of [[0.06, 0.22], [-0.06, 0.22], [0.06, -0.22], [-0.06, -0.22]]) mesh(BOX(0.05, 0.3, 0.05), hm, hb, lx, 1.28, lz, false);
