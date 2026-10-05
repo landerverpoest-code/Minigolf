@@ -448,6 +448,7 @@ const SND = {
   chains() { for (let i = 0; i < 8; i++) this.tone(2400 + Math.random() * 1200, 0.05, { type: 'square', vol: 0.03, delay: i * 0.09 }); },
   boom() { this.noise(1.8, { type: 'lowpass', freq: 220, slide: 50, vol: 0.9, attack: 0.01 }); this.tone(60, 1.2, { type: 'sine', slide: 30, vol: 0.4 }); },
   wave() { this.noise(2.2, { type: 'bandpass', freq: 500, slide: 1400, q: 0.8, vol: 0.25, attack: 0.8 }); },
+  pop(v = 0.3) { this.noise(0.5, { type: 'lowpass', freq: 900, slide: 120, vol: v, attack: 0.005 }); for (let i = 0; i < 5; i++) this.noise(0.04, { type: 'highpass', freq: 3000, vol: v * 0.35, delay: 0.25 + Math.random() * 0.5 }); },
   crack() { this.noise(0.12, { type: 'highpass', freq: 1800, vol: 0.5 }); this.tone(900, 0.08, { type: 'square', slide: 300, vol: 0.06 }); },
   lantern() { this.noise(0.4, { type: 'bandpass', freq: 900, slide: 300, vol: 0.3, attack: 0.02 }); [523, 784, 1047].forEach((f, i) => this.tone(f, 0.5, { type: 'sine', vol: 0.1, delay: 0.1 + i * 0.08 })); },
   fling() { this.noise(0.6, { type: 'bandpass', freq: 800, slide: 3000, q: 2, vol: 0.4 }); this.tone(300, 0.4, { slide: 900, vol: 0.12 }); },
@@ -2040,11 +2041,13 @@ function buildHole(idx) {
   if (th.stars) { shootingStars(ctx); if (th.env === 'space') shootingStars(ctx); } // nachthemel (in de ruimte dubbel zoveel)
   if (th.env === 'desert') dustDevils(ctx, 2);
   if (th.stars && ['meadow', 'castle', 'haunted', 'water'].includes(th.env)) fireflies(ctx, th.env === 'haunted' ? 60 : 40, th.env === 'haunted' ? '#7dff9a' : '#ffe27a');
+  if (th.env === 'finale') fireworks(ctx);
   if (th.env === 'volcano' || th.env === 'finale') { lavaBubbles(ctx); if (mdlReady('chars')) { sailingShips(ctx, 'ship_lava', () => -0.55, 2); lavaSerpent(ctx); } }
   if (th.env === 'water' && mdlReady('chars')) { const lv = t => (H.tide ? H.tide.level(t) : -0.32); sailingShips(ctx, 'ship_water', lv, 2); whale(ctx, lv); }
   if (['meadow', 'water', 'castle', 'desert'].includes(th.env) && mdlReady('chars')) birdFlock(ctx, th.env === 'water' ? 7 : 5, th.env === 'desert' ? 14 : 10);
   if (th.env === 'haunted') H.updaters.push((t, dt) => { for (let k = 0; k < 3; k++) if (Math.random() < dt * 70 * Q.fx) { const x = Cam.tx + (Math.random() - 0.5) * 34, z = Cam.tz + (Math.random() - 0.5) * 34; fx.emit(x, 9 + Math.random() * 3, z, -1.2, -16, -0.6, 0.65, 0.05, new THREE.Color('#9aa8d0'), { alpha: 0.55 }); } }); // motregen
   if (th.env === 'water' && MDL.models['chars/reed_clump']) { const th2 = ctx.th || (() => 0), rp = edgePoints(70, 271, 0.4, 1.8).filter(([x, z]) => !floorAt(x, z)); charScatter('reed_clump', rp, () => -0.3, 0.9, 0.12); }
+  if (!th.stars && (th.env === 'meadow' || th.env === 'castle' || th.env === 'water')) butterflies(ctx);
   if (th.env === 'meadow' || th.env === 'castle') fallingLeaves(ctx, th.env === 'castle' ? ['#d9822b', '#c0392b', '#e6b33a'] : ['#7cb342', '#9ccc65', '#f4d35e']);
   decorateModels(ctx);
   H.updaters.push((t) => { let k = 0; for (const m of H.glowMats) { m.emissiveIntensity = m.userData.glow * (0.82 + Math.sin(t * 2.2 + k++ * 1.7) * 0.18); } }); // gloeiende delen pulseren
@@ -4701,6 +4704,73 @@ function fireflies(ctx, n = 40, color = '#d8ff6a') {
   ctx.upd((t) => {
     for (let i = 0; i < cnt; i++) { const [a, r, ph, sp] = seed[i], aa = a + t * sp * 0.2; pos[i * 3] = H.center[0] + Math.cos(aa) * r + Math.sin(t * 0.7 + ph) * 1.5; pos[i * 3 + 1] = 0.4 + (Math.sin(t * sp * 2 + ph) * 0.5 + 0.5) * 1.6; pos[i * 3 + 2] = H.center[1] + Math.sin(aa) * r * 1.6 + Math.cos(t * 0.5 + ph) * 1.5; }
     geo.attributes.position.needsUpdate = true; mat.opacity = 0.6 + Math.sin(t * 3) * 0.3;
+  });
+}
+// ---------- vuurwerk: pijlen met een vonkenspoor die hoog boven de baan uiteenspatten (finale) ----------
+function fireworks(ctx, every = 2.6) {
+  const pal = ['#ff4d6d', '#ffd23f', '#3ae374', '#4dabff', '#c77dff', '#ff9f43', '#ffffff'].map(c => new THREE.Color(c));
+  const rockets = []; let next = 2;
+  ctx.upd((t, dt) => {
+    if (t > next) {
+      next = t + every * (0.5 + Math.random());
+      const n = Math.random() < 0.25 ? 3 : 1; // af en toe een salvo
+      for (let k = 0; k < n; k++) {
+        const a = Math.random() * TAU, rx = (H.bounds[2] - H.bounds[0]) / 2 + 14 + Math.random() * 18, rz = (H.bounds[3] - H.bounds[1]) / 2 + 14 + Math.random() * 18;
+        const x = H.center[0] + Math.cos(a) * rx, z = H.center[1] + Math.sin(a) * rz;
+        rockets.push({ x, y: 0, z, vx: (Math.random() - 0.5) * 3, vy: 24 + Math.random() * 8, vz: (Math.random() - 0.5) * 3, t: 0, fuse: 1.0 + Math.random() * 0.4 + k * 0.15, c: pal[Math.floor(Math.random() * pal.length)], c2: pal[Math.floor(Math.random() * pal.length)], ring: Math.random() < 0.3 });
+      }
+    }
+    for (let i = rockets.length - 1; i >= 0; i--) {
+      const R = rockets[i]; R.t += dt; R.vy -= 9 * dt;
+      R.x += R.vx * dt; R.y += R.vy * dt; R.z += R.vz * dt;
+      if (Math.random() < dt * 60 * Q.fx) fxAdd.emit(R.x, R.y, R.z, (Math.random() - 0.5) * 0.6, -1, (Math.random() - 0.5) * 0.6, 0.5, 0.35, new THREE.Color('#ffc870'), { alpha: 0.8, grav: 2 });
+      if (R.t < R.fuse) continue;
+      rockets.splice(i, 1);
+      const N = Math.round((R.ring ? 80 : 130) * (Q.high ? 1 : 0.6)), sp = 16 + Math.random() * 6;
+      const ax = Math.random() * TAU; // kanteling van de ring
+      for (let k = 0; k < N; k++) {
+        let dx, dy, dz;
+        if (R.ring) { const b = k / N * TAU; dx = Math.cos(b); dy = Math.sin(b) * Math.cos(ax); dz = Math.sin(b) * Math.sin(ax); }
+        else { const u = Math.random() * 2 - 1, b = Math.random() * TAU, q = Math.sqrt(1 - u * u); dx = q * Math.cos(b); dy = u; dz = q * Math.sin(b); }
+        const v = sp * (R.ring ? 1 : 0.75 + Math.random() * 0.25), col = k % 3 ? R.c : R.c2;
+        fxAdd.emit(R.x, R.y, R.z, dx * v, dy * v, dz * v, 1.6 + Math.random() * 0.8, 1.1 + Math.random() * 0.5, col, { grav: 3, drag: 1.6, grow: -0.4 });
+      }
+      fxAdd.emit(R.x, R.y, R.z, 0, 0, 0, 0.2, 4, new THREE.Color('#fff6d8'), { alpha: 0.55, grow: -14 }); // flits
+      const d = camDistTo(new THREE.Vector3(R.x, R.y, R.z)); if (d < 90 && SND.pop) SND.pop(0.3 * (1 - d / 90));
+    }
+  });
+}
+// ---------- vlinders: fladderen in lussen langs de randen van de baan (overdag) ----------
+function butterflies(ctx, n = 14) {
+  const cnt = Q.high ? n : Math.ceil(n / 2), cols = ['#ff6a00', '#ffcc00', '#e8186a', '#1a7cff', '#ffffff', '#8a2be2'];
+  const wg = new THREE.PlaneGeometry(0.2, 0.2); wg.translate(0.1, 0, 0); wg.rotateX(-Math.PI / 2);
+  // vleugeltextuur: grote voorvleugel + kleinere achtervleugel, donkere rand en witte stippen (wit = wordt getint)
+  const wt = toTex(drawCanvas(64, 64, (c) => {
+    c.fillStyle = '#1a1a1a';
+    c.beginPath(); c.ellipse(30, 22, 30, 20, -0.35, 0, TAU); c.fill(); c.beginPath(); c.ellipse(22, 46, 18, 15, 0.4, 0, TAU); c.fill();
+    c.fillStyle = '#ffffff';
+    c.beginPath(); c.ellipse(28, 23, 25, 15, -0.35, 0, TAU); c.fill(); c.beginPath(); c.ellipse(21, 45, 14, 11, 0.4, 0, TAU); c.fill();
+    c.fillStyle = '#1a1a1a'; for (const [x, y, r] of [[44, 12, 3], [50, 20, 2.5], [30, 46, 2.5]]) { c.beginPath(); c.arc(x, y, r, 0, TAU); c.fill(); }
+    c.fillStyle = 'rgba(0,0,0,0.25)'; c.beginPath(); c.ellipse(8, 32, 9, 22, 0, 0, TAU); c.fill();
+  }));
+  const B = [];
+  for (let i = 0; i < cnt; i++) {
+    let x = 0, z = 0, ok = false;
+    for (let k = 0; k < 30 && !ok; k++) { const a = Math.random() * TAU, r = 3 + Math.random() * 14; x = H.center[0] + Math.cos(a) * r * 1.2; z = H.center[1] + Math.sin(a) * r * 2.2; ok = courseDist(x, z) > 1.2 && courseDist(x, z) < 9; }
+    if (!ok) continue;
+    const g = new THREE.Group(), m = new THREE.MeshBasicMaterial({ color: cols[i % cols.length], map: wt, alphaTest: 0.5, transparent: false, side: THREE.DoubleSide });
+    const L = new THREE.Mesh(wg, m), R = new THREE.Mesh(wg, m); R.scale.x = -1; g.add(L, R);
+    mesh(CYL(0.012, 0.012, 0.12, 4), M('#222'), g, 0, 0, 0, false).rotation.x = Math.PI / 2;
+    ctx.g.add(g); B.push({ g, L, R, x, z, ph: Math.random() * TAU, sp: 0.5 + Math.random() * 0.5, fl: 14 + Math.random() * 6 });
+  }
+  ctx.upd((t) => {
+    for (const b of B) {
+      const u = t * b.sp + b.ph, px = b.x + Math.sin(u) * 1.6 + Math.sin(u * 2.3) * 0.5, pz = b.z + Math.sin(u * 0.7) * 1.8;
+      const nx = b.x + Math.sin(u + 0.05) * 1.6 + Math.sin((u + 0.05) * 2.3) * 0.5, nz = b.z + Math.sin((u + 0.05) * 0.7) * 1.8;
+      b.g.position.set(px, 0.5 + Math.sin(u * 1.7) * 0.3 + Math.abs(Math.sin(t * b.fl * 0.5)) * 0.05, pz);
+      b.g.rotation.y = Math.atan2(nx - px, nz - pz);
+      const f = Math.sin(t * b.fl) * 1.1; b.L.rotation.z = f; b.R.rotation.z = -f;
+    }
   });
 }
 // ---------- vallende blaadjes ----------
