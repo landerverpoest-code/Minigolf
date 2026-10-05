@@ -30,6 +30,21 @@
   "notes": "stapel van 4 houten vaten (duigen in 2 tinten, ijzeren hoepels, lichte deksels), liggend vat met koperen kraantje"
  },
  {
+  "name": "castle_keep",
+  "theme": "castle",
+  "file": "models/castle/castle_keep.glb",
+  "kind": "char",
+  "footprint": 8.3,
+  "height": 17.708,
+  "size": [
+   16.681,
+   6.92
+  ],
+  "tris": 7852,
+  "bytes": 370780,
+  "notes": "Big castle keep behind the castle holes. Parts: body (main hall x -6..6, y -3..3, walls to z 9 + crenellations to 9.64, arched wooden gate, 8 glowing windows in two rows (glow_window), stone trim/corbels, low red roof, round towers at x=+-6 (r 2.0->1.83, walls to 13, crenellated walkway ring, red cone roof base r 2.3 to z 17, gold finial), small back-roof tower); banner (blue banner with gold crown, pivot at its top centre (0,-3.22,7.9), sways). Origin = ground centre."
+ },
+ {
   "name": "castle_tower",
   "theme": "castle",
   "file": "models/castle/castle_tower.glb",

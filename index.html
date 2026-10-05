@@ -4564,7 +4564,7 @@ const GFX = { time: { value: 0 }, gust: { value: 0 } };
 // Water of lava: deining in de vertex shader (wereldruimte, zodat aangrenzende vlakken samen golven),
 // kleine rimpels als normaalverstoring in de fragment shader, schuim (water) of extra gloed (lava) op de toppen.
 // wolkenschaduwen: zachte donkere vlekken die met de wind over het terrein schuiven (overdag)
-function cloudShadowFX(mat, k = 0.28) {
+function cloudShadowFX(mat, k = 0.2) {
   mat.onBeforeCompile = (sh) => {
     sh.uniforms.uTime = GFX.time;
     sh.vertexShader = sh.vertexShader.replace('#include <common>', '#include <common>\n varying vec3 vCW;')
@@ -4577,7 +4577,7 @@ function cloudShadowFX(mat, k = 0.28) {
       .replace('#include <color_fragment>', `#include <color_fragment>
       { vec2 q = vCW.xz / 38.0 + vec2(uTime * 0.035, uTime * 0.012);
         float n = cNoise(q) * 0.62 + cNoise(q * 2.1 + 7.3) * 0.38;
-        diffuseColor.rgb *= 1.0 - smoothstep(0.52, 0.72, n) * ${k.toFixed(2)}; }`);
+        diffuseColor.rgb *= 1.0 - smoothstep(0.45, 0.78, n) * ${k.toFixed(2)}; }`);
   };
   mat.customProgramCacheKey = () => 'cloudsh' + k;
   return mat;
@@ -6738,7 +6738,11 @@ function frame(now) {
     if (md > 1e-5 && md < 2) { axisV.set(mz, 0, -mx).normalize(); ballQ.setFromAxisAngle(axisV, md / BALL_R); ball.mesh.quaternion.premultiply(ballQ); }
     // subtiel spoor
     const sp = Math.hypot(ball.vx, ball.vz);
-    if (ball.state === 'moving' && sp > 3 && Math.random() < dt * 40) fx.emit(ball.x, ball.y, ball.z, 0, 0.05, 0, 0.35, 0.14, ball.mesh.material.color, { alpha: 0.35, grow: -0.2 });
+    if (ball.state === 'moving' && sp > 2.5) { // dicht spoor tussen vorige en huidige positie; bij harde slagen een glinsterende staart
+      const n = Math.min(4, Math.ceil(Math.hypot(ball.x - prevX, ball.z - prevZ) / 0.12)), k = Math.min(1, (sp - 2.5) / 8);
+      for (let i = 0; i < n; i++) { const f = i / n; fx.emit(lerp(prevX, ball.x, f), ball.y, lerp(prevZ, ball.z, f), 0, 0.05, 0, 0.3 + k * 0.25, 0.14 + k * 0.05, ball.mesh.material.color, { alpha: 0.25 + k * 0.2, grow: -0.25 }); }
+      if (k > 0.45 && Math.random() < dt * 30 * Q.fx) fxAdd.emit(ball.x, ball.y + 0.05, ball.z, (Math.random() - 0.5) * 0.8, 0.4 + Math.random() * 0.6, (Math.random() - 0.5) * 0.8, 0.5, 0.08, new THREE.Color('#fff4c0'), { grav: 2, grow: -0.1 });
+    }
     for (const k of H.kins) if (k.visual) safe(() => k.visual(H.t, dt));
     GFX.time.value = H.t; GFX.gust.value = Math.max(0, Math.sin(H.t * 0.31) * Math.sin(H.t * 0.83 + 1.3)) * 1.4; // windstoten
     for (const u of H.updaters) safe(() => u(H.t, dt));
