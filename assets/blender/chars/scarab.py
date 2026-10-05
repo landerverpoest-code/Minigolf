@@ -10,7 +10,7 @@ SAND = mat('sandstone', '#e3bf7f', rough=0.85)
 GROOVE = mat('groove', '#7a4f2a', rough=0.9)          # carved hieroglyphs, pupils, elytra seam
 LAPIS = mat('lapis', '#2457c5', rough=0.4)
 GOLD = mat('gold', '#ffc23a', rough=0.25, metal=0.9)  # the game may tint / flash it
-GLOW = mat('glow_eyes', '#3ff2e0', rough=0.3, emit='#2cf5e0', emit_strength=3.0)
+GLOW = mat('glow_eyes', '#19e6d2', rough=0.3, emit='#14e8d4', emit_strength=1.4)
 WHITE = mat('white', '#ffffff', rough=0.3)
 
 # ================================================================= BASE (round sandstone drum with hieroglyph grooves)
@@ -23,15 +23,15 @@ Bs.append(bev(cyl(r=R1, h=H1, loc=(0, 0, H0 + H1 / 2), verts=24, material=SAND),
 # lapis inlay band on the plinth top edge with gold studs
 Bs.append(lathe([(R1 + 0.002, H0 - 0.001), (R0 - 0.012, H0 - 0.001), (R0 - 0.012, H0 + 0.006), (R1 + 0.002, H0 + 0.006)],
                 seg=24, material=LAPIS))
-for k in range(12):
-    a = TAU * (k + 0.5) / 12
+for k in range(10):
+    a = TAU * (k + 0.5) / 10 + 0.12
     r = (R1 + R0) / 2 - 0.004
-    Bs.append(ell(V(math.cos(a) * r, math.sin(a) * r, H0 + 0.008), (0.011, 0.011, 0.007), seg=6, rings=3, material=GOLD))
+    Bs.append(ell(V(math.cos(a) * r, math.sin(a) * r, H0 + 0.008), (0.012, 0.012, 0.008), seg=5, rings=3, material=GOLD))
 # top: carved ring around the beetle + lapis disk under it
 Bs.append(lathe([(0.37, ZT + 0.001), (0.39, ZT + 0.001), (0.39, ZT + 0.004), (0.37, ZT + 0.004)], seg=24, material=GROOVE))
 
 
-def bar(x0, z0, x1, z1, w=0.012):
+def bar(x0, z0, x1, z1, w=0.015):
     d = V(x1 - x0, 0, z1 - z0); L = d.length; d.normalize()
     nrm = V(-d.z, 0, d.x) * (w / 2)
     pts = [(x0 + nrm.x, z0 + nrm.z), (x1 + nrm.x, z1 + nrm.z), (x1 - nrm.x, z1 - nrm.z), (x0 - nrm.x, z0 - nrm.z)]
@@ -76,18 +76,14 @@ for k in range(NG):
     d = V(math.cos(a), math.sin(a), 0)
     for o in glyph(kinds[k % len(kinds)]):
         Bs.append(frame(o, d * (R1 + 0.0015) + V(0, 0, H0 + H1 / 2), d))
-# vertical divider lines between glyph columns
-for k in range(NG):
-    a = TAU * (k + 0.5) / NG + 0.12
-    d = V(math.cos(a), math.sin(a), 0)
-    Bs.append(frame(bar(0, -0.055, 0, 0.055, 0.008), d * (R1 + 0.0015) + V(0, 0, H0 + H1 / 2), d))
 base = apart(Bs, 'base', (0, 0, 0))
 
 # ================================================================= BEETLE (origin at its base centre on top of the drum)
 O = V(0, 0, ZT)
+OB = O + V(0, 0.04, 0)     # beetle body sits slightly back so the toothed head stays inside r=0.45
 Bt = []
 # elytra: big glossy dome, slightly pointed at the back
-EC = O + V(0, 0.1, 0.03)
+EC = OB + V(0, 0.1, 0.03)
 
 
 def elytra_shape(n):
@@ -110,22 +106,22 @@ for sx in (-1, 1):
         ln.append(EC + V(xx, y, 0.2 * math.sqrt(max(0.0, nz)) - 0.003))
     Bt.append(tube(ln, 0.006, seg=3, material=GROOVE))
 # pronotum (front shield), wide and rounded
-PC = O + V(0, -0.2, 0.05)
+PC = OB + V(0, -0.2, 0.05)
 pro = ell(PC, (0.25, 0.14, 0.15), seg=14, rings=8, material=GOLD,
           shape=lambda n: Vector((n.x * (1 + 0.12 * n.y), n.y, max(n.z, -0.3))))
 Bt.append(pro)
 # lapis collar between pronotum and elytra
-Bt.append(tube([O + V(math.sin(a) * 0.235, -0.08 + 0.02 * math.cos(a), 0.035 + 0.17 * math.cos(a) ** 0.8) for a in
+Bt.append(tube([OB + V(math.sin(a) * 0.235, -0.08 + 0.02 * math.cos(a), 0.035 + 0.17 * math.cos(a) ** 0.8) for a in
                 [(-1 + 2 * i / 8) * 1.45 for i in range(9)]], 0.018, seg=5, material=LAPIS))
 # head with a toothed clypeus
-HC = O + V(0, -0.36, 0.05)
+HC = OB + V(0, -0.355, 0.05)
 head = ell(HC, (0.16, 0.1, 0.075), seg=12, rings=6, material=GOLD,
            shape=lambda n: Vector((n.x, n.y, max(n.z, -0.4))))
 Bt.append(head)
 for i in range(6):
     a = math.radians(-62 + 124 * i / 5)
     base_p = HC + V(math.sin(a) * 0.15, -math.cos(a) * 0.09, -0.005)
-    Bt.append(spike(base_p, V(math.sin(a), -math.cos(a), 0.15), r=0.026, h=0.06, seg=4, material=GOLD))
+    Bt.append(spike(base_p, V(math.sin(a), -math.cos(a), 0.15), r=0.026, h=0.045, seg=4, material=GOLD))
 # big glowing turquoise eyes with a dark pupil and glint
 for sx in (-1, 1):
     ec = HC + V(sx * 0.075, -0.05, 0.065)
@@ -137,12 +133,12 @@ for sx in (-1, 1):
     Bt.append(tube([a0, a0 + V(sx * 0.07, -0.06, 0.03)], 0.01, seg=4, material=GOLD))
     Bt.append(ell(a0 + V(sx * 0.08, -0.07, 0.035), (0.025, 0.018, 0.018), seg=6, rings=4, material=GOLD))
 # six legs splayed onto the base top, toothed front legs
-LEGS = [(-0.22, 0.2, -0.36, -0.36), (0.0, 0.22, 0.38, -0.08), (0.2, 0.2, 0.33, 0.32)]
+LEGS = [(-0.2, 0.19, 0.27, -0.33), (0.02, 0.22, 0.34, -0.02), (0.2, 0.19, 0.3, 0.3)]
 for sx in (-1, 1):
     for k, (y0, x0, xf_, yf) in enumerate(LEGS):
-        p0 = O + V(sx * x0, y0, 0.03)
-        knee = O + V(sx * (x0 + xf_) * 0.62, (y0 + yf) / 2, 0.11)
-        foot = O + V(sx * abs(xf_) * 0.95 if k else sx * 0.24, yf, 0.012)
+        p0 = OB + V(sx * x0, y0, 0.03)
+        foot = O + V(sx * xf_, yf, 0.014)
+        knee = p0.lerp(foot, 0.5) + V(sx * 0.03, 0, 0.045)
         Bt.append(tube([p0, knee, foot], [0.03, 0.026, 0.018], seg=5, material=GOLD, round_end=True))
         Bt.append(ell(knee, (0.03, 0.03, 0.03), seg=6, rings=4, material=GOLD))
         if k == 0:    # teeth on the front tibia

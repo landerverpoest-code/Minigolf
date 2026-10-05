@@ -120,6 +120,21 @@
   "notes": "Parts/pivots (Blender coords, front -Y, left=+X): body (origin 0,0,0 = body centre; round shell bowl (material shell, recolourable) with accent equator ring, glass dome (material glass, alpha 0.25) holding a dark face screen with one big round eye glow_eye + glowing smile, antenna, thruster below, 4 struts with rotor ducts (ducts also material shell)); rotor_1 (0.447,-0.447,0.08) (front-left), rotor_2 (-0.447,-0.447,0.08) (front-right), rotor_3 (-0.447,0.447,0.08) (back-right), rotor_4 (0.447,0.447,0.08) (back-left): pivot at the rotor centre, spin around Z (three.js y); arm: pivot at the body centre (0,0,0), points -Y, scissor extender + red boxing glove centred at (0,-1,-0.11) (glove front at y=-1.15); scale it along Blender Y (three.js z) to extend. Shell radius 0.42, width over the ducts ~1.36. Materials: shell, glass, dark, glow_eye, accent, glove."
  },
  {
+  "name": "ferryman",
+  "theme": "chars",
+  "file": "models/chars/ferryman.glb",
+  "kind": "char",
+  "footprint": 0.35,
+  "height": 1.865,
+  "size": [
+   0.8,
+   0.999
+  ],
+  "tris": 3450,
+  "bytes": 87892,
+  "notes": "De veerman. Parts/pivots (Blender coords, front -Y, left=+X; ~1.8 m incl. straw hat): body (origin 0,0,0; blue/white striped shirt, red neckerchief, navy trousers with rolled cuffs, boots on z=0); head (pivot neck (0,0,1.36); big grin, eyes, brows, rosy cheeks, straw hat with red band); arm_l (pivot shoulder (0.27,0,1.27), fist at (0.153,-0.582,1.378)), arm_r (pivot shoulder (-0.27,0,1.27), fist at (-0.152,-0.585,1.245)): striped sleeves, arms reaching forward/up, fists one above the other as if pulling a rope (rope runs along X in front of him). Materials: skin, white, stripe_blue, navy, straw, red."
+ },
+ {
   "name": "flower_clump",
   "theme": "chars",
   "file": "models/chars/flower_clump.glb",
@@ -338,10 +353,10 @@
   "height": 0.479,
   "size": [
    0.9,
-   0.956
+   0.903
   ],
-  "tris": 3416,
-  "bytes": 113768,
+  "tris": 3208,
+  "bytes": 105120,
   "notes": "De gouden skarabee. Parts/pivots (Blender coords, front -Y): base (origin 0,0,0; round sandstone base r=0.45, plinth + drum with carved hieroglyph grooves (ankh, eye, water, sun, feather), lapis band with gold studs, top at z=0.24); beetle (origin at its base centre (0,0,0.24) on top of the base; golden scarab in material \"gold\" ~0.85 m long, glowing turquoise eyes \"glow_eyes\", lapis collar, toothed head and legs; press it down along -Z). Materials: sandstone, groove, lapis, gold, glow_eyes, white."
  },
  {
