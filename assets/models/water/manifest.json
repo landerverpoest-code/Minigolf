@@ -45,6 +45,21 @@
   "notes": "Kleurrijk koraal: roze vertakt koraal, oranje hersenkoraal, paarse waaier en gele buiskoraaltjes op een steen"
  },
  {
+  "name": "dolphin",
+  "theme": "water",
+  "file": "models/water/dolphin.glb",
+  "kind": "char",
+  "footprint": 1.1,
+  "height": 0.803,
+  "size": [
+   0.8,
+   2.2
+  ],
+  "tris": 2506,
+  "bytes": 59736,
+  "notes": "Parts/pivots (Blender coords, nose to -Y): body (origin 0,0,0 = body centre; grey-blue top, pale belly, smiling beak, big eyes, dorsal fin, flippers); tail (pivot at the tail stock (0.0, 0.617, 0.034); flukes; rotate about X to beat up/down). Not grounded: the game moves it in leaping arcs."
+ },
+ {
   "name": "lighthouse",
   "theme": "water",
   "file": "models/water/lighthouse.glb",

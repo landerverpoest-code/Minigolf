@@ -150,6 +150,21 @@
   "notes": "Schattige mollige ijsbeer op vier poten (lijf als unie van bollen), ronde oortjes, zwarte neus en kraaloogjes met glimlichtje, nageltjes, op een ijsschots; kijkt naar -Y"
  },
  {
+  "name": "polar_bear_char",
+  "theme": "ice",
+  "file": "models/ice/polar_bear_char.glb",
+  "kind": "char",
+  "footprint": 0.8,
+  "height": 1.101,
+  "size": [
+   0.75,
+   1.785
+  ],
+  "tris": 2972,
+  "bytes": 67012,
+  "notes": "Parts/pivots (Blender coords, front -Y, left = +X): body (origin 0,0,0; creamy white chunky torso, shaded belly, tail); head (pivot neck (0.0, -0.4, 0.8); black nose, smile, small round ears, big eyes, cheeks); leg_fl (0.21,-0.3,0.55), leg_fr (-0.21,-0.3,0.55), leg_bl (0.21,0.45,0.55), leg_br (-0.21,0.45,0.55) - pivot at the shoulder/hip, paws at z=0."
+ },
+ {
   "name": "polar_cabin",
   "theme": "ice",
   "file": "models/ice/polar_cabin.glb",

@@ -60,6 +60,21 @@
   "notes": "driepotige vakwerkmast met paneelantennes, schoteltje en knipperend glow_beacon-licht"
  },
  {
+  "name": "astronaut",
+  "theme": "space",
+  "file": "models/space/astronaut.glb",
+  "kind": "char",
+  "footprint": 0.6,
+  "height": 1.749,
+  "size": [
+   1.292,
+   0.877
+  ],
+  "tris": 2882,
+  "bytes": 74996,
+  "notes": "Cute chunky floating astronaut ~1.7 m tall, origin (0,0,0) = body CENTRE, front -Y, left = +X. Parts/pivots: body (origin 0,0,0; white suit with orange patches/knee pads/boot cuffs, grey belt and chest box with glowing buttons, backpack with tanks); head (helmet + gold visor material `visor`, ear pucks, antenna with glow tip; pivot at the neck (0, 0, 0.19)); arm_l (+X) / arm_r (-X) (pivot at the shoulder (0.31, 0, 0.08) / (-0.31, 0, 0.08), arms hang ~35 deg outwards, grey gloves). Materials: suit_white, suit_orange, suit_grey, visor, glow_suit."
+ },
+ {
   "name": "beacon_pylon",
   "theme": "space",
   "file": "models/space/beacon_pylon.glb",
@@ -260,5 +275,20 @@
   "tris": 1776,
   "bytes": 64768,
   "notes": "cartoon-vliegende schotel met glazen koepel en alientje; oorsprong onderaan (game laat hem zweven); glow_lights rond de rand + straalring"
+ },
+ {
+  "name": "ufo_flyer",
+  "theme": "space",
+  "file": "models/space/ufo_flyer.glb",
+  "kind": "char",
+  "footprint": 1.6,
+  "height": 4.177,
+  "size": [
+   3.142,
+   3.164
+  ],
+  "tris": 2952,
+  "bytes": 73668,
+  "notes": "Flying saucer ~3.2 m wide (named ufo_flyer because space/ufo already exists as a grounded hero). Parts/pivots (Blender coords, front -Y): body (origin (0,0,0) = saucer CENTRE in the rim plane; metallic saucer, dark rim band, ring of 14 rim lights + 14 small upper lights + emitter ring = glow_ufo_lights, glass dome ufo_glass (alpha 0.32) with a tiny green alien waving inside, antenna); beam (translucent light cone, origin at its top = saucer underside (0,0,-0.35), points down -Z, 2.5 m long, top radius 0.3, bottom radius 1.05, open ends, 3 scanning rings; material glow_beam (alpha 0.32), the game fades it). Materials: ufo_metal, ufo_trim, ufo_glass, alien, glow_ufo_lights, glow_beam."
  }
 ]

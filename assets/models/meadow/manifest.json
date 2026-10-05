@@ -120,6 +120,21 @@
   "notes": "stapel van 3 ronde hooibalen met rood touw, spiraal op de kopse kanten en los hooi"
  },
  {
+  "name": "hot_air_balloon",
+  "theme": "meadow",
+  "file": "models/meadow/hot_air_balloon.glb",
+  "kind": "char",
+  "footprint": 3.1,
+  "height": 9.08,
+  "size": [
+   6.225,
+   6.232
+  ],
+  "tris": 2928,
+  "bytes": 93892,
+  "notes": "Parts/pivots (Blender coords, front -Y): body (origin 0,0,0 = basket bottom centre; envelope with 12 red/yellow/blue gores + harlequin zig-zag band + red crown, skirt, burner frame, poles, ropes, wicker basket 1.4 m wide with red rim, sandbags, tiny waving passenger); flame (origin = its base at (0,0,2.14) on top of the burner, material glow_flame, for flicker scale it around its origin). Total height 9.08 m."
+ },
+ {
   "name": "mushroom_cluster",
   "theme": "meadow",
   "file": "models/meadow/mushroom_cluster.glb",
@@ -193,6 +208,21 @@
   "tris": 868,
   "bytes": 32268,
   "notes": "Pluizig schaap: wolkig lijf (unie van bollen), donkere kop met wolkuif, flaporen, witte oogjes, poten met hoefjes, graspolletje; kijkt naar -Y"
+ },
+ {
+  "name": "sheep_char",
+  "theme": "meadow",
+  "file": "models/meadow/sheep_char.glb",
+  "kind": "char",
+  "footprint": 0.5,
+  "height": 0.811,
+  "size": [
+   0.687,
+   1.147
+  ],
+  "tris": 2786,
+  "bytes": 69348,
+  "notes": "Parts/pivots (Blender coords, front -Y, left = +X): body (origin 0,0,0; cloud-like lumpy wool, tail puff, wool ruff round the neck); head (pivot neck (0.0, -0.28, 0.58); black face, wool tuft, ears, big eyes, pink nose; rotate +X to graze/nod down); leg_fl (0.14,-0.2,0.34), leg_fr (-0.14,-0.2,0.34), leg_bl (0.14,0.25,0.34), leg_br (-0.14,0.25,0.34) - pivot at the hip, black legs, hooves at z=0."
  },
  {
   "name": "tree_stump",

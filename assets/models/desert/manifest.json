@@ -225,6 +225,21 @@
   "notes": "Gestileerde sfinx op sokkel, kijkt naar -Y; gestreepte goud/turkoois nemes, gouden baard, staart langs de zijkant"
  },
  {
+  "name": "tumbleweed",
+  "theme": "desert",
+  "file": "models/desert/tumbleweed.glb",
+  "kind": "char",
+  "footprint": 0.6,
+  "height": 1.168,
+  "size": [
+   1.168,
+   1.17
+  ],
+  "tris": 2448,
+  "bytes": 92004,
+  "notes": "Parts/pivots: body (origin 0,0,0 = ball centre; radius exactly 0.6 = max vertex distance; ~50 curved branch tubes with forked twigs in tan/straw/brown, airy). Not grounded: the bottom sits at z=-0.6; the game rolls it."
+ },
+ {
   "name": "urns",
   "theme": "desert",
   "file": "models/desert/urns.glb",

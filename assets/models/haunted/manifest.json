@@ -255,6 +255,21 @@
   "notes": "kronkelige kale boom met krullende takken en holte met gloeiende oogjes (glow_eyes)"
  },
  {
+  "name": "witch",
+  "theme": "haunted",
+  "file": "models/haunted/witch.glb",
+  "kind": "char",
+  "footprint": 0.9,
+  "height": 1.819,
+  "size": [
+   0.8,
+   1.848
+  ],
+  "tris": 2960,
+  "bytes": 89548,
+  "notes": "Witch on a 1.8 m broomstick, origin (0,0,0) = broom CENTRE; broom along Y, handle tip at y=-0.9 (front, -Y), bristles to y=+0.9 (back). Parts/pivots: body (origin 0,0,0: broom + witch: pointy purple hat bending back, green face with a big grin, orange hair, black dress with jagged hem, purple/white striped stockings, pointy boots); cape (purple, flowing backwards, pivot at the shoulders (0, 0.07, 0.56)); cat (tiny black cat sitting on the bristles, pivot at its feet (0, 0.76, 0.15), yellow eyes). Materials: witch_purple, witch_black, witch_skin, broom_wood, straw, witch_white."
+ },
+ {
   "name": "witch_hut",
   "theme": "haunted",
   "file": "models/haunted/witch_hut.glb",

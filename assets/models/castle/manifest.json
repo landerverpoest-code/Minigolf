@@ -75,6 +75,21 @@
   "notes": "hoge smalle cipres: vlamvormige kroon van knobbelige lagen in 2 donkergroene tinten, kort stammetje"
  },
  {
+  "name": "dragon_flyer",
+  "theme": "castle",
+  "file": "models/castle/dragon_flyer.glb",
+  "kind": "char",
+  "footprint": 1.3,
+  "height": 1.011,
+  "size": [
+   3.251,
+   2.603
+  ],
+  "tris": 2926,
+  "bytes": 89216,
+  "notes": "Small friendly red dragon ~2.5 m long (nose y=-1.14 .. tail tip y=+1.6), wingspan ~2.8 m, origin (0,0,0) = body CENTRE, nose to -Y, left = +X. Parts/pivots: body (origin 0,0,0: red body with yellow belly plates, neck, head with big eyes, horns, crest, smile, tucked legs, back spines, long S-curved tail with a yellow spade); wing_l (+X) / wing_r (-X) (bat wings spread horizontally, slight arch; pivot at the shoulder (+-0.17,-0.14,0.17); the game flaps them around Y). Materials: dragon_red, dragon_belly, dragon_wing, eye_white, eye_dark."
+ },
+ {
   "name": "hay_cart",
   "theme": "castle",
   "file": "models/castle/hay_cart.glb",
