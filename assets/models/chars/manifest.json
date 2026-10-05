@@ -90,6 +90,21 @@
   "notes": "Parts/pivots (Blender coords, front -Y): base (origin 0,0,0; steel housing r=0.45 with bolts, yellow/black hazard collar, dark well); cap (origin = its base centre (0,0,0.2); red dome with eyes, brows, blush and smile, top at z~0.45, dome material \"cap\" (turn it green when pressed); press it down along Z). Materials: cap, button_metal, button_yellow, eye_white, eye_dark, blush."
  },
  {
+  "name": "carousel_horse",
+  "theme": "chars",
+  "file": "models/chars/carousel_horse.glb",
+  "kind": "char",
+  "footprint": 0.4,
+  "height": 2.2,
+  "size": [
+   0.234,
+   0.753
+  ],
+  "tris": 3392,
+  "bytes": 91568,
+  "notes": "Painted carousel horse on a brass pole. Part: body (origin (0,0,0) = ground point under the pole, no rotation). Brass pole r 0.035 (rings r 0.05) from z 1.05 to 3.25 on the Z axis; horse around z 1.5 (hooves z ~1.22 .. ear tips ~1.98), nose toward -Y, ~0.66 long (y -0.38..+0.28), galloping with stretched legs, carved dark mane/tail, big eyes. Materials: coat (white, game tints), saddle (red, game tints; saddle, blanket, stirrup straps), gold (pole, bridle, trim), dark, white, jewel."
+ },
+ {
   "name": "cow",
   "theme": "chars",
   "file": "models/chars/cow.glb",
@@ -255,6 +270,21 @@
   "notes": "Parts: body only (origin 0,0,0 = bottom centre of the pole). White pole r=0.025 up to z=2.3, gold collar + gold ball (centre z=2.352, r=0.048, top at 2.4), steel ferrule at the foot and a small white cup-rim ring (R=0.075) at z~0.013. Cloth is added by the game (attach along the pole, e.g. z 1.75-2.28). Materials: flag_pole, gold, flag_steel."
  },
  {
+  "name": "gong",
+  "theme": "chars",
+  "file": "models/chars/gong.glb",
+  "kind": "char",
+  "footprint": 0.9,
+  "height": 2.3,
+  "size": [
+   1.76,
+   0.26
+  ],
+  "tris": 3142,
+  "bytes": 112000,
+  "notes": "Volcano gong. Parts: body = obsidian frame, origin ground centre (0,0,0): two square posts 0.18 thick at x=+-0.75, y=+0.15, z 0..2.0 with glow_lava cracks, plinths (0.24 sq, z 0..0.2), spiked caps to z 2.3, crossbar x -0.88..0.88, z 1.84..2.0, y 0.05..0.25, fire glyphs (glow_lava) and copper cord hooks at x=+-0.25 under the crossbar. disc = gong plate + cords, origin = hanging pivot (0,0.15,1.5) (swing around Blender X = three.js x): bronze disc r 0.55, plate thickness 0.06 centred at (0,0.15,0.65) in the XZ plane facing -Y, hammered concentric rings, raised boss (front to y 0.071), copper sun/flame emblem, red cords from the rim lugs up to the hooks at x=+-0.25 (z 1.81), small tassels. Glow material on the plate: gong_bronze."
+ },
+ {
   "name": "goose",
   "theme": "chars",
   "file": "models/chars/goose.glb",
@@ -345,6 +375,21 @@
   "notes": "Parts/pivots (Blender coords, front -Y): body (origin 0,0,0; stone foot, iron post ~2.1 m with collars and finial, crook arm to +X with a scroll, hook at x=0.52); cage (pivot = hanging point (0.52,0.00,1.83); square iron lantern with roof, 4 glass panes of material \"lantern_glass\", candle; swing it about its local axes); flame (origin at its base (0.52,0.00,1.425) world, PARENTED to cage (local offset (0.00,0,-0.405)); material \"glow_flame\", ghostly green). Materials: lantern_iron, lantern_glass, glow_flame, wax, lantern_stone."
  },
  {
+  "name": "lava_bridge_rune",
+  "theme": "chars",
+  "file": "models/chars/lava_bridge_rune.glb",
+  "kind": "char",
+  "footprint": 0.3,
+  "height": 0.04,
+  "size": [
+   0.6,
+   0.52
+  ],
+  "tris": 268,
+  "bytes": 13192,
+  "notes": "Lava-bridge rune stone, lies flat. Part: body, origin centre bottom (0,0,0). Hexagonal frame r 0.3 (corner radius; flat-to-flat 0.52) z 0..0.04, inner hex ring r 0.17, six spokes and a central flame glyph; single material glow_rune (orange emissive; the game may fade it)."
+ },
+ {
   "name": "lava_serpent",
   "theme": "chars",
   "file": "models/chars/lava_serpent.glb",
@@ -358,6 +403,21 @@
   "tris": 3314,
   "bytes": 92084,
   "notes": "origin at the lava surface (0,0,0), neck continues to z=-0.6 below. parts: body (pivot 0,0,0); jaw pivot at hinge (0.00,-0.21,1.48) parented to body, open = rotate around Blender X (positive = down)"
+ },
+ {
+  "name": "mill_sail",
+  "theme": "chars",
+  "file": "models/chars/mill_sail.glb",
+  "kind": "char",
+  "footprint": 0.7,
+  "height": 3.184,
+  "size": [
+   0.864,
+   0.38
+  ],
+  "tris": 1144,
+  "bytes": 41796,
+  "notes": "One windmill sail; the game copies and rotates it around the Y axis. Part: body (origin (0,0,0) = axle centre, no rotation). Spar 0.12 thick centred on y -0.12 from z +0.15 down to z -3.0 (red tip); lattice (rails + 10 slats) on the +X side, x 0.06..0.68, z -0.55..-3.0, y -0.19..-0.095 (slats in front); cream cloth x 0.1..0.64, z -2.95..-0.6 at y -0.142 bulging back to ~-0.1; hub piece: cylinder r 0.18 along Y (y -0.25..0.06) with iron bands and a red nose cap to y -0.32 (16-gon, so 4 copies coincide)."
  },
  {
   "name": "penguin",
@@ -525,6 +585,21 @@
   "notes": "De reuzensneeuwbal. Parts/pivots (Blender coords, front -Y): ball (origin = centre (0,0,0); lumpy snow sphere, max radius exactly 1.0, with twigs, pebbles and stuck-on snow clumps; rotate it to roll); face (origin = ball centre (0,0,0); on the -Y side just outside r=1.0: big coal eyes with glints, raised coal brows, carrot nose, big surprised \"O\" mouth with snow lip and tongue, snow cheeks; keep it upright). Materials: snow, coal, carrot, twig, stone, mouth."
  },
  {
+  "name": "swing_wall",
+  "theme": "chars",
+  "file": "models/chars/swing_wall.glb",
+  "kind": "char",
+  "footprint": 1.0,
+  "height": 1.65,
+  "size": [
+   2.0,
+   0.622
+  ],
+  "tris": 3065,
+  "bytes": 95032,
+  "notes": "Haunted-crypt swinging wall. Parts: body = the wall, origin (0,0,0) = ground centre = pivot (rotate around Blender Z = three.js y); spans X -1..1 (scale X to the real length), Z -0.05..1.25, Y -0.14..0.14 (moss up to +-0.143); stone block courses with staggered joints, crumbled mossy top course, recessed rune band z 0.80..0.99 on both faces with glyph strokes in material \"rune\" (dark base, green emissive driven by the game). pillar = static central pivot pillar, origin ground centre: shaft r 0.27, height 1.6, foot r 0.30, stone cap r 0.305 (z 1.51..1.6), iron band at z 1.265..1.305, carved skull with glowing rune eyes on the front (-Y) above the wall top (z 1.32..1.53, front to y -0.31) holding an iron knocker ring (bottom z 1.246), moss at the foot."
+ },
+ {
   "name": "torch",
   "theme": "chars",
   "file": "models/chars/torch.glb",
@@ -553,5 +628,20 @@
   "tris": 3092,
   "bytes": 73572,
   "notes": "origin at water surface centre (0,0,0); body centred below/above z=0, nose at -Y. parts: body (pivot 0,0,0); tail pivot (0.00,1.35,0.12) at the tail base, swing up/down = rotate around Blender X (three.js x)"
+ },
+ {
+  "name": "windmill_house",
+  "theme": "chars",
+  "file": "models/chars/windmill_house.glb",
+  "kind": "char",
+  "footprint": 3.2,
+  "height": 5.08,
+  "size": [
+   6.5,
+   3.185
+  ],
+  "tris": 3013,
+  "bytes": 115404,
+  "notes": "Mill house of hole 1. Part: body (origin (0,0,0) = ground centre of the house, no rotation). Wing blocks x -3.0..-0.8 and 0.8..3.0, y -1.3..1.3, walls z 0..2.6 (white plaster on a brick plinth, timber corners/top plate, glowing windows \"glow_window\", flower boxes recessed in the front niches). Middle section x -0.8..0.8, z 1.1..2.6 with a timber-vaulted arch; passage x -0.8..0.8, z 0..1.1 through the whole depth is completely empty (arched wooden portals on both ends, flush on the wing faces). Hip roof (red tiles) eaves at z 2.6, overhang 0.25 at back/sides and 0.05 at the front, ridge cap top ~z 5.05. Front wall gable carries the axle boss: cylinder r 0.27 from y -1.3 to -1.6 at (0, z 2.7); sails turn around Y through (0,-1.6,2.7) and nothing else lies in front of y -1.35 within 3.2 m of that point."
  }
 ]
