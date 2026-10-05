@@ -4563,6 +4563,25 @@ function applyEnvMaps() {
 const GFX = { time: { value: 0 }, gust: { value: 0 } };
 // Water of lava: deining in de vertex shader (wereldruimte, zodat aangrenzende vlakken samen golven),
 // kleine rimpels als normaalverstoring in de fragment shader, schuim (water) of extra gloed (lava) op de toppen.
+// wolkenschaduwen: zachte donkere vlekken die met de wind over het terrein schuiven (overdag)
+function cloudShadowFX(mat, k = 0.28) {
+  mat.onBeforeCompile = (sh) => {
+    sh.uniforms.uTime = GFX.time;
+    sh.vertexShader = sh.vertexShader.replace('#include <common>', '#include <common>\n varying vec3 vCW;')
+      .replace('#include <begin_vertex>', '#include <begin_vertex>\n vCW = (modelMatrix * vec4(transformed, 1.0)).xyz;');
+    sh.fragmentShader = sh.fragmentShader.replace('#include <common>', `#include <common>
+      uniform float uTime; varying vec3 vCW;
+      float cHash(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
+      float cNoise(vec2 p) { vec2 i = floor(p), f = fract(p); f = f * f * (3.0 - 2.0 * f);
+        return mix(mix(cHash(i), cHash(i + vec2(1.0, 0.0)), f.x), mix(cHash(i + vec2(0.0, 1.0)), cHash(i + vec2(1.0, 1.0)), f.x), f.y); }`)
+      .replace('#include <color_fragment>', `#include <color_fragment>
+      { vec2 q = vCW.xz / 38.0 + vec2(uTime * 0.035, uTime * 0.012);
+        float n = cNoise(q) * 0.62 + cNoise(q * 2.1 + 7.3) * 0.38;
+        diffuseColor.rgb *= 1.0 - smoothstep(0.52, 0.72, n) * ${k.toFixed(2)}; }`);
+  };
+  mat.customProgramCacheKey = () => 'cloudsh' + k;
+  return mat;
+}
 function liquidFX(mat, o = {}) {
   const amp = o.amp || 0, lava = !!o.lava, rip = o.ripple === undefined ? 1 : o.ripple;
   mat.onBeforeCompile = (sh) => {
@@ -5152,7 +5171,9 @@ function terrain(ctx, o) {
     tc.offsetHSL(0, 0, j); cols[i * 3] = tc.r; cols[i * 3 + 1] = tc.g; cols[i * 3 + 2] = tc.b;
   }
   geo.setAttribute('color', new THREE.BufferAttribute(cols, 3)); geo.computeVertexNormals(); scaleUV(geo, size / (o.texScale || 5));
-  mesh(geo, M('#ffffff', { map: o.tex ? tex(o.tex) : null, vertexColors: true, roughness: 1 }), ctx.g, cx, 0, cz, false, true);
+  const tm = M('#ffffff', { map: o.tex ? tex(o.tex) : null, vertexColors: true, roughness: 1 });
+  const th0 = ctx.def.theme; if (!th0.stars && !['space', 'volcano', 'finale', 'haunted'].includes(th0.env)) cloudShadowFX(tm); // wolkenschaduwen overdag
+  mesh(geo, tm, ctx.g, cx, 0, cz, false, true);
   ctx.th = hf; return hf;
 }
 // InstancedMesh-helper: één draw call voor honderden bomen, rotsen of bloemen
@@ -5942,10 +5963,7 @@ const ENV = {
     for (let k = 0; k < 8; k++) mesh(BOX(1, 1.4, 0.1), winM, man, -6 + (k % 4) * 4, 2.5 + Math.floor(k / 4) * 3.5, 3.55, false);
     // pompoenen
     for (const [x, z] of ctx.mdl ? [] : (S.pumpkins || [[-5.8, -10], [5.8, 1], [-5.7, -2], [8, -16], [-8, -44]]).map(([x, z]) => placeFree(x, z, 0.5))) { const p = mesh(SPH(0.3, 14, 10), M('#c24a00', { emissive: '#ff5a00', emissiveIntensity: 0.12 }), ctx.g, x, 0.22, z); p.scale.y = 0.8; mesh(BOX(0.22, 0.08, 0.05), new THREE.MeshBasicMaterial({ color: '#ffb74d' }), p, 0, 0, 0.29, false); }
-    // vleermuizen
-    const bats = [];
-    for (let i = 0; i < 10; i++) { const b = new THREE.Group(); ctx.g.add(b); const bm = M('#111', { side: THREE.DoubleSide }); mesh(SPH(0.12, 8, 6), bm, b, 0, 0, 0, false); const w1 = new THREE.Mesh(new THREE.PlaneGeometry(0.5, 0.25).translate(0.25, 0, 0), bm), w2 = new THREE.Mesh(new THREE.PlaneGeometry(0.5, 0.25).translate(-0.25, 0, 0), bm); w1.rotation.x = w2.rotation.x = -Math.PI / 2; const wg1 = new THREE.Group(), wg2 = new THREE.Group(); wg1.add(w1); wg2.add(w2); b.add(wg1, wg2); bats.push({ b, wg1, wg2, s: i * 0.8, r: 4 + i * 1.3, y: 3 + (i % 3) }); }
-    ctx.upd((t) => bats.forEach(B => { const a = t * (0.6 + B.s * 0.05) + B.s; B.b.position.set(H.center[0] + Math.cos(a) * B.r, B.y + Math.sin(t * 3 + B.s) * 0.5, H.center[1] + Math.sin(a) * B.r * 1.6); B.b.rotation.y = -a; const f = Math.sin(t * 18 + B.s) * 0.8; B.wg1.rotation.z = f; B.wg2.rotation.z = -f; }));
+    // (vleermuizen: zie bats())
     // bliksem + flikkerend maanlicht
     let next = 5, flash = 0;
     ctx.upd((t, dt) => {
