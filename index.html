@@ -2044,7 +2044,10 @@ function buildHole(idx) {
   if (th.env === 'finale') fireworks(ctx);
   if (th.env === 'volcano' || th.env === 'finale') { lavaBubbles(ctx); if (mdlReady('chars')) { sailingShips(ctx, 'ship_lava', () => -0.55, 2); lavaSerpent(ctx); } }
   if (th.env === 'water' && mdlReady('chars')) { const lv = t => (H.tide ? H.tide.level(t) : -0.32); sailingShips(ctx, 'ship_water', lv, 2); whale(ctx, lv); }
-  if (th.env === 'meadow') { if (!th.stars) hotAirBalloons(ctx, 2); wanderers(ctx, 'meadow/sheep_char', 5, { s: 1.1, speed: 0.45, graze: 0.7 }); }
+  if (th.env === 'meadow') { if (!th.stars) hotAirBalloons(ctx, 2); wanderers(ctx, 'meadow/sheep_char', 5, { s: 1.1, speed: 0.45, graze: 0.7 }); wanderers(ctx, 'cow', 2, { s: 0.9, speed: 0.5, range: 6, minD: 4, maxD: 20, legAmp: 0.35, graze: 0.8 }); wanderers(ctx, 'goose', 3, { s: 0.7, speed: 0.6, range: 4, legAmp: 0, graze: 0.9 }); }
+  if (th.env === 'ice') wanderers(ctx, 'penguin', 5, { s: 0.6, speed: 0.5, range: 4, minD: 2.5, maxD: 14, graze: 0.3 });
+  if (th.env === 'castle') wanderers(ctx, 'guard', 2, { s: 0.9, speed: 0.7, range: 8, minD: 3, maxD: 14, legAmp: 0.45, graze: 0 });
+  if (th.env === 'haunted') ghostDrifters(ctx, 3);
   if (th.env === 'water') dolphins(ctx, t => (H.tide ? H.tide.level(t) : -0.32));
   if (th.env === 'desert') tumbleweeds(ctx, 3);
   if (th.env === 'ice') wanderers(ctx, 'ice/polar_bear_char', 2, { s: 1.2, speed: 0.7, range: 8, minD: 4, maxD: 22, legAmp: 0.4, graze: 0.45 });
@@ -5028,11 +5031,34 @@ function wanderers(ctx, key, n, { s = 1, speed = 0.6, range = 5, minD = 3, maxD 
         if (dd < 0.1) a.wait = 3 + Math.random() * 6;
         else { const want = Math.atan2(dx, dz); let dy = want - a.yaw; dy = Math.atan2(Math.sin(dy), Math.cos(dy)); a.yaw += clamp(dy, -dt * 2, dt * 2); if (Math.abs(dy) < 0.6) { const v = Math.min(dd, speed * dt); a.x += Math.sin(a.yaw) * v; a.z += Math.cos(a.yaw) * v; a.step += v * 6 / s; } moving = true; }
       }
-      C.wrap.position.set(a.x, th(a.x, a.z) - 0.02, a.z); C.wrap.rotation.y = a.yaw;
+      C.wrap.position.set(a.x, th(a.x, a.z) - 0.02, a.z); C.wrap.rotation.set(0, a.yaw, 0);
       const sw = moving ? Math.sin(a.step) * legAmp : 0;
       if (C.n.leg_fl) C.n.leg_fl.rotation.x = sw; if (C.n.leg_br) C.n.leg_br.rotation.x = sw;
       if (C.n.leg_fr) C.n.leg_fr.rotation.x = -sw; if (C.n.leg_bl) C.n.leg_bl.rotation.x = -sw;
-      if (C.n.head) C.n.head.rotation.x = moving ? Math.sin(a.step * 2) * 0.05 : graze * (0.75 + Math.sin(t * 3 + a.step) * 0.25) * (Math.sin(t * 0.5 + a.step) > -0.4 ? 1 : 0);
+      if (C.n.leg_l) C.n.leg_l.rotation.x = sw; if (C.n.leg_r) C.n.leg_r.rotation.x = -sw;
+      if (!C.n.leg_fl && !C.n.leg_l) { C.wrap.rotation.z = moving ? Math.sin(a.step) * 0.12 : 0; if (C.n.flipper_l) { C.n.flipper_l.rotation.z = 0.25 + (moving ? Math.abs(Math.sin(a.step)) * 0.3 : 0); C.n.flipper_r.rotation.z = -C.n.flipper_l.rotation.z; } } // waggelen
+      if (C.n.tail) C.n.tail.rotation.z = Math.sin(t * 2.3 + a.step) * 0.25;
+      const hn = C.n.head || C.n.neck;
+      if (hn) hn.rotation.x = moving ? Math.sin(a.step * 2) * 0.05 : graze * (0.75 + Math.sin(t * 3 + a.step) * 0.25) * (Math.sin(t * 0.5 + a.step) > -0.4 ? 1 : 0);
+    }
+  });
+}
+// ---------- spookjes die tussen de graven rondzweven en langzaam vervagen en weer verschijnen ----------
+function ghostDrifters(ctx, n = 3) {
+  const th = ctx.th || (() => 0), G = [];
+  for (let i = 0; i < n; i++) {
+    const C = charModel('ghost', ['ghost']); if (!C) return;
+    const gm = C.mats.ghost; if (gm) { gm.transparent = true; gm.depthWrite = false; gm.emissive = new THREE.Color('#9fd8ff'); gm.emissiveIntensity = 0.35; }
+    C.wrap.rotation.y = 0; C.wrap.scale.setScalar(0.75); ctx.g.add(C.wrap); G.push({ C, gm, home: null, ph: i * 2.1 + Math.random() });
+  }
+  ctx.upd((t) => {
+    for (const g of G) {
+      if (!g.home) { for (let k = 0; k < 40 && !g.home; k++) { const a = Math.random() * TAU, d = 8 + Math.random() * 20, x = H.center[0] + Math.cos(a) * d, z = H.center[1] + Math.sin(a) * d * 1.4; if (courseDist(x, z) > 3 && courseDist(x, z) < 14) g.home = [x, z]; } if (!g.home) g.home = [H.center[0] + 25, H.center[1]]; }
+      const u = t * 0.25 + g.ph, x = g.home[0] + Math.sin(u) * 3, z = g.home[1] + Math.sin(u * 1.6) * 2, nx = g.home[0] + Math.sin(u + 0.02) * 3, nz = g.home[1] + Math.sin((u + 0.02) * 1.6) * 2;
+      g.C.wrap.position.set(x, th(x, z) + 0.3 + Math.sin(t * 1.8 + g.ph) * 0.25, z); g.C.wrap.rotation.y = Math.atan2(nx - x, nz - z);
+      const vis = 0.5 + 0.5 * Math.sin(t * 0.35 + g.ph * 3); if (g.gm) g.gm.opacity = 0.15 + vis * 0.6;
+      if (g.C.n.arm_l) { g.C.n.arm_l.rotation.x = Math.sin(t * 2 + g.ph) * 0.4; g.C.n.arm_r.rotation.x = Math.sin(t * 2 + g.ph + 1) * 0.4; }
+      g.C.wrap.visible = vis > 0.05;
     }
   });
 }
