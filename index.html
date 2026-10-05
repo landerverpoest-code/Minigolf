@@ -4745,9 +4745,33 @@ function fireflies(ctx, n = 40, color = '#d8ff6a') {
     geo.attributes.position.needsUpdate = true; mat.opacity = 0.6 + Math.sin(t * 3) * 0.3;
   });
 }
-// ---------- vuurwerk: pijlen met een vonkenspoor die hoog boven de baan uiteenspatten (finale) ----------
-function fireworks(ctx, every = 2.6) {
-  const pal = ['#ff4d6d', '#ffd23f', '#3ae374', '#4dabff', '#c77dff', '#ff9f43', '#ffffff'].map(c => new THREE.Color(c));
+// ---------- vuurwerk: pijlen met een vonkenspoor die hoog boven de baan uiteenspatten ----------
+const FW_PAL = ['#ff4d6d', '#ffd23f', '#3ae374', '#4dabff', '#c77dff', '#ff9f43', '#ffffff'].map(c => new THREE.Color(c));
+function rocketNew(x, z, k = 0, vy = 24) {
+  const pick = () => FW_PAL[Math.floor(Math.random() * FW_PAL.length)];
+  return { x, y: 0, z, vx: (Math.random() - 0.5) * 3, vy: vy + Math.random() * 8, vz: (Math.random() - 0.5) * 3, t: 0, fuse: 1.0 + Math.random() * 0.4 + k * 0.15, c: pick(), c2: pick(), ring: Math.random() < 0.3 };
+}
+function rocketsStep(rockets, dt, big = 1) {
+  for (let i = rockets.length - 1; i >= 0; i--) {
+    const R = rockets[i]; R.t += dt; R.vy -= 9 * dt;
+    R.x += R.vx * dt; R.y += R.vy * dt; R.z += R.vz * dt;
+    if (Math.random() < dt * 60 * Q.fx) fxAdd.emit(R.x, R.y, R.z, (Math.random() - 0.5) * 0.6, -1, (Math.random() - 0.5) * 0.6, 0.5, 0.35 * big, new THREE.Color('#ffc870'), { alpha: 0.8, grav: 2 });
+    if (R.t < R.fuse) continue;
+    rockets.splice(i, 1);
+    const N = Math.round((R.ring ? 80 : 130) * (Q.high ? 1 : 0.6)), sp = (16 + Math.random() * 6) * big;
+    const ax = Math.random() * TAU; // kanteling van de ring
+    for (let k = 0; k < N; k++) {
+      let dx, dy, dz;
+      if (R.ring) { const b = k / N * TAU; dx = Math.cos(b); dy = Math.sin(b) * Math.cos(ax); dz = Math.sin(b) * Math.sin(ax); }
+      else { const u = Math.random() * 2 - 1, b = Math.random() * TAU, q = Math.sqrt(1 - u * u); dx = q * Math.cos(b); dy = u; dz = q * Math.sin(b); }
+      const v = sp * (R.ring ? 1 : 0.75 + Math.random() * 0.25), col = k % 3 ? R.c : R.c2;
+      fxAdd.emit(R.x, R.y, R.z, dx * v, dy * v, dz * v, 1.6 + Math.random() * 0.8, (1.1 + Math.random() * 0.5) * big, col, { grav: 3, drag: 1.6, grow: -0.4 });
+    }
+    fxAdd.emit(R.x, R.y, R.z, 0, 0, 0, 0.2, 4 * big, new THREE.Color('#fff6d8'), { alpha: 0.55, grow: -14 }); // flits
+    const d = camDistTo(new THREE.Vector3(R.x, R.y, R.z)); if (d < 90 && SND.pop) SND.pop(0.3 * (1 - d / 90));
+  }
+}
+function fireworks(ctx, every = 2.6) { // doorlopend vuurwerk rond de baan (finale)
   const rockets = []; let next = 2;
   ctx.upd((t, dt) => {
     if (t > next) {
@@ -4755,28 +4779,20 @@ function fireworks(ctx, every = 2.6) {
       const n = Math.random() < 0.25 ? 3 : 1; // af en toe een salvo
       for (let k = 0; k < n; k++) {
         const a = Math.random() * TAU, rx = (H.bounds[2] - H.bounds[0]) / 2 + 14 + Math.random() * 18, rz = (H.bounds[3] - H.bounds[1]) / 2 + 14 + Math.random() * 18;
-        const x = H.center[0] + Math.cos(a) * rx, z = H.center[1] + Math.sin(a) * rz;
-        rockets.push({ x, y: 0, z, vx: (Math.random() - 0.5) * 3, vy: 24 + Math.random() * 8, vz: (Math.random() - 0.5) * 3, t: 0, fuse: 1.0 + Math.random() * 0.4 + k * 0.15, c: pal[Math.floor(Math.random() * pal.length)], c2: pal[Math.floor(Math.random() * pal.length)], ring: Math.random() < 0.3 });
+        rockets.push(rocketNew(H.center[0] + Math.cos(a) * rx, H.center[1] + Math.sin(a) * rz, k));
       }
     }
-    for (let i = rockets.length - 1; i >= 0; i--) {
-      const R = rockets[i]; R.t += dt; R.vy -= 9 * dt;
-      R.x += R.vx * dt; R.y += R.vy * dt; R.z += R.vz * dt;
-      if (Math.random() < dt * 60 * Q.fx) fxAdd.emit(R.x, R.y, R.z, (Math.random() - 0.5) * 0.6, -1, (Math.random() - 0.5) * 0.6, 0.5, 0.35, new THREE.Color('#ffc870'), { alpha: 0.8, grav: 2 });
-      if (R.t < R.fuse) continue;
-      rockets.splice(i, 1);
-      const N = Math.round((R.ring ? 80 : 130) * (Q.high ? 1 : 0.6)), sp = 16 + Math.random() * 6;
-      const ax = Math.random() * TAU; // kanteling van de ring
-      for (let k = 0; k < N; k++) {
-        let dx, dy, dz;
-        if (R.ring) { const b = k / N * TAU; dx = Math.cos(b); dy = Math.sin(b) * Math.cos(ax); dz = Math.sin(b) * Math.sin(ax); }
-        else { const u = Math.random() * 2 - 1, b = Math.random() * TAU, q = Math.sqrt(1 - u * u); dx = q * Math.cos(b); dy = u; dz = q * Math.sin(b); }
-        const v = sp * (R.ring ? 1 : 0.75 + Math.random() * 0.25), col = k % 3 ? R.c : R.c2;
-        fxAdd.emit(R.x, R.y, R.z, dx * v, dy * v, dz * v, 1.6 + Math.random() * 0.8, 1.1 + Math.random() * 0.5, col, { grav: 3, drag: 1.6, grow: -0.4 });
-      }
-      fxAdd.emit(R.x, R.y, R.z, 0, 0, 0, 0.2, 4, new THREE.Color('#fff6d8'), { alpha: 0.55, grow: -14 }); // flits
-      const d = camDistTo(new THREE.Vector3(R.x, R.y, R.z)); if (d < 90 && SND.pop) SND.pop(0.3 * (1 - d / 90));
-    }
+    rocketsStep(rockets, dt);
+  });
+}
+// korte vuurwerkshow vlak bij de hole (na een hole-in-one of onder par); stopt vanzelf
+function fireworkShow(x, z, n = 5) {
+  const rockets = [], launch = []; for (let k = 0; k < n; k++) launch.push(0.25 + k * 0.35 + Math.random() * 0.2);
+  let t = 0;
+  H.updaters.push((tt, dt) => {
+    if (!launch.length && !rockets.length) return; t += dt;
+    while (launch.length && t > launch[0]) { launch.shift(); const a = Math.random() * TAU, d = 6 + Math.random() * 6; rockets.push(rocketNew(x + Math.cos(a) * d, z + Math.sin(a) * d, 0, 14)); }
+    rocketsStep(rockets, dt, 0.6);
   });
 }
 // ---------- vlinders: fladderen in lussen langs de randen van de baan (overdag) ----------
@@ -6385,6 +6401,7 @@ function holedOut() {
   toast(lab.text + '!', lab.color);
   if (s === 1) SND.fanfare(); else SND.chime();
   confetti(H.hole.x, H.hole.y, H.hole.z, s <= HOLES[G.hole].par ? 160 : 60);
+  if (s < HOLES[G.hole].par || s === 1) fireworkShow(H.hole.x, H.hole.z, s === 1 ? 9 : 4); // feest bij birdie of beter
   finishTurn(s, false);
 }
 function finishTurn(score, isMax) {
