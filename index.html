@@ -2039,6 +2039,7 @@ function buildHole(idx) {
   ENV[th.env](ctx); H.ctx = ctx;
   if (th.stars) { shootingStars(ctx); if (th.env === 'space') shootingStars(ctx); } // nachthemel (in de ruimte dubbel zoveel)
   if (th.env === 'desert') dustDevils(ctx, 2);
+  if (th.stars && ['meadow', 'castle', 'haunted', 'water'].includes(th.env)) fireflies(ctx, th.env === 'haunted' ? 60 : 40, th.env === 'haunted' ? '#7dff9a' : '#ffe27a');
   if (th.env === 'volcano' || th.env === 'finale') { lavaBubbles(ctx); if (mdlReady('chars')) { sailingShips(ctx, 'ship_lava', () => -0.55, 2); lavaSerpent(ctx); } }
   if (th.env === 'water' && mdlReady('chars')) { const lv = t => (H.tide ? H.tide.level(t) : -0.32); sailingShips(ctx, 'ship_water', lv, 2); whale(ctx, lv); }
   if (['meadow', 'water', 'castle', 'desert'].includes(th.env) && mdlReady('chars')) birdFlock(ctx, th.env === 'water' ? 7 : 5, th.env === 'desert' ? 14 : 10);
@@ -4665,6 +4666,18 @@ function dustDevils(ctx, n = 2) {
       if (courseDist(x, z) < 3) continue;
       for (let k = 0; k < 4; k++) if (Math.random() < dt * 30 * Q.fx) { const a = t * 6 + Math.random() * TAU, h = Math.random() * 4, rr = 0.3 + h * 0.35; fx.emit(x + Math.cos(a) * rr, h, z + Math.sin(a) * rr, -Math.sin(a) * 3, 1.2, Math.cos(a) * 3, 1.2, 0.25 + h * 0.08, col, { alpha: 0.35, grow: 0.5, drag: 0.5 }); }
     }
+  });
+}
+// ---------- vuurvliegjes: zwevende lichtpuntjes die langzaam aan en uit gaan (nachtbanen) ----------
+function fireflies(ctx, n = 40, color = '#d8ff6a') {
+  const cnt = Math.round(n * (Q.high ? 1 : 0.5)), geo = new THREE.BufferGeometry(), pos = new Float32Array(cnt * 3), seed = [];
+  for (let i = 0; i < cnt; i++) seed.push([Math.random() * TAU, 3 + Math.random() * 18, Math.random() * 10, 0.2 + Math.random() * 0.4]);
+  geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+  const mat = new THREE.PointsMaterial({ map: tex('glow'), color, size: 0.35, transparent: true, opacity: 0.9, blending: THREE.AdditiveBlending, depthWrite: false });
+  const pts = new THREE.Points(geo, mat); pts.frustumCulled = false; ctx.g.add(pts);
+  ctx.upd((t) => {
+    for (let i = 0; i < cnt; i++) { const [a, r, ph, sp] = seed[i], aa = a + t * sp * 0.2; pos[i * 3] = H.center[0] + Math.cos(aa) * r + Math.sin(t * 0.7 + ph) * 1.5; pos[i * 3 + 1] = 0.4 + (Math.sin(t * sp * 2 + ph) * 0.5 + 0.5) * 1.6; pos[i * 3 + 2] = H.center[1] + Math.sin(aa) * r * 1.6 + Math.cos(t * 0.5 + ph) * 1.5; }
+    geo.attributes.position.needsUpdate = true; mat.opacity = 0.6 + Math.sin(t * 3) * 0.3;
   });
 }
 // ---------- vallende blaadjes ----------

@@ -15,6 +15,21 @@
   "notes": "origin at body centre (0,0,0). parts: body (pivot 0,0,0); wing_l pivot (0.055,-0.02,0.035), wing_r pivot (-0.055,-0.02,0.035) at the shoulders, wings extended (glide pose), flap = rotate around forward axis (Blender Y / three.js z)"
  },
  {
+  "name": "blade_arm",
+  "theme": "chars",
+  "file": "models/chars/blade_arm.glb",
+  "kind": "char",
+  "footprint": 0.5,
+  "height": 0.34,
+  "size": [
+   1.0,
+   0.13
+  ],
+  "tris": 600,
+  "bytes": 29280,
+  "notes": "Spinning blade arm. Part: body (origin (0,0,0) = spin axis, no rotation). Polished steel bar spanning X 0..1 (scale X to arm length), Z 0.31..0.53 (centre 0.42), thickness 0.1 centred on Y=0; serrated edge (sawteeth) along the bottom, bronze root clamp at x 0..0.115, 4 red spikes on top (to z~0.65)."
+ },
+ {
   "name": "boulder",
   "theme": "chars",
   "file": "models/chars/boulder.glb",
@@ -88,6 +103,36 @@
   "tris": 3414,
   "bytes": 100040,
   "notes": "Parts/pivots (Blender coords, front -Y, left=+X): body (origin 0,0,0; shell, eye stalks+eyes, smile); arm_l shoulder (0.36,-0.27,0.34), arm_r shoulder (-0.36,-0.27,0.34) (arm + big claw pointing -Y); jaw_l hinge (0.46,-0.92,0.495) / jaw_r hinge (-0.46,-0.92,0.495) = movable upper pincer, PARENTED to its arm, hinge axis = local X (negative X rotation opens: tip goes up); leg_l1 (0.45,-0.08,0.3), leg_l2 (0.45,0.1,0.3), leg_l3 (0.45,0.26,0.3), leg_r1 (-0.45,-0.08,0.3), leg_r2 (-0.45,0.1,0.3), leg_r3 (-0.45,0.26,0.3) (body side). Materials: crab_red, crab_light, crab_dark, eye_white, pupil, blush."
+ },
+ {
+  "name": "door_hub",
+  "theme": "chars",
+  "file": "models/chars/door_hub.glb",
+  "kind": "char",
+  "footprint": 0.165,
+  "height": 1.53,
+  "size": [
+   0.33,
+   0.33
+  ],
+  "tris": 1694,
+  "bytes": 60552,
+  "notes": "Revolving-door hub post. Part: body (origin base centre (0,0,0)). Dark wood pole r=0.12, height 1.3 with iron bands (gold rivets), iron foot ring r=0.165, top cap and a finial (gold cage around a glowing purple orb \"glow_hub\", spike) up to z~1.53."
+ },
+ {
+  "name": "door_wing",
+  "theme": "chars",
+  "file": "models/chars/door_wing.glb",
+  "kind": "char",
+  "footprint": 0.5,
+  "height": 1.1,
+  "size": [
+   1.0,
+   0.276
+  ],
+  "tris": 1956,
+  "bytes": 71624,
+  "notes": "Revolving-door wing. Part: body (origin (0,0,0) = revolving axis, no rotation). Spans X 0..1 (scale X to arm length), Z 0..1.1, thickness 0.12 centred on Y=0. Purple-brown horizontal planks in a dark frame, two iron bands with rivets near the ends, gold knob near the outer end (x~0.86, z 0.56) on both faces."
  },
  {
   "name": "dragon",
