@@ -3185,12 +3185,16 @@ const SPECIALS = {
     }
     const face = new THREE.Group(); face.position.y = 3.2; g.add(face);
     const eyes = [makeEye(face, 1.5, 0, 0.32, 0.2), makeEye(face, 1.5, 0, -0.32, 0.2)];
+    // puin dat rond de trechter vliegt: steentjes, plankjes en een cactusje
+    const debris = [], rockM = M('#a88a62', { roughness: 1 }), woodM = M('#8a6a45', { map: tex('wood') }), cactM = M('#3e8e41');
+    for (let k = 0; k < 10; k++) { const m = k % 3 === 0 ? mesh(BOX(0.6, 0.08, 0.16), woodM, g, 0, 0, 0) : k === 5 ? mesh(CYL(0.08, 0.08, 0.4, 10), cactM, g, 0, 0, 0) : mesh(lumpyRock(0.14 + (k % 4) * 0.04), rockM, g, 0, 0, 0); debris.push({ m, a: k * 0.63, h: 0.8 + (k * 0.53) % 5, sp: 2.4 + (k % 3) * 0.7 }); }
     const duneM = M('#ffffff', { map: tex('sand'), roughness: 1 });
     const duneMesh = mesh(new THREE.SphereGeometry(1, 20, 12), duneM, o.group, 0, 0, 0, true, true);
     o.visual = (t, dt) => {
       o.react = Math.max(0, o.react - dt);
       g.position.set(o.x, 0, o.z); g.rotation.z = clamp(-o.vx * 0.03, -0.2, 0.2); g.rotation.x = clamp(o.vz * 0.03, -0.2, 0.2);
       layers.forEach((m, i) => { m.rotation.y = t * (6 - i * 1.5) * (i % 2 ? -1 : 1); m.scale.set(1 + Math.sin(t * 3 + i) * 0.05, 1, 1 + Math.cos(t * 3 + i) * 0.05); });
+      debris.forEach(D2 => { const a = D2.a + t * D2.sp, rr = 0.6 + Math.pow(D2.h / 6.5, 1.6) * 2.6 + 0.4; D2.m.position.set(Math.cos(a) * rr, D2.h + Math.sin(t * 2 + D2.a) * 0.3, Math.sin(a) * rr); D2.m.rotation.set(t * 3 + D2.a, t * 4, t * 2.5); });
       face.rotation.y = -Math.atan2(ball.z - o.z, ball.x - o.x); face.position.y = 3.2 + Math.sin(t * 4) * 0.15 + (o.react > 0 ? Math.abs(Math.sin(t * 20)) * 0.3 : 0);
       eyes.forEach(e => { lookEye(e, tmpV2.set(ball.x, ball.y, ball.z)); e.w.scale.setScalar(o.held ? 1.4 : 1); });
       // stof dat rond de voet wervelt

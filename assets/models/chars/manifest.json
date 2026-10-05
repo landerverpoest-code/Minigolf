@@ -25,9 +25,24 @@
    1.0,
    0.13
   ],
-  "tris": 600,
-  "bytes": 29280,
+  "tris": 628,
+  "bytes": 30004,
   "notes": "Spinning blade arm. Part: body (origin (0,0,0) = spin axis, no rotation). Polished steel bar spanning X 0..1 (scale X to arm length), Z 0.31..0.53 (centre 0.42), thickness 0.1 centred on Y=0; serrated edge (sawteeth) along the bottom, bronze root clamp at x 0..0.115, 4 red spikes on top (to z~0.65)."
+ },
+ {
+  "name": "blade_hub",
+  "theme": "chars",
+  "file": "models/chars/blade_hub.glb",
+  "kind": "char",
+  "footprint": 0.28,
+  "height": 0.95,
+  "size": [
+   0.56,
+   0.56
+  ],
+  "tris": 1810,
+  "bytes": 61524,
+  "notes": "Blade-trap hub post. Part: body (origin base centre (0,0,0)). Bronze foot r=0.28, steel drum r~0.24 with a dark ribbed slot ring at z 0.31..0.53 (where blade arms attach), bronze bands with gold rivets, spiked bronze dome, red cap ball (top z 0.95)."
  },
  {
   "name": "boulder",
